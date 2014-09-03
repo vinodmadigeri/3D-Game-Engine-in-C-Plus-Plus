@@ -7,6 +7,12 @@
 #include "Game.h"
 #include "Win32Management.h"
 
+#ifdef _DEBUG
+#define _CRTDBG_MAP_ALLOC
+	#include <crtdbg.h>
+	#include <stdlib.h>
+#endif
+
 MainGame::MainGame():
 	mInitilized(false)
 
@@ -77,6 +83,10 @@ int WINAPI WinMain(
 	int i_initialWindowDisplayState)
 {
 
+#ifdef _DEBUG
+	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF);
+#endif
+
 	MainGame Game;
 	int exitCode = -1;
 	
@@ -85,14 +95,10 @@ int WINAPI WinMain(
 		exitCode = Game.Run();
 		Game.Shutdown(i_thisInstanceOfTheProgram);
 	}
-	else
-	{
-		return -1;
-	}
 
-
-
-
+#ifdef _DEBUG
+	_CrtDumpMemoryLeaks();
+#endif
 
 	// A Windows program doesn't actually need any windows at all
 	// but in most cases there will be a single "main" window
