@@ -9,6 +9,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Game", "Game", "{29F978D8-D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{3CA002B2-8978-45BD-AB03-DA408F9276E5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BuildAssets", "Code\Tools\BuildAssets\BuildAssets.vcxproj", "{45D1188E-7602-4EF5-A320-AC10104B5BE6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A238D12D-CB17-4281-BC1C-0B96357DC45D} = {A238D12D-CB17-4281-BC1C-0B96357DC45D}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AssetBuilder", "Code\Tools\AssetBuilder\AssetBuilder.vcxproj", "{A238D12D-CB17-4281-BC1C-0B96357DC45D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,11 +26,21 @@ Global
 		{8BD345F5-D9D2-48E5-B94A-ECFD3ADD0C12}.Debug|Win32.Build.0 = Debug|Win32
 		{8BD345F5-D9D2-48E5-B94A-ECFD3ADD0C12}.Release|Win32.ActiveCfg = Release|Win32
 		{8BD345F5-D9D2-48E5-B94A-ECFD3ADD0C12}.Release|Win32.Build.0 = Release|Win32
+		{45D1188E-7602-4EF5-A320-AC10104B5BE6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{45D1188E-7602-4EF5-A320-AC10104B5BE6}.Debug|Win32.Build.0 = Debug|Win32
+		{45D1188E-7602-4EF5-A320-AC10104B5BE6}.Release|Win32.ActiveCfg = Release|Win32
+		{45D1188E-7602-4EF5-A320-AC10104B5BE6}.Release|Win32.Build.0 = Release|Win32
+		{A238D12D-CB17-4281-BC1C-0B96357DC45D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A238D12D-CB17-4281-BC1C-0B96357DC45D}.Debug|Win32.Build.0 = Debug|Win32
+		{A238D12D-CB17-4281-BC1C-0B96357DC45D}.Release|Win32.ActiveCfg = Release|Win32
+		{A238D12D-CB17-4281-BC1C-0B96357DC45D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8BD345F5-D9D2-48E5-B94A-ECFD3ADD0C12} = {29F978D8-DB33-46AD-8FFA-88C546C2575B}
+		{45D1188E-7602-4EF5-A320-AC10104B5BE6} = {3CA002B2-8978-45BD-AB03-DA408F9276E5}
+		{A238D12D-CB17-4281-BC1C-0B96357DC45D} = {3CA002B2-8978-45BD-AB03-DA408F9276E5}
 	EndGlobalSection
 EndGlobal
