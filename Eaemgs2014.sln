@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Game", "Code\Game\Game.vcxproj", "{8BD345F5-D9D2-48E5-B94A-ECFD3ADD0C12}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code", "Code", "{93A25BF7-0C2E-4540-81B9-F1229AD0EA68}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{9A089086-4EEE-4FBF-B8A1-F85865CA7310}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Game", "Game", "{29F978D8-DB33-46AD-8FFA-88C546C2575B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{3CA002B2-8978-45BD-AB03-DA408F9276E5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8BD345F5-D9D2-48E5-B94A-ECFD3ADD0C12}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8BD345F5-D9D2-48E5-B94A-ECFD3ADD0C12}.Debug|Win32.Build.0 = Debug|Win32
+		{8BD345F5-D9D2-48E5-B94A-ECFD3ADD0C12}.Release|Win32.ActiveCfg = Release|Win32
+		{8BD345F5-D9D2-48E5-B94A-ECFD3ADD0C12}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8BD345F5-D9D2-48E5-B94A-ECFD3ADD0C12} = {29F978D8-DB33-46AD-8FFA-88C546C2575B}
+		{29F978D8-DB33-46AD-8FFA-88C546C2575B} = {93A25BF7-0C2E-4540-81B9-F1229AD0EA68}
+		{3CA002B2-8978-45BD-AB03-DA408F9276E5} = {93A25BF7-0C2E-4540-81B9-F1229AD0EA68}
+	EndGlobalSection
+EndGlobal

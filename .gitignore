@@ -1,0 +1,23 @@
+# This file instructs git to ignore specific directories,
+# files, and file types
+# ("ignore" meaning that they won't be included
+# in the git repository)
+
+# Visual Studio
+#==============
+
+# User settings for a solution
+*.suo
+# User settings for a project
+*.vcxproj.user
+
+# Intellisense
+*.sdf
+*.opensdf
+/ipch
+
+# Temporary Files
+#================
+
+# Generated files
+/temp
