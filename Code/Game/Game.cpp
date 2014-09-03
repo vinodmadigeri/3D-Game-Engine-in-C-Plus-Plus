@@ -4,11 +4,56 @@
 //=============
 #include "PreCompiled.h"
 
-
 #include "Game.h"
-
-
 #include "Win32Management.h"
+
+MainGame::MainGame():
+	mInitilized(false)
+
+{
+
+}
+
+bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState)
+{
+	mInitilized = CreateMainWindow(i_thisInstanceOfTheProgram, i_initialWindowDisplayState);
+
+	return mInitilized;
+}
+
+int MainGame::Run(void)
+{
+	int exitCode = -1;
+	bool QuitRequested = false;
+
+	//Game Loop
+	if (mInitilized)
+	{
+		do
+		{
+			UpdateMainWindow(exitCode, QuitRequested);
+			
+		} while (QuitRequested == false);
+	}
+
+	return exitCode;
+}
+
+void MainGame::Shutdown(const HINSTANCE i_thisInstanceOfTheProgram)
+{
+	if (mInitilized)
+	{
+		ShutdownMainWindow(i_thisInstanceOfTheProgram);
+	}
+}
+
+
+
+
+
+
+
+
 
 // Entry Point
 //============
@@ -31,10 +76,28 @@ int WINAPI WinMain(
 	char* i_commandLineArguments,
 	int i_initialWindowDisplayState)
 {
+
+	MainGame Game;
+	int exitCode = -1;
+	
+	if (true == Game.Initilize(i_thisInstanceOfTheProgram, i_initialWindowDisplayState))
+	{
+		exitCode = Game.Run();
+		Game.Shutdown(i_thisInstanceOfTheProgram);
+	}
+	else
+	{
+		return -1;
+	}
+
+
+
+
+
 	// A Windows program doesn't actually need any windows at all
 	// but in most cases there will be a single "main" window
 	// and when it is closed the program will exit
-	const int exitCode = CreateMainWindowAndReturnExitCodeWhenItCloses(i_thisInstanceOfTheProgram, i_initialWindowDisplayState);
+//	const int exitCode = CreateMainWindowAndReturnExitCodeWhenItCloses(i_thisInstanceOfTheProgram, i_initialWindowDisplayState);
 	// Unlike standard C/C++ programs there is no standardized return value
 	// to indicate that the program "succeeded".
 	// Windows itself completely ignores the value that the program returns,

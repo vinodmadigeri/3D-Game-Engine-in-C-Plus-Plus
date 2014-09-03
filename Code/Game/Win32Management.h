@@ -2,8 +2,8 @@
 	This file contains all of the function declarations for this example program
 */
 
-#ifndef EAE6320_WINDOWSPROGRAM_H
-#define EAE6320_WINDOWSPROGRAM_H
+#ifndef __EAE2014_WIN32_H
+#define __EAE2014_WIN32_H
 
 // Header Files
 //=============
@@ -46,5 +46,8 @@ bool OnMainWindowClosed( const HINSTANCE i_thisInstanceOfTheProgram );
 LRESULT CALLBACK OnMessageReceived( HWND i_window, UINT i_message, WPARAM i_wParam, LPARAM i_lParam );
 bool UnregisterMainWindowClass( const HINSTANCE i_thisInstanceOfTheProgram );
 bool WaitForMainWindowToClose( int& o_exitCode );
+void UpdateMainWindow( int& o_exitCode, bool& o_QuitRequested);
+void ShutdownMainWindow(const HINSTANCE i_thisInstanceOfTheProgram);
 
-#endif	// EAE6320_WINDOWSPROGRAM_H
+
+#endif	// __EAE2014_WIN32_H

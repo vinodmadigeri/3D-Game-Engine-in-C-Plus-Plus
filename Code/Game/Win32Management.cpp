@@ -542,3 +542,64 @@ bool WaitForMainWindowToClose( int& o_exitCode )
 
 	return true;
 }
+
+
+void UpdateMainWindow( int& o_exitCode, bool& o_QuitRequested)
+{
+	// Enter an infinite loop that will continue until a quit message (WM_QUIT) is received from Windows
+	MSG message = { 0 };
+	o_QuitRequested = false;
+	bool hasWindowsSentAMessage;
+	do
+	{
+		// To send us a message, Windows will add it to a queue.
+		// Most Windows applications should wait until a message is received and then react to it.
+		// Real-time programs, though, must continually draw new images to the screen as fast as possible
+		// and only pause momentarily when there is a Windows message to deal with.
+
+		// This means that the first thing that must be done every iteration of the game loop is to "peek" at the message queue
+		// and see if there are any messages from Windows that need to be handled
+		
+		{
+			HWND getMessagesFromAnyWindowBelongingToTheCurrentThread = NULL;
+			unsigned int getAllMessageTypes = 0;
+			unsigned int ifAMessageExistsRemoveItFromTheQueue = PM_REMOVE;
+			hasWindowsSentAMessage = PeekMessage( &message, getMessagesFromAnyWindowBelongingToTheCurrentThread,
+				getAllMessageTypes, getAllMessageTypes, ifAMessageExistsRemoveItFromTheQueue ) == TRUE;
+		}
+		if ( hasWindowsSentAMessage )
+		{
+			// If Windows _has_ sent a message, this iteration of the loop will handle it
+
+			// First, the message must be "translated"
+			// (Key presses are translated into character messages)
+			TranslateMessage( &message );
+
+			// Then, the message is sent on to the appropriate processing function.
+			// This function is specified in the lpfnWndProc field of the WNDCLASSEX struct
+			// used to register a class with Windows.
+			// In the case of the main window in this example program
+			// it will always be OnMessageReceived()
+			DispatchMessage( &message );
+
+			if (message.message == WM_QUIT)
+			{
+				o_QuitRequested = true;
+			}
+		}
+	} while ( (hasWindowsSentAMessage == false) && (o_QuitRequested != true) );
+
+	// The exit code for the application is stored in the WPARAM of a WM_QUIT message
+	if (o_QuitRequested == true)
+	{
+		o_exitCode = static_cast<int>( message.wParam );
+	}
+	
+	return;
+}
+
+void ShutdownMainWindow(const HINSTANCE i_thisInstanceOfTheProgram)
+{
+	// Clean up anything that was created/registered/initialized
+	OnMainWindowClosed( i_thisInstanceOfTheProgram );
+}
