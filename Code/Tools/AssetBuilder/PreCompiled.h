@@ -17,9 +17,9 @@ This file will be #included before anything else in the project
 #undef WIN32_LEAN_AND_MEAN
 
 #include <assert.h>
-
-const unsigned int g_windowWidth = 800;
-const unsigned int g_windowHeight = 600;
-const bool g_shouldRenderFullScreen = false;
-
+#include <cstdint>
+#include <string>
+#include <iostream>
+#include <ShlObj.h>
+#include <sstream>
 #endif	// __EAE2014_PRECOMPILED_H

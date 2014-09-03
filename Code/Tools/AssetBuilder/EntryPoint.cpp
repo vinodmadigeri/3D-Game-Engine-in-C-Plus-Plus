@@ -4,19 +4,18 @@
 
 // Header Files
 //=============
-
+#include "PreCompiled.h"
 #include <cstdlib>
-#include "HelperFunctions.h"
+#include "AssetBuilder.h"
 
 // Entry Point
 //============
 
 int main( int argumentCount, char** arguments )
 {
-	if ( !InitializeAssetBuild() )
-	{
-		return EXIT_FAILURE;
-	}
+	AssetBuilder * pAssetBuilder = AssetBuilder::Create();
+
+	assert(pAssetBuilder != NULL);
 
 	bool wereThereErrors = false;
 
@@ -24,11 +23,13 @@ int main( int argumentCount, char** arguments )
 	for ( int i = 1; i < argumentCount; ++i )
 	{
 		const char* relativePath = arguments[i];
-		if ( !BuildAsset( relativePath ) )
+		if (!pAssetBuilder->BuildAsset(relativePath))
 		{
 			wereThereErrors = true;
 		}
 	}
+
+	delete pAssetBuilder;
 
 	if ( !wereThereErrors )
 	{

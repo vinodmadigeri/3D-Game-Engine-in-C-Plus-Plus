@@ -1,25 +1,54 @@
 // Header Files
 //=============
+#include "PreCompiled.h"
+#include "AssetBuilder.h"
 
-#include "HelperFunctions.h"
-
-#include <iostream>
-#include <ShlObj.h>
-#include <sstream>
-
-// Static Data Initialization
-//===========================
-
-namespace
+AssetBuilder::AssetBuilder()
 {
-	std::string s_AuthoredAssetDir;
-	std::string s_BuiltAssetDir;
+	if (!GetAssetBuilderEnvironmentVariable("AuthoredAssetDir", mAuthoredAssetDir))
+	{
+		assert(false);
+	}
+	if (!GetAssetBuilderEnvironmentVariable("BuiltAssetDir", mBuiltAssetDir))
+	{
+		assert(false);
+	}
 }
+
+AssetBuilder::AssetBuilder(std::string & i_AuthoredAssetDir, std::string & i_BuiltAssetDir):
+	mAuthoredAssetDir(i_AuthoredAssetDir), 
+	mBuiltAssetDir(i_BuiltAssetDir)
+{
+
+}
+
+AssetBuilder::~AssetBuilder()
+{
+
+}
+
+AssetBuilder * AssetBuilder ::Create(void)
+{
+	std::string AuthoredAssetDir;
+	std::string BuiltAssetDir;
+
+	if (!GetAssetBuilderEnvironmentVariable("AuthoredAssetDir", AuthoredAssetDir))
+	{
+		return NULL;
+	}
+	if (!GetAssetBuilderEnvironmentVariable("BuiltAssetDir", BuiltAssetDir))
+	{
+		return NULL;
+	}
+
+	return new AssetBuilder(AuthoredAssetDir, BuiltAssetDir);
+}
+
 
 // Function Definitions
 //=====================
 
-bool BuildAsset( const char* i_relativePath )
+bool AssetBuilder::BuildAsset(const char* i_relativePath)
 {
 	// Get the absolute paths to the source and target
 	// (The "source" is the authored asset,
@@ -29,8 +58,8 @@ bool BuildAsset( const char* i_relativePath )
 	// but in a real asset build pipeline the two will usually be different:
 	// The source will be in a format that is optimal for authoring purposes
 	// and the target will be in a format that is optimal for real-time purposes.)
-	const std::string path_source = s_AuthoredAssetDir + i_relativePath;
-	const std::string path_target = s_BuiltAssetDir + i_relativePath;
+	const std::string path_source = mAuthoredAssetDir + i_relativePath;
+	const std::string path_target = mBuiltAssetDir + i_relativePath;
 
 	// Decide if the target needs to be built
 	bool shouldTargetBeBuilt;
@@ -77,7 +106,7 @@ bool BuildAsset( const char* i_relativePath )
 		}
 
 		// Copy the source to the target
-		if ( !CopyFile( path_source.c_str(), path_target.c_str() ) )
+		if ( !CopyAssetFile( path_source.c_str(), path_target.c_str() ) )
 		{
 			return false;
 		}
@@ -86,21 +115,7 @@ bool BuildAsset( const char* i_relativePath )
 	return true;
 }
 
-bool InitializeAssetBuild()
-{
-	if ( !GetEnvironmentVariable( "AuthoredAssetDir", s_AuthoredAssetDir ) )
-	{
-		return false;
-	}
-	if ( !GetEnvironmentVariable( "BuiltAssetDir", s_BuiltAssetDir ) )
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void OutputErrorMessage( const char* i_errorMessage, const char* i_optionalFileName )
+void AssetBuilder::OutputErrorMessage(const char* i_errorMessage, const char* i_optionalFileName)
 {
 	std::cerr << ( i_optionalFileName ? i_optionalFileName : "Asset Build" ) << ": error: " <<
 		i_errorMessage << "\n";
@@ -109,7 +124,7 @@ void OutputErrorMessage( const char* i_errorMessage, const char* i_optionalFileN
 // Windows Functions
 //------------------
 
-bool CopyFile( const char* i_path_source, const char* i_path_target )
+bool AssetBuilder::CopyAssetFile(const char* i_path_source, const char* i_path_target)
 {
 	const BOOL shouldFailIfTargetFileAlreadyExists = FALSE;
 	if ( CopyFile( i_path_source, i_path_target, shouldFailIfTargetFileAlreadyExists ) != FALSE )
@@ -123,7 +138,7 @@ bool CopyFile( const char* i_path_source, const char* i_path_target )
 	}
 }
 
-bool CreateDirectoryIfNecessary( const std::string& i_path )
+bool AssetBuilder::CreateDirectoryIfNecessary(const std::string& i_path)
 {
 	// If the path is to a file (likely), remove it so only the directory remains
 	std::string directory;
@@ -184,7 +199,7 @@ bool CreateDirectoryIfNecessary( const std::string& i_path )
 	}
 }
 
-bool DoesFileExist( const char* i_path, bool& o_doesFileExist )
+bool AssetBuilder::DoesFileExist(const char* i_path, bool& o_doesFileExist)
 {
 	// Try to get information about the file
 	WIN32_FIND_DATA fileData;
@@ -219,7 +234,7 @@ bool DoesFileExist( const char* i_path, bool& o_doesFileExist )
 	}
 }
 
-bool GetEnvironmentVariable( const char* i_key, std::string& o_value )
+bool AssetBuilder::GetAssetBuilderEnvironmentVariable(const char* i_key, std::string& o_value)
 {
 	// Windows requires a character buffer
 	// to copy the environment variable into.
@@ -271,7 +286,7 @@ bool GetEnvironmentVariable( const char* i_key, std::string& o_value )
 	}
 }
 
-std::string GetFormattedWindowsError( const DWORD i_errorCode )
+std::string AssetBuilder::GetFormattedWindowsError(const DWORD i_errorCode)
 {
 	std::string errorMessage;
 	{
@@ -307,7 +322,7 @@ std::string GetFormattedWindowsError( const DWORD i_errorCode )
 	return errorMessage;
 }
 
-std::string GetLastWindowsError( DWORD* o_optionalErrorCode )
+std::string AssetBuilder::GetLastWindowsError(DWORD* o_optionalErrorCode)
 {
 	// Windows stores the error as a code
 	const DWORD errorCode = GetLastError();
@@ -318,7 +333,7 @@ std::string GetLastWindowsError( DWORD* o_optionalErrorCode )
 	return GetFormattedWindowsError( errorCode );
 }
 
-bool GetLastWriteTime( const char* i_path, uint64_t& o_lastWriteTime )
+bool AssetBuilder::GetLastWriteTime(const char* i_path, uint64_t& o_lastWriteTime)
 {
 	// Get the last time that the file was written to
 	ULARGE_INTEGER lastWriteTime_int;

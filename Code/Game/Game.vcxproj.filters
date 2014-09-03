@@ -11,10 +11,12 @@
     <Filter Include="Win32">
       <UniqueIdentifier>{3e79d4ba-01e8-4109-943d-cc52d2c1a9be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PreCompiled">
+      <UniqueIdentifier>{971ef304-6519-4dd5-97e0-08c624b3b029}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
-    <ClInclude Include="PreCompiled.h" />
     <ClInclude Include="..\..\Resources\Resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
@@ -27,15 +29,20 @@
     <ClInclude Include="Graphics.h">
       <Filter>Graphics System</Filter>
     </ClInclude>
+    <ClInclude Include="PreCompiled.h">
+      <Filter>PreCompiled</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="PreCompiled.cpp" />
     <ClCompile Include="Win32Management.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="Graphics.cpp">
       <Filter>Graphics System</Filter>
+    </ClCompile>
+    <ClCompile Include="PreCompiled.cpp">
+      <Filter>PreCompiled</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
