@@ -9,27 +9,29 @@
   <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="PreCompiled.h" />
-    <ClInclude Include="Resources\Resource.h">
+    <ClInclude Include="..\..\Resources\Resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="Resources\targetver.h">
+    <ClInclude Include="..\..\Resources\targetver.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="Win32Management.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="PreCompiled.cpp" />
+    <ClCompile Include="Win32Management.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resources\Game.rc">
+    <ResourceCompile Include="..\..\Resources\Game.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Resources\Game.ico">
+    <Image Include="..\..\Resources\Game.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\small.ico">
+    <Image Include="..\..\Resources\small.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
