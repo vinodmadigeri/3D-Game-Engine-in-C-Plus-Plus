@@ -112,14 +112,14 @@
   <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="..\..\Resources\Resource.h" />
-    <ClInclude Include="Graphics.h" />
+    <ClInclude Include="GraphicsSystem.h" />
     <ClInclude Include="PreCompiled.h" />
     <ClInclude Include="..\..\Resources\targetver.h" />
     <ClInclude Include="Win32Management.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="GraphicsSystem.cpp" />
     <ClCompile Include="PreCompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

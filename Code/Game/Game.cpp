@@ -5,7 +5,7 @@
 #include "PreCompiled.h"
 
 #include "Game.h"
-#include "Graphics.h"
+#include "GraphicsSystem.h"
 #include "Win32Management.h"
 
 #ifdef _DEBUG
@@ -24,18 +24,24 @@ MainGame::MainGame():
 bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState)
 {
 	mInitilized = CreateMainWindow(i_thisInstanceOfTheProgram, i_initialWindowDisplayState);
-	GraphicsSystem::CreateInstance(GetReferenceToMainWindowHandle());
+	GraphicsSystem *pGraphicsSystem = GraphicsSystem::CreateInstance(GetReferenceToMainWindowHandle(), "data/vertexShader.hlsl", "data/fragmentShader.hlsl");
+
+	if (pGraphicsSystem == NULL)
+	{
+		mInitilized = false;
+	}
+
 	return mInitilized;
 }
 
 int MainGame::Run(void)
 {
 	int exitCode = -1;
-	bool QuitRequested = false;
-
+	
 	//Game Loop
 	if (mInitilized)
 	{
+		bool QuitRequested = false;
 		do
 		{
 			GraphicsSystem::GetInstance()->Render();
@@ -106,7 +112,6 @@ int WINAPI WinMain(
 	// A Windows program doesn't actually need any windows at all
 	// but in most cases there will be a single "main" window
 	// and when it is closed the program will exit
-//	const int exitCode = CreateMainWindowAndReturnExitCodeWhenItCloses(i_thisInstanceOfTheProgram, i_initialWindowDisplayState);
 	// Unlike standard C/C++ programs there is no standardized return value
 	// to indicate that the program "succeeded".
 	// Windows itself completely ignores the value that the program returns,

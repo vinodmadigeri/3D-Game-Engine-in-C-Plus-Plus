@@ -2,39 +2,19 @@
 //=============
 
 #include "PreCompiled.h"
-#include "Graphics.h"
+#include "GraphicsSystem.h"
 
 #include <d3dx9shader.h>
 
 // Static Data Initialization
 //===========================
-
 namespace
 {
-#if 0
-	HWND s_GraphicsmainWindow = NULL;
-	IDirect3D9* s_direct3dInterface = NULL;
-	IDirect3DDevice9* s_direct3dDevice = NULL;
-
-	// The vertex information that is sent to the display adaptor must match what the vertex shader expects
-	struct sVertex
-	{
-		float x, y;
-	};
-#endif
 	D3DVERTEXELEMENT9 s_vertexElements[] =
 	{
 		{ 0, 0, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
 		D3DDECL_END()
 	};
-#if 0
-	IDirect3DVertexDeclaration9* s_vertexDeclaration = NULL;
-	IDirect3DVertexBuffer9* s_vertexBuffer = NULL;
-
-	IDirect3DVertexShader9* s_vertexShader = NULL;
-	IDirect3DPixelShader9* s_fragmentShader = NULL;
-#endif
-
 }
 
 GraphicsSystem *GraphicsSystem ::m_pInstance = NULL;
@@ -42,10 +22,26 @@ GraphicsSystem *GraphicsSystem ::m_pInstance = NULL;
 // Interface
 //==========
 
-GraphicsSystem::GraphicsSystem(const HWND i_mainWindow) :
-	m_mainWindow(i_mainWindow)
+GraphicsSystem::GraphicsSystem(const HWND i_mainWindow, const std::string &i_VertexShaderPath, const std::string &i_FragmentShaderPath) :
+	mInitilized(false),
+	m_mainWindow(i_mainWindow),
+	m_VertexShaderFilePath(i_VertexShaderPath),
+	m_FragmentShaderFilePath(i_FragmentShaderPath),
+	m_direct3dInterface(NULL),
+	m_direct3dDevice(NULL),
+	m_vertexDeclaration(NULL),
+	m_vertexBuffer(NULL),
+	m_vertexShader(NULL),
+	m_fragmentShader(NULL)
 {
-	Initialize();
+	if (true == Initialize())
+	{
+		mInitilized = true;
+	}
+	else
+	{
+		assert(false);
+	}
 }
 
 GraphicsSystem::~GraphicsSystem()
@@ -53,11 +49,12 @@ GraphicsSystem::~GraphicsSystem()
 	ShutDown();
 }
 
-GraphicsSystem * GraphicsSystem::CreateInstance(const HWND i_mainWindow)
+//Creates only one instance
+GraphicsSystem * GraphicsSystem::CreateInstance(const HWND i_mainWindow, const std::string &i_VertexShaderPath, const std::string &i_FragmentShaderPath)
 {
 	if (m_pInstance == NULL)
 	{
-		m_pInstance = new GraphicsSystem(i_mainWindow);
+		m_pInstance = new GraphicsSystem(i_mainWindow, i_VertexShaderPath, i_FragmentShaderPath);
 	}
 
 	return m_pInstance;
@@ -65,14 +62,9 @@ GraphicsSystem * GraphicsSystem::CreateInstance(const HWND i_mainWindow)
 
 GraphicsSystem * GraphicsSystem::GetInstance()
 {
-	if (m_pInstance != NULL)
-	{
-		return m_pInstance;
-	}
+	assert((m_pInstance != NULL) && (m_pInstance->mInitilized == true));
 
-	assert(false);
-
-	return NULL;
+	return m_pInstance;
 }
 
 void GraphicsSystem::Destroy(void)
@@ -119,6 +111,8 @@ OnError:
 
 void GraphicsSystem::Render()
 {
+	assert(mInitilized == true);
+
 	// Every frame an entirely new image will be created.
 	// Before drawing anything, then, the previous image will be erased
 	// by "clearing" the image buffer (filling it with a solid color)
@@ -395,7 +389,7 @@ bool GraphicsSystem::LoadFragmentShader()
 	// Load the source code from file and compile it
 	ID3DXBuffer* compiledShader;
 	{
-		const char* sourceCodeFileName = "data/fragmentShader.hlsl";
+		const char* sourceCodeFileName = m_FragmentShaderFilePath.c_str();
 		const D3DXMACRO* noMacros = NULL;
 		ID3DXInclude* noIncludes = NULL;
 		const char* entryPoint = "main";
@@ -452,7 +446,7 @@ bool GraphicsSystem::LoadVertexShader()
 	// Load the source code from file and compile it
 	ID3DXBuffer* compiledShader;
 	{
-		const char* sourceCodeFileName = "data/vertexShader.hlsl";
+		const char* sourceCodeFileName = m_VertexShaderFilePath.c_str();
 		const D3DXMACRO* noMacros = NULL;
 		ID3DXInclude* noIncludes = NULL;
 		const char* entryPoint = "main";

@@ -26,11 +26,11 @@
     <ClInclude Include="Win32Management.h">
       <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics.h">
-      <Filter>Graphics System</Filter>
-    </ClInclude>
     <ClInclude Include="PreCompiled.h">
       <Filter>PreCompiled</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsSystem.h">
+      <Filter>Graphics System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -38,11 +38,11 @@
     <ClCompile Include="Win32Management.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics.cpp">
-      <Filter>Graphics System</Filter>
-    </ClCompile>
     <ClCompile Include="PreCompiled.cpp">
       <Filter>PreCompiled</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsSystem.cpp">
+      <Filter>Graphics System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
