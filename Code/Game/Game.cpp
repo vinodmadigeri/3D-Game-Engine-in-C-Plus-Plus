@@ -5,6 +5,7 @@
 #include "PreCompiled.h"
 
 #include "Game.h"
+#include "Graphics.h"
 #include "Win32Management.h"
 
 #ifdef _DEBUG
@@ -23,7 +24,7 @@ MainGame::MainGame():
 bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState)
 {
 	mInitilized = CreateMainWindow(i_thisInstanceOfTheProgram, i_initialWindowDisplayState);
-
+	Initialize(GetReferenceToMainWindowHandle());
 	return mInitilized;
 }
 
@@ -37,6 +38,7 @@ int MainGame::Run(void)
 	{
 		do
 		{
+			Render();
 			UpdateMainWindow(exitCode, QuitRequested);
 			
 		} while (QuitRequested == false);
@@ -49,6 +51,7 @@ void MainGame::Shutdown(const HINSTANCE i_thisInstanceOfTheProgram)
 {
 	if (mInitilized)
 	{
+		ShutDown();
 		ShutdownMainWindow(i_thisInstanceOfTheProgram);
 	}
 }

@@ -35,6 +35,13 @@ namespace
 	const char* s_mainWindowClass_name = "Vinod's Main Window Class";
 }
 
+HWND GetReferenceToMainWindowHandle(void)
+{
+	assert(s_mainWindow != NULL);
+
+	return s_mainWindow;
+}
+
 // Main Function
 //==============
 

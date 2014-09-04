@@ -46,6 +46,8 @@ bool OnMainWindowClosed( const HINSTANCE i_thisInstanceOfTheProgram );
 LRESULT CALLBACK OnMessageReceived( HWND i_window, UINT i_message, WPARAM i_wParam, LPARAM i_lParam );
 bool UnregisterMainWindowClass( const HINSTANCE i_thisInstanceOfTheProgram );
 bool WaitForMainWindowToClose( int& o_exitCode );
+
+HWND GetReferenceToMainWindowHandle();
 void UpdateMainWindow( int& o_exitCode, bool& o_QuitRequested);
 void ShutdownMainWindow(const HINSTANCE i_thisInstanceOfTheProgram);
 

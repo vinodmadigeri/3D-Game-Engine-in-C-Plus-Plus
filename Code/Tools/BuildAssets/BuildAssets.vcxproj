@@ -67,7 +67,7 @@
     <CustomBuild />
     <CustomBuild />
     <CustomBuildStep>
-      <Command>"$(BinDir)AssetBuilder.exe" Asset1.txt Asset2.txt</Command>
+      <Command>"$(BinDir)AssetBuilder.exe" fragmentShader.hlsl vertexShader.hlsl</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Building Assets</Message>
@@ -98,7 +98,7 @@
     <CustomBuild />
     <CustomBuild />
     <CustomBuildStep>
-      <Command>"$(BinDir)AssetBuilder.exe" Asset1.txt Asset2.txt</Command>
+      <Command>"$(BinDir)AssetBuilder.exe" fragmentShader.hlsl vertexShader.hlsl</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Building Assets</Message>

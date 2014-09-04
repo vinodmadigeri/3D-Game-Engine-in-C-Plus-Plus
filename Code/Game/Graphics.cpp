@@ -4,7 +4,6 @@
 #include "PreCompiled.h"
 #include "Graphics.h"
 
-#include <cassert>
 #include <d3d9.h>
 #include <d3dx9shader.h>
 #include <string>
@@ -14,7 +13,7 @@
 
 namespace
 {
-	HWND s_mainWindow = NULL;
+	HWND s_GraphicsmainWindow = NULL;
 	IDirect3D9* s_direct3dInterface = NULL;
 	IDirect3DDevice9* s_direct3dDevice = NULL;
 
@@ -48,7 +47,7 @@ bool Initialize( const HWND i_mainWindow )
 	// Create an interface to a Direct3D device
 	if ( CreateDevice( i_mainWindow ) )
 	{
-		s_mainWindow = i_mainWindow;
+		s_GraphicsmainWindow = i_mainWindow;
 	}
 	else
 	{
@@ -190,7 +189,7 @@ bool ShutDown()
 		s_direct3dInterface->Release();
 		s_direct3dInterface = NULL;
 	}
-	s_mainWindow = NULL;
+	s_GraphicsmainWindow = NULL;
 
 	return !wereThereErrors;
 }
@@ -257,13 +256,13 @@ bool CreateVertexBuffer()
 		result = s_direct3dDevice->SetVertexDeclaration( s_vertexDeclaration );
 		if ( FAILED( result ) )
 		{
-			MessageBox( s_mainWindow, "DirectX failed to set the vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR );
+			MessageBox( s_GraphicsmainWindow, "DirectX failed to set the vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR );
 			return false;
 		}
 	}
 	else
 	{
-		MessageBox( s_mainWindow, "DirectX failed to create a Direct3D9 vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR );
+		MessageBox( s_GraphicsmainWindow, "DirectX failed to create a Direct3D9 vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR );
 		return false;
 	}
 
@@ -289,7 +288,7 @@ bool CreateVertexBuffer()
 				}
 				else
 				{
-					MessageBox( s_mainWindow, "DirectX failed to get device creation parameters", "No Vertex Buffer", MB_OK | MB_ICONERROR );
+					MessageBox( s_GraphicsmainWindow, "DirectX failed to get device creation parameters", "No Vertex Buffer", MB_OK | MB_ICONERROR );
 					return false;
 				}
 			}
@@ -304,7 +303,7 @@ bool CreateVertexBuffer()
 			&s_vertexBuffer, notUsed );
 		if ( FAILED( result ) )
 		{
-			MessageBox( s_mainWindow, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
+			MessageBox( s_GraphicsmainWindow, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
 			return false;
 		}
 	}
@@ -319,7 +318,7 @@ bool CreateVertexBuffer()
 				reinterpret_cast<void**>( &vertexData ), useDefaultLockingBehavior );
 			if ( FAILED( result ) )
 			{
-				MessageBox( s_mainWindow, "DirectX failed to lock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
+				MessageBox( s_GraphicsmainWindow, "DirectX failed to lock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
 				return false;
 			}
 		}
@@ -339,7 +338,7 @@ bool CreateVertexBuffer()
 			result = s_vertexBuffer->Unlock();
 			if ( FAILED( result ) )
 			{
-				MessageBox( s_mainWindow, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
+				MessageBox( s_GraphicsmainWindow, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
 				return false;
 			}
 		}
@@ -377,7 +376,7 @@ bool LoadFragmentShader()
 				std::string errorMessage = std::string( "DirectX failed to compiled the fragment shader from the file " ) +
 					sourceCodeFileName + ":\n" +
 					reinterpret_cast<char*>( errorMessages->GetBufferPointer() );
-				MessageBox( s_mainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR );
+				MessageBox( s_GraphicsmainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR );
 				errorMessages->Release();
 				return false;
 			}
@@ -385,7 +384,7 @@ bool LoadFragmentShader()
 			{
 				std::string errorMessage = "DirectX failed to compiled the fragment shader from the file ";
 				errorMessage += sourceCodeFileName;
-				MessageBox( s_mainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR );
+				MessageBox( s_GraphicsmainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR );
 				return false;
 			}
 		}
@@ -397,7 +396,7 @@ bool LoadFragmentShader()
 			&s_fragmentShader );
 		if ( FAILED( result ) )
 		{
-			MessageBox( s_mainWindow, "DirectX failed to create the fragment shader", "No Fragment Shader", MB_OK | MB_ICONERROR );
+			MessageBox( s_GraphicsmainWindow, "DirectX failed to create the fragment shader", "No Fragment Shader", MB_OK | MB_ICONERROR );
 			wereThereErrors = true;
 		}
 		compiledShader->Release();
@@ -434,7 +433,7 @@ bool LoadVertexShader()
 				std::string errorMessage = std::string( "DirectX failed to compiled the vertex shader from the file " ) +
 					sourceCodeFileName + ":\n" +
 					reinterpret_cast<char*>( errorMessages->GetBufferPointer() );
-				MessageBox( s_mainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR );
+				MessageBox( s_GraphicsmainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR );
 				errorMessages->Release();
 				return false;
 			}
@@ -442,7 +441,7 @@ bool LoadVertexShader()
 			{
 				std::string errorMessage = "DirectX failed to compiled the vertex shader from the file ";
 				errorMessage += sourceCodeFileName;
-				MessageBox( s_mainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR );
+				MessageBox( s_GraphicsmainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR );
 				return false;
 			}
 		}
@@ -454,7 +453,7 @@ bool LoadVertexShader()
 			&s_vertexShader );
 		if ( FAILED( result ) )
 		{
-			MessageBox( s_mainWindow, "DirectX failed to create the vertex shader", "No Vertex Shader", MB_OK | MB_ICONERROR );
+			MessageBox( s_GraphicsmainWindow, "DirectX failed to create the vertex shader", "No Vertex Shader", MB_OK | MB_ICONERROR );
 			wereThereErrors = true;
 		}
 		compiledShader->Release();
