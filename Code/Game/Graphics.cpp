@@ -4,15 +4,14 @@
 #include "PreCompiled.h"
 #include "Graphics.h"
 
-#include <d3d9.h>
 #include <d3dx9shader.h>
-#include <string>
 
 // Static Data Initialization
 //===========================
 
 namespace
 {
+#if 0
 	HWND s_GraphicsmainWindow = NULL;
 	IDirect3D9* s_direct3dInterface = NULL;
 	IDirect3DDevice9* s_direct3dDevice = NULL;
@@ -22,34 +21,77 @@ namespace
 	{
 		float x, y;
 	};
+#endif
 	D3DVERTEXELEMENT9 s_vertexElements[] =
 	{
 		{ 0, 0, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
 		D3DDECL_END()
 	};
+#if 0
 	IDirect3DVertexDeclaration9* s_vertexDeclaration = NULL;
 	IDirect3DVertexBuffer9* s_vertexBuffer = NULL;
 
 	IDirect3DVertexShader9* s_vertexShader = NULL;
 	IDirect3DPixelShader9* s_fragmentShader = NULL;
+#endif
+
 }
+
+GraphicsSystem *GraphicsSystem ::m_pInstance = NULL;
 
 // Interface
 //==========
 
-bool Initialize( const HWND i_mainWindow )
+GraphicsSystem::GraphicsSystem(const HWND i_mainWindow) :
+	m_mainWindow(i_mainWindow)
+{
+	Initialize();
+}
+
+GraphicsSystem::~GraphicsSystem()
+{
+	ShutDown();
+}
+
+GraphicsSystem * GraphicsSystem::CreateInstance(const HWND i_mainWindow)
+{
+	if (m_pInstance == NULL)
+	{
+		m_pInstance = new GraphicsSystem(i_mainWindow);
+	}
+
+	return m_pInstance;
+}
+
+GraphicsSystem * GraphicsSystem::GetInstance()
+{
+	if (m_pInstance != NULL)
+	{
+		return m_pInstance;
+	}
+
+	assert(false);
+
+	return NULL;
+}
+
+void GraphicsSystem::Destroy(void)
+{
+	if (m_pInstance)
+		delete m_pInstance;
+
+	m_pInstance = NULL;
+}
+
+bool GraphicsSystem::Initialize(void)
 {
 	// Initialize the interface to the Direct3D9 library
-	if ( !CreateInterface( i_mainWindow ) )
+	if (!CreateInterface(m_mainWindow))
 	{
 		return false;
 	}
 	// Create an interface to a Direct3D device
-	if ( CreateDevice( i_mainWindow ) )
-	{
-		s_GraphicsmainWindow = i_mainWindow;
-	}
-	else
+	if (!CreateDevice(m_mainWindow))
 	{
 		goto OnError;
 	}
@@ -75,7 +117,7 @@ OnError:
 	return false;
 }
 
-void Render()
+void GraphicsSystem::Render()
 {
 	// Every frame an entirely new image will be created.
 	// Before drawing anything, then, the previous image will be erased
@@ -91,7 +133,7 @@ void Render()
 		}
 		const float noZBuffer = 0.0f;
 		const DWORD noStencilBuffer = 0;
-		HRESULT result = s_direct3dDevice->Clear( subRectangleCount, subRectanglesToClear,
+		HRESULT result = m_direct3dDevice->Clear( subRectangleCount, subRectanglesToClear,
 			clearTheRenderTarget, clearColor, noZBuffer, noStencilBuffer );
 		assert( SUCCEEDED( result ) );
 	}
@@ -99,14 +141,14 @@ void Render()
 	// The actual function calls that draw geometry must be made between paired calls to
 	// BeginScene() and EndScene()
 	{
-		HRESULT result = s_direct3dDevice->BeginScene();
+		HRESULT result = m_direct3dDevice->BeginScene();
 		assert( SUCCEEDED( result ) );
 		{
 			// Set the shaders
 			{
-				HRESULT result = s_direct3dDevice->SetVertexShader( s_vertexShader );
+				HRESULT result = m_direct3dDevice->SetVertexShader(m_vertexShader);
 				assert( SUCCEEDED( result ) );
-				result = s_direct3dDevice->SetPixelShader( s_fragmentShader );
+				result = m_direct3dDevice->SetPixelShader(m_fragmentShader);
 				assert( SUCCEEDED( result ) );
 			}
 			// Bind a specific vertex buffer to the device as a data source
@@ -117,7 +159,7 @@ void Render()
 				const unsigned int bufferOffset = 0;
 				// The "stride" defines how large a single vertex is in the stream of data
 				const unsigned int bufferStride = sizeof( sVertex );
-				result = s_direct3dDevice->SetStreamSource( streamIndex, s_vertexBuffer, bufferOffset, bufferStride );
+				result = m_direct3dDevice->SetStreamSource(streamIndex, m_vertexBuffer, bufferOffset, bufferStride);
 				assert( SUCCEEDED( result ) );
 			}
 			// Render objects from the current streams
@@ -130,11 +172,11 @@ void Render()
 				const unsigned int indexOfFirstVertexToRender = 0;
 				// We are currently only rendering a single triangle
 				const unsigned int primitiveCountToRender = 1;
-				result = s_direct3dDevice->DrawPrimitive( primitiveType, indexOfFirstVertexToRender, primitiveCountToRender );
+				result = m_direct3dDevice->DrawPrimitive(primitiveType, indexOfFirstVertexToRender, primitiveCountToRender);
 				assert( SUCCEEDED( result ) );
 			}
 		}
-		result = s_direct3dDevice->EndScene();
+		result = m_direct3dDevice->EndScene();
 		assert( SUCCEEDED( result ) );
 	}
 
@@ -146,50 +188,51 @@ void Render()
 		const RECT* noDestinationRectangle = NULL;
 		const HWND useDefaultWindow = NULL;
 		const RGNDATA* noDirtyRegion = NULL;
-		HRESULT result = s_direct3dDevice->Present( noSourceRectangle, noDestinationRectangle, useDefaultWindow, noDirtyRegion );
+		HRESULT result = m_direct3dDevice->Present(noSourceRectangle, noDestinationRectangle, useDefaultWindow, noDirtyRegion);
 		assert( SUCCEEDED( result ) );
 	}
 }
 
-bool ShutDown()
+bool GraphicsSystem::ShutDown()
 {
 	bool wereThereErrors = false;
 
-	if ( s_direct3dInterface )
+	if (m_direct3dInterface)
 	{
-		if ( s_direct3dDevice )
+		if ( m_direct3dDevice )
 		{
-			if ( s_vertexShader )
+			if ( m_vertexShader )
 			{
-				s_vertexShader->Release();
-				s_vertexShader = NULL;
+				m_vertexShader->Release();
+				m_vertexShader = NULL;
 			}
-			if ( s_fragmentShader )
+			if ( m_fragmentShader )
 			{
-				s_fragmentShader->Release();
-				s_fragmentShader = NULL;
-			}
-
-			if ( s_vertexBuffer )
-			{
-				s_vertexBuffer->Release();
-				s_vertexBuffer = NULL;
-			}
-			if ( s_vertexDeclaration )
-			{
-				s_direct3dDevice->SetVertexDeclaration( NULL );
-				s_vertexDeclaration->Release();
-				s_vertexDeclaration = NULL;
+				m_fragmentShader->Release();
+				m_fragmentShader = NULL;
 			}
 
-			s_direct3dDevice->Release();
-			s_direct3dDevice = NULL;
+			if ( m_vertexBuffer )
+			{
+				m_vertexBuffer->Release();
+				m_vertexBuffer = NULL;
+			}
+			if ( m_vertexDeclaration )
+			{
+				m_direct3dDevice->SetVertexDeclaration( NULL );
+				m_vertexDeclaration->Release();
+				m_vertexDeclaration = NULL;
+			}
+
+			m_direct3dDevice->Release();
+			m_direct3dDevice = NULL;
 		}
 
-		s_direct3dInterface->Release();
-		s_direct3dInterface = NULL;
+		m_direct3dInterface->Release();
+		m_direct3dInterface = NULL;
 	}
-	s_GraphicsmainWindow = NULL;
+
+	m_mainWindow = NULL;
 
 	return !wereThereErrors;
 }
@@ -200,7 +243,7 @@ bool ShutDown()
 // Initialize
 //-----------
 
-bool CreateDevice( const HWND i_mainWindow )
+bool GraphicsSystem::CreateDevice(const HWND i_mainWindow)
 {
 	const UINT useDefaultDevice = D3DADAPTER_DEFAULT;
 	const D3DDEVTYPE useHardwareRendering = D3DDEVTYPE_HAL;
@@ -218,8 +261,8 @@ bool CreateDevice( const HWND i_mainWindow )
 		presentationParameters.EnableAutoDepthStencil = FALSE;
 		presentationParameters.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 	}
-	HRESULT result = s_direct3dInterface->CreateDevice( useDefaultDevice, useHardwareRendering,
-		i_mainWindow, useHardwareVertexProcessing, &presentationParameters, &s_direct3dDevice );
+	HRESULT result = m_direct3dInterface->CreateDevice( useDefaultDevice, useHardwareRendering,
+		i_mainWindow, useHardwareVertexProcessing, &presentationParameters, &m_direct3dDevice );
 	if ( SUCCEEDED( result ) )
 	{
 		return true;
@@ -231,12 +274,12 @@ bool CreateDevice( const HWND i_mainWindow )
 	}
 }
 
-bool CreateInterface( const HWND i_mainWindow )
+bool GraphicsSystem::CreateInterface(const HWND i_mainWindow)
 {
 	// D3D_SDK_VERSION is #defined by the Direct3D header files,
 	// and is just a way to make sure that everything is up-to-date
-	s_direct3dInterface = Direct3DCreate9( D3D_SDK_VERSION );
-	if ( s_direct3dInterface )
+	m_direct3dInterface = Direct3DCreate9( D3D_SDK_VERSION );
+	if ( m_direct3dInterface )
 	{
 		return true;
 	}
@@ -247,22 +290,22 @@ bool CreateInterface( const HWND i_mainWindow )
 	}
 }
 
-bool CreateVertexBuffer()
+bool GraphicsSystem::CreateVertexBuffer()
 {
 	// Initialize the vertex format
-	HRESULT result = s_direct3dDevice->CreateVertexDeclaration( s_vertexElements, &s_vertexDeclaration );
+	HRESULT result = m_direct3dDevice->CreateVertexDeclaration( s_vertexElements, &m_vertexDeclaration );
 	if ( SUCCEEDED( result ) )
 	{
-		result = s_direct3dDevice->SetVertexDeclaration( s_vertexDeclaration );
+		result = m_direct3dDevice->SetVertexDeclaration( m_vertexDeclaration );
 		if ( FAILED( result ) )
 		{
-			MessageBox( s_GraphicsmainWindow, "DirectX failed to set the vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR );
+			MessageBox(m_mainWindow, "DirectX failed to set the vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR);
 			return false;
 		}
 	}
 	else
 	{
-		MessageBox( s_GraphicsmainWindow, "DirectX failed to create a Direct3D9 vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR );
+		MessageBox( m_mainWindow, "DirectX failed to create a Direct3D9 vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR );
 		return false;
 	}
 
@@ -278,7 +321,7 @@ bool CreateVertexBuffer()
 			// The type of vertex processing should match what was specified when the device interface was created with CreateDevice()
 			{
 				D3DDEVICE_CREATION_PARAMETERS deviceCreationParameters;
-				result = s_direct3dDevice->GetCreationParameters( &deviceCreationParameters );
+				result = m_direct3dDevice->GetCreationParameters( &deviceCreationParameters );
 				if ( SUCCEEDED( result ) )
 				{
 					DWORD vertexProcessingType = deviceCreationParameters.BehaviorFlags &
@@ -288,7 +331,7 @@ bool CreateVertexBuffer()
 				}
 				else
 				{
-					MessageBox( s_GraphicsmainWindow, "DirectX failed to get device creation parameters", "No Vertex Buffer", MB_OK | MB_ICONERROR );
+					MessageBox( m_mainWindow, "DirectX failed to get device creation parameters", "No Vertex Buffer", MB_OK | MB_ICONERROR );
 					return false;
 				}
 			}
@@ -299,11 +342,11 @@ bool CreateVertexBuffer()
 		const D3DPOOL useDefaultPool = D3DPOOL_DEFAULT;
 		HANDLE* const notUsed = NULL;
 
-		result = s_direct3dDevice->CreateVertexBuffer( bufferSize, usage, useSeparateVertexDeclaration, useDefaultPool,
-			&s_vertexBuffer, notUsed );
+		result = m_direct3dDevice->CreateVertexBuffer( bufferSize, usage, useSeparateVertexDeclaration, useDefaultPool,
+			&m_vertexBuffer, notUsed );
 		if ( FAILED( result ) )
 		{
-			MessageBox( s_GraphicsmainWindow, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
+			MessageBox( m_mainWindow, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
 			return false;
 		}
 	}
@@ -314,11 +357,11 @@ bool CreateVertexBuffer()
 		{
 			const unsigned int lockEntireBuffer = 0;
 			const DWORD useDefaultLockingBehavior = 0;
-			result = s_vertexBuffer->Lock( lockEntireBuffer, lockEntireBuffer,
+			result = m_vertexBuffer->Lock( lockEntireBuffer, lockEntireBuffer,
 				reinterpret_cast<void**>( &vertexData ), useDefaultLockingBehavior );
 			if ( FAILED( result ) )
 			{
-				MessageBox( s_GraphicsmainWindow, "DirectX failed to lock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
+				MessageBox( m_mainWindow, "DirectX failed to lock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
 				return false;
 			}
 		}
@@ -335,10 +378,10 @@ bool CreateVertexBuffer()
 		}
 		// The buffer must be "unlocked" before it can be used
 		{
-			result = s_vertexBuffer->Unlock();
+			result = m_vertexBuffer->Unlock();
 			if ( FAILED( result ) )
 			{
-				MessageBox( s_GraphicsmainWindow, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
+				MessageBox( m_mainWindow, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR );
 				return false;
 			}
 		}
@@ -347,7 +390,7 @@ bool CreateVertexBuffer()
 	return true;
 }
 
-bool LoadFragmentShader()
+bool GraphicsSystem::LoadFragmentShader()
 {
 	// Load the source code from file and compile it
 	ID3DXBuffer* compiledShader;
@@ -376,7 +419,7 @@ bool LoadFragmentShader()
 				std::string errorMessage = std::string( "DirectX failed to compiled the fragment shader from the file " ) +
 					sourceCodeFileName + ":\n" +
 					reinterpret_cast<char*>( errorMessages->GetBufferPointer() );
-				MessageBox( s_GraphicsmainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR );
+				MessageBox( m_mainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR );
 				errorMessages->Release();
 				return false;
 			}
@@ -384,7 +427,7 @@ bool LoadFragmentShader()
 			{
 				std::string errorMessage = "DirectX failed to compiled the fragment shader from the file ";
 				errorMessage += sourceCodeFileName;
-				MessageBox( s_GraphicsmainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR );
+				MessageBox( m_mainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR );
 				return false;
 			}
 		}
@@ -392,11 +435,11 @@ bool LoadFragmentShader()
 	// Create the fragment shader object
 	bool wereThereErrors = false;
 	{
-		HRESULT result = s_direct3dDevice->CreatePixelShader( reinterpret_cast<DWORD*>( compiledShader->GetBufferPointer() ),
-			&s_fragmentShader );
+		HRESULT result = m_direct3dDevice->CreatePixelShader( reinterpret_cast<DWORD*>( compiledShader->GetBufferPointer() ),
+			&m_fragmentShader );
 		if ( FAILED( result ) )
 		{
-			MessageBox( s_GraphicsmainWindow, "DirectX failed to create the fragment shader", "No Fragment Shader", MB_OK | MB_ICONERROR );
+			MessageBox( m_mainWindow, "DirectX failed to create the fragment shader", "No Fragment Shader", MB_OK | MB_ICONERROR );
 			wereThereErrors = true;
 		}
 		compiledShader->Release();
@@ -404,7 +447,7 @@ bool LoadFragmentShader()
 	return !wereThereErrors;
 }
 
-bool LoadVertexShader()
+bool GraphicsSystem::LoadVertexShader()
 {
 	// Load the source code from file and compile it
 	ID3DXBuffer* compiledShader;
@@ -433,7 +476,7 @@ bool LoadVertexShader()
 				std::string errorMessage = std::string( "DirectX failed to compiled the vertex shader from the file " ) +
 					sourceCodeFileName + ":\n" +
 					reinterpret_cast<char*>( errorMessages->GetBufferPointer() );
-				MessageBox( s_GraphicsmainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR );
+				MessageBox( m_mainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR );
 				errorMessages->Release();
 				return false;
 			}
@@ -441,7 +484,7 @@ bool LoadVertexShader()
 			{
 				std::string errorMessage = "DirectX failed to compiled the vertex shader from the file ";
 				errorMessage += sourceCodeFileName;
-				MessageBox( s_GraphicsmainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR );
+				MessageBox( m_mainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR );
 				return false;
 			}
 		}
@@ -449,11 +492,11 @@ bool LoadVertexShader()
 	// Create the vertex shader object
 	bool wereThereErrors = false;
 	{
-		HRESULT result = s_direct3dDevice->CreateVertexShader( reinterpret_cast<DWORD*>( compiledShader->GetBufferPointer() ),
-			&s_vertexShader );
+		HRESULT result = m_direct3dDevice->CreateVertexShader( reinterpret_cast<DWORD*>( compiledShader->GetBufferPointer() ),
+			&m_vertexShader );
 		if ( FAILED( result ) )
 		{
-			MessageBox( s_GraphicsmainWindow, "DirectX failed to create the vertex shader", "No Vertex Shader", MB_OK | MB_ICONERROR );
+			MessageBox( m_mainWindow, "DirectX failed to create the vertex shader", "No Vertex Shader", MB_OK | MB_ICONERROR );
 			wereThereErrors = true;
 		}
 		compiledShader->Release();
