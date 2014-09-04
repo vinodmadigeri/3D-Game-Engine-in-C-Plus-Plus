@@ -23,8 +23,8 @@ MainGame::MainGame():
 
 bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState)
 {
-	mInitilized = CreateMainWindow(i_thisInstanceOfTheProgram, i_initialWindowDisplayState);
-	GraphicsSystem *pGraphicsSystem = GraphicsSystem::CreateInstance(GetReferenceToMainWindowHandle(), "data/vertexShader.hlsl", "data/fragmentShader.hlsl");
+	mInitilized = Win32Management::CreateMainWindow(i_thisInstanceOfTheProgram, i_initialWindowDisplayState);
+	GraphicsSystem *pGraphicsSystem = GraphicsSystem::CreateInstance(Win32Management::GetReferenceToMainWindowHandle(), "data/vertexShader.hlsl", "data/fragmentShader.hlsl");
 
 	if (pGraphicsSystem == NULL)
 	{
@@ -45,7 +45,7 @@ int MainGame::Run(void)
 		do
 		{
 			GraphicsSystem::GetInstance()->Render();
-			UpdateMainWindow(exitCode, QuitRequested);
+			Win32Management::UpdateMainWindow(exitCode, QuitRequested);
 			
 		} while (QuitRequested == false);
 	}
@@ -58,7 +58,7 @@ void MainGame::Shutdown(const HINSTANCE i_thisInstanceOfTheProgram)
 	if (mInitilized)
 	{
 		GraphicsSystem::Destroy();
-		ShutdownMainWindow(i_thisInstanceOfTheProgram);
+		Win32Management::ShutdownMainWindow(i_thisInstanceOfTheProgram);
 	}
 }
 

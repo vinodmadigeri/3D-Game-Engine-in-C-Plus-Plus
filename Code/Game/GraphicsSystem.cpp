@@ -467,7 +467,7 @@ bool GraphicsSystem::LoadVertexShader()
 		{
 			if ( errorMessages )
 			{
-				std::string errorMessage = std::string( "DirectX failed to compiled the vertex shader from the file " ) +
+				std::string errorMessage = std::string( "DirectX failed to compile the vertex shader from the file " ) +
 					sourceCodeFileName + ":\n" +
 					reinterpret_cast<char*>( errorMessages->GetBufferPointer() );
 				MessageBox( m_mainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR );
@@ -476,7 +476,7 @@ bool GraphicsSystem::LoadVertexShader()
 			}
 			else
 			{
-				std::string errorMessage = "DirectX failed to compiled the vertex shader from the file ";
+				std::string errorMessage = "DirectX failed to compile the vertex shader from the file ";
 				errorMessage += sourceCodeFileName;
 				MessageBox( m_mainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR );
 				return false;
