@@ -24,7 +24,10 @@ MainGame::MainGame():
 bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState)
 {
 	mInitilized = Win32Management::CreateMainWindow(i_thisInstanceOfTheProgram, i_initialWindowDisplayState);
-	GraphicsSystem *pGraphicsSystem = GraphicsSystem::CreateInstance(Win32Management::GetReferenceToMainWindowHandle(), "data/vertexShader.hlsl", "data/fragmentShader.hlsl");
+	
+	std::string VertexShaderPath = "data/vertexShader.hlsl";
+	std::string FragmentShaderPath = "data/fragmentShader.hlsl";
+	GraphicsSystem *pGraphicsSystem = GraphicsSystem::CreateInstance(Win32Management::GetReferenceToMainWindowHandle(), VertexShaderPath, FragmentShaderPath);
 
 	if (pGraphicsSystem == NULL)
 	{
