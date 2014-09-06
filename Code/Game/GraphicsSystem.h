@@ -14,8 +14,9 @@
 class GraphicsSystem
 {
 private:
-	bool mInitilized;
-	static GraphicsSystem *m_pInstance;
+	const unsigned int m_windowWidth;
+	const unsigned int m_windowHeight;
+	const bool m_shouldRenderFullScreen;
 	HWND m_mainWindow;
 	IDirect3D9* m_direct3dInterface;
 	IDirect3DDevice9* m_direct3dDevice;
@@ -25,14 +26,21 @@ private:
 	IDirect3DPixelShader9* m_fragmentShader;
 	std::string m_VertexShaderFilePath;
 	std::string m_FragmentShaderFilePath;
-	
+	static GraphicsSystem *m_pInstance;
+	bool mInitilized;
+
 	// The vertex information that is sent to the display adaptor must match what the vertex shader expects
 	struct sVertex
 	{
 		float x, y;
 	};
 
-	GraphicsSystem(const HWND i_mainWindow, const std::string &i_VertexShaderPath, const std::string &i_FragmentShaderPath); //Constructor
+	GraphicsSystem(const HWND i_mainWindow, 
+					const std::string &i_VertexShaderPath, 
+					const std::string &i_FragmentShaderPath,
+					const unsigned int i_windowWidth,
+					const unsigned int i_windowHeight,
+					const bool i_shouldRenderFullScreen); //Constructor
 	GraphicsSystem(const GraphicsSystem & i_Other); //Copy Constructor
 	GraphicsSystem & operator=(const GraphicsSystem & i_rhs); //Assignment Operators
 
@@ -47,7 +55,13 @@ private:
 	bool ShutDown();
 
 public:
-	static GraphicsSystem * CreateInstance(const HWND i_mainWindow, const std::string &i_VertexShaderPath, const std::string &i_FragmentShaderPath);
+	static bool CreateInstance(const HWND i_mainWindow,
+				const std::string &i_VertexShaderPath,
+				const std::string &i_FragmentShaderPath,
+				const unsigned int i_windowWidth = 800,
+				const unsigned int i_windowHeight = 600,
+				const bool i_shouldRenderFullScreen = false);
+
 	static GraphicsSystem * GetInstance();
 	void Render();
 	static void Destroy();

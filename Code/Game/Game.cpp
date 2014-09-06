@@ -14,6 +14,10 @@
 	#include <stdlib.h>
 #endif
 
+static const unsigned int g_windowWidth = 800;
+static const unsigned int g_windowHeight = 600;
+static const bool g_shouldRenderFullScreen = false;
+
 MainGame::MainGame():
 	mInitilized(false)
 
@@ -23,15 +27,26 @@ MainGame::MainGame():
 
 bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState)
 {
-	mInitilized = Win32Management::CreateMainWindow(i_thisInstanceOfTheProgram, i_initialWindowDisplayState);
+	std::string sMainWindowClassName = "Vinod's Main Window Class";
+	std::string sWindowCaption = "EAE2014: Vinod's Game";
 	
+	mInitilized = Win32Management::WindowsManager::CreateInstance(i_thisInstanceOfTheProgram, i_initialWindowDisplayState, 
+																	sMainWindowClassName, sWindowCaption, g_windowWidth, 
+																	g_windowHeight, g_shouldRenderFullScreen);
+	if (mInitilized == false)
+	{
+		return mInitilized;
+	}
+
 	std::string VertexShaderPath = "data/vertexShader.hlsl";
 	std::string FragmentShaderPath = "data/fragmentShader.hlsl";
-	GraphicsSystem *pGraphicsSystem = GraphicsSystem::CreateInstance(Win32Management::GetReferenceToMainWindowHandle(), VertexShaderPath, FragmentShaderPath);
+	HWND mainWindowHandle = Win32Management::WindowsManager::GetInstance()->GetReferenceToMainWindowHandle();
 
-	if (pGraphicsSystem == NULL)
+	mInitilized = GraphicsSystem::CreateInstance(mainWindowHandle, VertexShaderPath, FragmentShaderPath);
+
+	if (mInitilized == false)
 	{
-		mInitilized = false;
+		return mInitilized;
 	}
 
 	return mInitilized;
@@ -48,7 +63,7 @@ int MainGame::Run(void)
 		do
 		{
 			GraphicsSystem::GetInstance()->Render();
-			Win32Management::UpdateMainWindow(exitCode, QuitRequested);
+			Win32Management::WindowsManager::GetInstance()->UpdateMainWindow(exitCode, QuitRequested);
 			
 		} while (QuitRequested == false);
 	}
@@ -61,7 +76,7 @@ void MainGame::Shutdown(const HINSTANCE i_thisInstanceOfTheProgram)
 	if (mInitilized)
 	{
 		GraphicsSystem::Destroy();
-		Win32Management::ShutdownMainWindow(i_thisInstanceOfTheProgram);
+		Win32Management::WindowsManager::Destroy();
 	}
 }
 

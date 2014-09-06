@@ -18,9 +18,5 @@ This file will be #included before anything else in the project
 
 #include <cassert>
 #include <string>
-const unsigned int g_windowWidth = 800;
-const unsigned int g_windowHeight = 600;
-const bool g_shouldRenderFullScreen = false;
-
 
 #endif	// __EAE2014_GAME_PRECOMPILED_H

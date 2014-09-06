@@ -17,32 +17,85 @@
 
 namespace Win32Management
 {
-	// Instead of a pointer Windows provides a "handle"
-	// to represent each window that is created
-	// ("HWND" == "window handle").
-	// In Windows every separate element
-	// (buttons, text fields, scroll bars, etc.) is a "window",
-	// and so a typical Windows program will have many different windows.
-	// In our class, however, we will only have a single main window.
-	static HWND s_mainWindow = NULL;
+	WindowsManager * WindowsManager::m_Instance = NULL;
+	HWND WindowsManager::m_mainWindow = NULL;
 
-	// Window classes are almost always identified by name;
-	// there is also a unique ATOM associated with them,
-	// but in practice Windows expects to use the class name as an identifier.
-	// If you don't change the name below from the default then
-	// your program could have problems when it is run at the same time on the same computer
-	// as one of your classmate's
-	static const char* s_mainWindowClass_name = "Vinod's Main Window Class";
-
-
-	HWND GetReferenceToMainWindowHandle(void)
+	bool WindowsManager::CreateInstance(const HINSTANCE i_thisInstanceOfTheProgram,
+										const int i_initialWindowDisplayState,
+										const std::string& i_MainWindowClassName,
+										const std::string& i_windowCaption,
+										const unsigned int i_windowWidth,
+										const unsigned int i_windowHeight,
+										const bool i_shouldRenderFullScreen)
 	{
-		assert(s_mainWindow != NULL);
+		if (m_Instance == NULL)
+		{
+			m_Instance = new WindowsManager(i_thisInstanceOfTheProgram, i_initialWindowDisplayState, i_MainWindowClassName,
+											i_windowCaption, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen);
+			assert(m_Instance != NULL);
+		}
 
-		return s_mainWindow;
+		return m_Instance != NULL;
 	}
 
-	bool CreateMainWindow( const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState )
+	WindowsManager* WindowsManager::GetInstance()
+	{
+		if (m_Instance != NULL)
+		{
+			return m_Instance;
+		}
+
+		assert(false);
+
+		return NULL;
+	}
+
+	void WindowsManager::Destroy()
+	{
+		if (m_Instance != NULL)
+		{
+			delete m_Instance;
+		}
+		else
+		{
+			assert(false);
+		}
+	}
+
+	WindowsManager::WindowsManager(const HINSTANCE i_thisInstanceOfTheProgram,
+		const int i_initialWindowDisplayState,
+		const std::string& i_MainWindowClassName,
+		const std::string& i_windowCaption,
+		const unsigned int i_windowWidth,
+		const unsigned int i_windowHeight,
+		const bool i_shouldRenderFullScreen) :
+		m_thisInstanceOfTheProgram(i_thisInstanceOfTheProgram),
+		m_initialWindowDisplayState(i_initialWindowDisplayState),
+		m_mainWindowClass_name(i_MainWindowClassName),
+		m_windowCaption(i_windowCaption),
+		m_windowWidth(i_windowWidth),
+		m_windowHeight(i_windowHeight),
+		m_shouldRenderFullScreen(i_shouldRenderFullScreen)
+	{
+		if (false == CreateMainWindow(m_thisInstanceOfTheProgram, m_initialWindowDisplayState))
+		{
+			assert(false);
+		}
+	}
+
+	WindowsManager::~WindowsManager()
+	{
+		ShutdownMainWindow(m_thisInstanceOfTheProgram);
+	}
+
+	HWND WindowsManager::GetReferenceToMainWindowHandle(void)
+	{
+		assert(m_mainWindow != NULL);
+
+		return m_mainWindow;
+	}
+
+	bool WindowsManager::CreateMainWindow(const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState)
 	{
 		// Every window that Windows creates must belong to a "class".
 		// Note that this is different than a C++ class (but similar in theory):
@@ -54,8 +107,8 @@ namespace Win32Management
 		ATOM mainWindowClass = RegisterMainWindowClass( i_thisInstanceOfTheProgram );
 		if ( mainWindowClass != NULL )
 		{
-			s_mainWindow = CreateMainWindowHandle( i_thisInstanceOfTheProgram, i_initialWindowDisplayState );
-			if ( s_mainWindow == NULL )
+			m_mainWindow = CreateMainWindowHandle( i_thisInstanceOfTheProgram, i_initialWindowDisplayState );
+			if (m_mainWindow == NULL)
 			{
 				goto OnError;
 			}
@@ -78,7 +131,7 @@ namespace Win32Management
 		}
 	}
 
-	std::string GetLastWindowsError()
+	std::string WindowsManager::GetLastWindowsError()
 	{
 		// Windows stores the error as a code
 		const DWORD errorCode = GetLastError();
@@ -120,14 +173,14 @@ namespace Win32Management
 	// CreateMainWindow
 	//-----------------
 
-	HWND CreateMainWindowHandle( const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState )
+	HWND WindowsManager::CreateMainWindowHandle(const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState)
 	{
 		// Create the main window
 		HWND mainWindow;
 		{
 			// The window's "caption"
 			// (The text that is displayed in the title bar)
-			const char* windowCaption = "Vinod's EAE2014 Game";
+			const char* windowCaption = m_windowCaption.c_str();
 			// The window's style
 			const DWORD windowStyle =
 				// "Overlapped" is basically the same as "top-level"
@@ -172,7 +225,7 @@ namespace Win32Management
 			// Ask Windows to create the specified window.
 			// CreateWindowEx() will return a handle to the window,
 			// which is what we'll use to communicate with Windows about this window
-			mainWindow = CreateWindowEx( windowStyle_extended, s_mainWindowClass_name, windowCaption, windowStyle,
+			mainWindow = CreateWindowEx( windowStyle_extended, m_mainWindowClass_name.c_str(), windowCaption, windowStyle,
 											position_x, position_y, width, height,
 											hParent, hMenu, hProgram, userData );
 			if ( mainWindow == NULL )
@@ -189,8 +242,8 @@ namespace Win32Management
 		{
 			// In a real game these values would come from an external source
 			// rather than be hard-coded
-			const int desiredWidth = g_windowWidth;
-			const int desiredHeight = g_windowHeight;
+			const int desiredWidth = m_windowWidth;
+			const int desiredHeight = m_windowHeight;
 
 			// Calculate how much of the window is coming from the "non-client area"
 			// (the borders and title bar)
@@ -256,7 +309,7 @@ namespace Win32Management
 		return NULL;
 	}
 
-	ATOM RegisterMainWindowClass( const HINSTANCE i_thisInstanceOfTheProgram )
+	ATOM WindowsManager::RegisterMainWindowClass(const HINSTANCE i_thisInstanceOfTheProgram)
 	{
 		WNDCLASSEX wndClassEx = { 0 };
 		wndClassEx.cbSize = sizeof( WNDCLASSEX );
@@ -287,7 +340,7 @@ namespace Win32Management
 		// but usually this is set for each window individually
 		wndClassEx.lpszMenuName = NULL;
 		// The class name (see comments where this is initialized)
-		wndClassEx.lpszClassName = s_mainWindowClass_name;
+		wndClassEx.lpszClassName = m_mainWindowClass_name.c_str();
 
 		// Now all of the above information is given to Windows.
 		// If all goes well, the class will be successfully registered
@@ -303,13 +356,13 @@ namespace Win32Management
 		return mainWindowClass;
 	}
 
-	bool CleanupMainWindow()
+	bool WindowsManager::CleanupMainWindow()
 	{
-		if ( s_mainWindow != NULL )
+		if ( m_mainWindow != NULL )
 		{
-			if ( DestroyWindow( s_mainWindow ) != FALSE )
+			if (DestroyWindow(m_mainWindow) != FALSE)
 			{
-				s_mainWindow = NULL;
+				m_mainWindow = NULL;
 			}
 			else
 			{
@@ -323,7 +376,7 @@ namespace Win32Management
 		return true;
 	}
 
-	bool OnMainWindowClosed( const HINSTANCE i_thisInstanceOfTheProgram )
+	bool WindowsManager::OnMainWindowClosed(const HINSTANCE i_thisInstanceOfTheProgram)
 	{
 		bool wereThereErrors = false;
 
@@ -340,7 +393,7 @@ namespace Win32Management
 		return !wereThereErrors;
 	}
 
-	LRESULT CALLBACK OnMessageReceived( HWND i_window, UINT i_message, WPARAM i_wParam, LPARAM i_lParam )
+	LRESULT CALLBACK WindowsManager::OnMessageReceived(HWND i_window, UINT i_message, WPARAM i_wParam, LPARAM i_lParam)
 	{
 		// DispatchMessage() will send messages to the main window here.
 		// There are many messages that get sent to a window,
@@ -368,7 +421,7 @@ namespace Win32Management
 					{
 						const char* caption = "Exit Program?";
 						const char* message = "Are you sure you want to quit?";
-						result = MessageBox( s_mainWindow, message, caption, MB_YESNO | MB_ICONQUESTION );
+						result = MessageBox(m_mainWindow, message, caption, MB_YESNO | MB_ICONQUESTION);
 					}
 					if ( result == IDYES )
 					{
@@ -401,7 +454,7 @@ namespace Win32Management
 				// This is the last message a window will receive
 				// (Any child windows have already been destroyed).
 				// After this message has been processed the window's handle will be invalid:
-				s_mainWindow = NULL;
+				m_mainWindow = NULL;
 
 				// When the main window is destroyed
 				// a WM_QUIT message should be sent
@@ -416,12 +469,12 @@ namespace Win32Management
 		}
 
 		// Pass any messages that weren't handled on to Windows
-		return DefWindowProc( i_window, i_message, i_wParam, i_lParam );
+		return DefWindowProc(i_window, i_message, i_wParam, i_lParam);
 	}
 
-	bool UnregisterMainWindowClass( const HINSTANCE i_thisInstanceOfTheProgram )
+	bool WindowsManager::UnregisterMainWindowClass(const HINSTANCE i_thisInstanceOfTheProgram)
 	{
-		if ( UnregisterClass( s_mainWindowClass_name, i_thisInstanceOfTheProgram ) != FALSE )
+		if ( UnregisterClass( m_mainWindowClass_name.c_str(), i_thisInstanceOfTheProgram ) != FALSE )
 		{
 			return true;
 		}
@@ -435,70 +488,7 @@ namespace Win32Management
 		}
 	}
 
-	bool WaitForMainWindowToClose( int& o_exitCode )
-	{
-		// Any time something happens that Windows cares about, it will send the main window a message.
-
-		// One of the messages it sends is that the application should quit;
-		// this can be sent when a user closes the window
-		// (e.g. presses the X in the upper-right corner),
-		// but we can also tell Windows to send a quit message if the user chooses to quit from within the game
-		// (e.g. from an in-game menu)
-
-		// Enter an infinite loop that will continue until a quit message (WM_QUIT) is received from Windows
-		MSG message = { 0 };
-		do
-		{
-			// To send us a message, Windows will add it to a queue.
-			// Most Windows applications should wait until a message is received and then react to it.
-			// Real-time programs, though, must continually draw new images to the screen as fast as possible
-			// and only pause momentarily when there is a Windows message to deal with.
-
-			// This means that the first thing that must be done every iteration of the game loop is to "peek" at the message queue
-			// and see if there are any messages from Windows that need to be handled
-			bool hasWindowsSentAMessage;
-			{
-				HWND getMessagesFromAnyWindowBelongingToTheCurrentThread = NULL;
-				unsigned int getAllMessageTypes = 0;
-				unsigned int ifAMessageExistsRemoveItFromTheQueue = PM_REMOVE;
-				hasWindowsSentAMessage = PeekMessage( &message, getMessagesFromAnyWindowBelongingToTheCurrentThread,
-					getAllMessageTypes, getAllMessageTypes, ifAMessageExistsRemoveItFromTheQueue ) == TRUE;
-			}
-			if ( !hasWindowsSentAMessage )
-			{
-				// Usually there will be no messages in the queue, and the game can run
-
-				// (This example program has nothing to do,
-				// and so it will just constantly run this while loop using up CPU cycles.
-				// A real game might have something like the following:
-				//	someGameClass.OnNewFrame();
-				// or similar, though.)
-			}
-			else
-			{
-				// If Windows _has_ sent a message, this iteration of the loop will handle it
-
-				// First, the message must be "translated"
-				// (Key presses are translated into character messages)
-				TranslateMessage( &message );
-
-				// Then, the message is sent on to the appropriate processing function.
-				// This function is specified in the lpfnWndProc field of the WNDCLASSEX struct
-				// used to register a class with Windows.
-				// In the case of the main window in this example program
-				// it will always be OnMessageReceived()
-				DispatchMessage( &message );
-			}
-		} while ( message.message != WM_QUIT );
-
-		// The exit code for the application is stored in the WPARAM of a WM_QUIT message
-		o_exitCode = static_cast<int>( message.wParam );
-
-		return true;
-	}
-
-
-	void UpdateMainWindow( int& o_exitCode, bool& o_QuitRequested)
+	void WindowsManager::UpdateMainWindow(int& o_exitCode, bool& o_QuitRequested)
 	{
 		// Enter an infinite loop that will continue until a quit message (WM_QUIT) is received from Windows
 		MSG message = { 0 };
@@ -552,7 +542,7 @@ namespace Win32Management
 		return;
 	}
 
-	void ShutdownMainWindow(const HINSTANCE i_thisInstanceOfTheProgram)
+	void WindowsManager::ShutdownMainWindow(const HINSTANCE i_thisInstanceOfTheProgram)
 	{
 		// Clean up anything that was created/registered/initialized
 		OnMainWindowClosed( i_thisInstanceOfTheProgram );

@@ -22,8 +22,15 @@ GraphicsSystem *GraphicsSystem ::m_pInstance = NULL;
 // Interface
 //==========
 
-GraphicsSystem::GraphicsSystem(const HWND i_mainWindow, const std::string &i_VertexShaderPath, const std::string &i_FragmentShaderPath) :
-	mInitilized(false),
+GraphicsSystem::GraphicsSystem(const HWND i_mainWindow,
+	const std::string &i_VertexShaderPath,
+	const std::string &i_FragmentShaderPath,
+	const unsigned int i_windowWidth,
+	const unsigned int i_windowHeight,
+	const bool i_shouldRenderFullScreen) :
+	m_windowWidth(i_windowWidth),
+	m_windowHeight(i_windowHeight),
+	m_shouldRenderFullScreen(i_shouldRenderFullScreen),
 	m_mainWindow(i_mainWindow),
 	m_VertexShaderFilePath(i_VertexShaderPath),
 	m_FragmentShaderFilePath(i_FragmentShaderPath),
@@ -32,7 +39,8 @@ GraphicsSystem::GraphicsSystem(const HWND i_mainWindow, const std::string &i_Ver
 	m_vertexDeclaration(NULL),
 	m_vertexBuffer(NULL),
 	m_vertexShader(NULL),
-	m_fragmentShader(NULL)
+	m_fragmentShader(NULL),
+	mInitilized(false)
 {
 	if (true == Initialize())
 	{
@@ -50,14 +58,19 @@ GraphicsSystem::~GraphicsSystem()
 }
 
 //Creates only one instance
-GraphicsSystem * GraphicsSystem::CreateInstance(const HWND i_mainWindow, const std::string &i_VertexShaderPath, const std::string &i_FragmentShaderPath)
+bool GraphicsSystem::CreateInstance(const HWND i_mainWindow, 
+						const std::string &i_VertexShaderPath, 
+						const std::string &i_FragmentShaderPath,
+						const unsigned int i_windowWidth,
+						const unsigned int i_windowHeight,
+						const bool i_shouldRenderFullScreen)
 {
 	if (m_pInstance == NULL)
 	{
-		m_pInstance = new GraphicsSystem(i_mainWindow, i_VertexShaderPath, i_FragmentShaderPath);
+		m_pInstance = new GraphicsSystem(i_mainWindow, i_VertexShaderPath, i_FragmentShaderPath, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen);
 	}
 
-	return m_pInstance;
+	return m_pInstance != NULL;
 }
 
 GraphicsSystem * GraphicsSystem::GetInstance()
@@ -244,14 +257,14 @@ bool GraphicsSystem::CreateDevice(const HWND i_mainWindow)
 	const DWORD useHardwareVertexProcessing = D3DCREATE_HARDWARE_VERTEXPROCESSING;
 	D3DPRESENT_PARAMETERS presentationParameters = { 0 };
 	{
-		presentationParameters.BackBufferWidth = g_windowWidth;
-		presentationParameters.BackBufferHeight = g_windowHeight;
+		presentationParameters.BackBufferWidth = m_windowWidth;
+		presentationParameters.BackBufferHeight = m_windowHeight;
 		presentationParameters.BackBufferFormat = D3DFMT_X8R8G8B8;
 		presentationParameters.BackBufferCount = 1;
 		presentationParameters.MultiSampleType = D3DMULTISAMPLE_NONE;
 		presentationParameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		presentationParameters.hDeviceWindow = i_mainWindow;
-		presentationParameters.Windowed = g_shouldRenderFullScreen ? FALSE : TRUE;
+		presentationParameters.Windowed = m_shouldRenderFullScreen ? FALSE : TRUE;
 		presentationParameters.EnableAutoDepthStencil = FALSE;
 		presentationParameters.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 	}
@@ -410,7 +423,7 @@ bool GraphicsSystem::LoadFragmentShader()
 		{
 			if ( errorMessages )
 			{
-				std::string errorMessage = std::string( "DirectX failed to compiled the fragment shader from the file " ) +
+				std::string errorMessage = std::string( "DirectX failed to compile the fragment shader from the file " ) +
 					sourceCodeFileName + ":\n" +
 					reinterpret_cast<char*>( errorMessages->GetBufferPointer() );
 				MessageBox( m_mainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR );
@@ -419,7 +432,7 @@ bool GraphicsSystem::LoadFragmentShader()
 			}
 			else
 			{
-				std::string errorMessage = "DirectX failed to compiled the fragment shader from the file ";
+				std::string errorMessage = "DirectX failed to compile the fragment shader from the file ";
 				errorMessage += sourceCodeFileName;
 				MessageBox( m_mainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR );
 				return false;
