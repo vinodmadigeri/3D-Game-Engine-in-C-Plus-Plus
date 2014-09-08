@@ -4,6 +4,7 @@
 //=============
 #include "PreCompiled.h"
 
+#include "Debug.h"
 #include "Game.h"
 #include "GraphicsSystem.h"
 #include "Win32Management.h"
@@ -35,6 +36,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 																	g_windowHeight, g_shouldRenderFullScreen);
 	if (mInitilized == false)
 	{
+		Engine::DebugPrint("Failed to Create Windows Loop Instance");
 		return mInitilized;
 	}
 
@@ -42,10 +44,11 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	std::string FragmentShaderPath = "data/fragmentShader.hlsl";
 	HWND mainWindowHandle = Win32Management::WindowsManager::GetInstance()->GetReferenceToMainWindowHandle();
 
-	mInitilized = GraphicsSystem::CreateInstance(mainWindowHandle, VertexShaderPath, FragmentShaderPath);
+	mInitilized = Engine::GraphicsSystem::CreateInstance(mainWindowHandle, VertexShaderPath, FragmentShaderPath);
 
 	if (mInitilized == false)
 	{
+		Engine::DebugPrint("Failed to Create Graphics Engine Instance");
 		return mInitilized;
 	}
 
@@ -62,11 +65,13 @@ int MainGame::Run(void)
 		bool QuitRequested = false;
 		do
 		{
-			GraphicsSystem::GetInstance()->Render();
+			Engine::GraphicsSystem::GetInstance()->Render();
 			Win32Management::WindowsManager::GetInstance()->UpdateMainWindow(exitCode, QuitRequested);
 			
 		} while (QuitRequested == false);
 	}
+
+	Engine::DebugPrint("End of Game Loop");
 
 	return exitCode;
 }
@@ -75,9 +80,11 @@ void MainGame::Shutdown(const HINSTANCE i_thisInstanceOfTheProgram)
 {
 	if (mInitilized)
 	{
-		GraphicsSystem::Destroy();
+		Engine::GraphicsSystem::Destroy();
 		Win32Management::WindowsManager::Destroy();
 	}
+
+	Engine::DebugPrint("ShutDown");
 }
 
 
