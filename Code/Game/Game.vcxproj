@@ -112,10 +112,10 @@
   <ItemGroup>
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="..\..\Resources\Resource.h" />
+    <ClInclude Include="Resources\Resource.h" />
     <ClInclude Include="GraphicsSystem.h" />
     <ClInclude Include="PreCompiled.h" />
-    <ClInclude Include="..\..\Resources\targetver.h" />
+    <ClInclude Include="Resources\targetver.h" />
     <ClInclude Include="Win32Management.h" />
   </ItemGroup>
   <ItemGroup>
@@ -129,11 +129,11 @@
     <ClCompile Include="Win32Management.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\Resources\Game.rc" />
+    <ResourceCompile Include="Resources\Game.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\Resources\Game.ico" />
-    <Image Include="..\..\Resources\small.ico" />
+    <Image Include="Resources\Game.ico" />
+    <Image Include="Resources\small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

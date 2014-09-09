@@ -2,7 +2,7 @@
 #define __GAME_H
 
 #pragma once
-#include "..\..\Resources\Resource.h"
+#include "Resources\Resource.h"
 
 class MainGame
 {

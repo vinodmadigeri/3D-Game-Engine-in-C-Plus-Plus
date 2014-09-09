@@ -2,20 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="EntryPoint.cpp" />
-    <ClCompile Include="PreCompiled.cpp">
-      <Filter>PreCompiled</Filter>
-    </ClCompile>
     <ClCompile Include="AssetBuilder.cpp" />
+    <ClCompile Include="PreCompiled.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PreCompiled.h">
-      <Filter>PreCompiled</Filter>
-    </ClInclude>
     <ClInclude Include="AssetBuilder.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="PreCompiled">
-      <UniqueIdentifier>{095c00c7-b197-4783-9f24-07c3b3b0fce5}</UniqueIdentifier>
-    </Filter>
+    <ClInclude Include="PreCompiled.h" />
   </ItemGroup>
 </Project>

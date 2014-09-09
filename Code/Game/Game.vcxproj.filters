@@ -11,26 +11,14 @@
     <Filter Include="Win32">
       <UniqueIdentifier>{3e79d4ba-01e8-4109-943d-cc52d2c1a9be}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PreCompiled">
-      <UniqueIdentifier>{971ef304-6519-4dd5-97e0-08c624b3b029}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Debug">
       <UniqueIdentifier>{a33bf4c5-4636-47b1-a1a4-eab48b7e8f62}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
-    <ClInclude Include="..\..\Resources\Resource.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Resources\targetver.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="Win32Management.h">
       <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="PreCompiled.h">
-      <Filter>PreCompiled</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsSystem.h">
       <Filter>Graphics System</Filter>
@@ -38,14 +26,18 @@
     <ClInclude Include="Debug.h">
       <Filter>Debug</Filter>
     </ClInclude>
+    <ClInclude Include="Resources\targetver.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\Resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PreCompiled.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Win32Management.cpp">
       <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="PreCompiled.cpp">
-      <Filter>PreCompiled</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsSystem.cpp">
       <Filter>Graphics System</Filter>
@@ -53,17 +45,18 @@
     <ClCompile Include="Debug.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
+    <ClCompile Include="PreCompiled.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\Resources\Game.rc">
+    <ResourceCompile Include="Resources\Game.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\Resources\Game.ico">
+    <Image Include="Resources\Game.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\..\Resources\small.ico">
+    <Image Include="Resources\small.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
