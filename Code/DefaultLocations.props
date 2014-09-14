@@ -7,4 +7,12 @@
   <PropertyGroup>
     <IntDir>$(IntermediateDir)</IntDir>
   </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Lib>
+      <AdditionalLibraryDirectories>$(LibDir)</AdditionalLibraryDirectories>
+    </Lib>
+    <Link>
+      <AdditionalLibraryDirectories>$(LibDir)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
 </Project>

@@ -4,6 +4,7 @@
   <PropertyGroup Label="UserMacros">
     <TempDir>$(SolutionDir)temp\$(PlatformName)\$(Configuration)\</TempDir>
     <IntermediateDir>$(TempDir)intermediates\$(ProjectName)\</IntermediateDir>
+    <LibDir>$(TempDir)lib\</LibDir>
     <BinDir>$(TempDir)bin\</BinDir>
     <GameDir>$(TempDir)game\</GameDir>
     <AuthoredAssetDir>$(SolutionDir)Assets\</AuthoredAssetDir>
@@ -16,6 +17,10 @@
     </BuildMacro>
     <BuildMacro Include="IntermediateDir">
       <Value>$(IntermediateDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="LibDir">
+      <Value>$(LibDir)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
     <BuildMacro Include="BinDir">
