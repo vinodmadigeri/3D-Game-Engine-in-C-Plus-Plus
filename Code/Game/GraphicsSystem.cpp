@@ -72,6 +72,19 @@ namespace Engine
 		if (m_pInstance == NULL)
 		{
 			m_pInstance = new GraphicsSystem(i_mainWindow, i_VertexShaderPath, i_FragmentShaderPath, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen);
+
+			//Handle crash
+			if (m_pInstance == NULL)
+			{
+				return false;
+			}
+			
+			//Delete the memory if not initilized
+			if (m_pInstance->mInitilized == false)
+			{
+				delete m_pInstance;
+				m_pInstance = NULL;
+			}
 		}
 
 		return m_pInstance != NULL;

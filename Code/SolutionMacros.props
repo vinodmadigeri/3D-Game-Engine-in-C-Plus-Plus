@@ -9,6 +9,7 @@
     <GameDir>$(TempDir)game\</GameDir>
     <AuthoredAssetDir>$(SolutionDir)Assets\</AuthoredAssetDir>
     <BuiltAssetDir>$(GameDir)data\</BuiltAssetDir>
+    <ScriptDir>$(SolutionDir)Scripts\</ScriptDir>
   </PropertyGroup>
   <ItemGroup>
     <BuildMacro Include="TempDir">
@@ -37,6 +38,10 @@
     </BuildMacro>
     <BuildMacro Include="BuiltAssetDir">
       <Value>$(BuiltAssetDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="ScriptDir">
+      <Value>$(ScriptDir)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>
