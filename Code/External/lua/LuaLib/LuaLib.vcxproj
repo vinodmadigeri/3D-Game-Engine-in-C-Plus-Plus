@@ -11,73 +11,73 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\lua\5.2.3\src\lapi.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lauxlib.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lbaselib.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lbitlib.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lcode.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lcorolib.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lctype.c" />
-    <ClCompile Include="..\lua\5.2.3\src\ldblib.c" />
-    <ClCompile Include="..\lua\5.2.3\src\ldebug.c" />
-    <ClCompile Include="..\lua\5.2.3\src\ldo.c" />
-    <ClCompile Include="..\lua\5.2.3\src\ldump.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lfunc.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lgc.c" />
-    <ClCompile Include="..\lua\5.2.3\src\linit.c" />
-    <ClCompile Include="..\lua\5.2.3\src\liolib.c" />
-    <ClCompile Include="..\lua\5.2.3\src\llex.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lmathlib.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lmem.c" />
-    <ClCompile Include="..\lua\5.2.3\src\loadlib.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lobject.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lopcodes.c" />
-    <ClCompile Include="..\lua\5.2.3\src\loslib.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lparser.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lstate.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lstring.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lstrlib.c" />
-    <ClCompile Include="..\lua\5.2.3\src\ltable.c" />
-    <ClCompile Include="..\lua\5.2.3\src\ltablib.c" />
-    <ClCompile Include="..\lua\5.2.3\src\ltm.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lua.c" />
-    <ClCompile Include="..\lua\5.2.3\src\luac.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lundump.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lvm.c" />
-    <ClCompile Include="..\lua\5.2.3\src\lzio.c" />
+    <ClCompile Include="..\5.2.3\src\lapi.c" />
+    <ClCompile Include="..\5.2.3\src\lauxlib.c" />
+    <ClCompile Include="..\5.2.3\src\lbaselib.c" />
+    <ClCompile Include="..\5.2.3\src\lbitlib.c" />
+    <ClCompile Include="..\5.2.3\src\lcode.c" />
+    <ClCompile Include="..\5.2.3\src\lcorolib.c" />
+    <ClCompile Include="..\5.2.3\src\lctype.c" />
+    <ClCompile Include="..\5.2.3\src\ldblib.c" />
+    <ClCompile Include="..\5.2.3\src\ldebug.c" />
+    <ClCompile Include="..\5.2.3\src\ldo.c" />
+    <ClCompile Include="..\5.2.3\src\ldump.c" />
+    <ClCompile Include="..\5.2.3\src\lfunc.c" />
+    <ClCompile Include="..\5.2.3\src\lgc.c" />
+    <ClCompile Include="..\5.2.3\src\linit.c" />
+    <ClCompile Include="..\5.2.3\src\liolib.c" />
+    <ClCompile Include="..\5.2.3\src\llex.c" />
+    <ClCompile Include="..\5.2.3\src\lmathlib.c" />
+    <ClCompile Include="..\5.2.3\src\lmem.c" />
+    <ClCompile Include="..\5.2.3\src\loadlib.c" />
+    <ClCompile Include="..\5.2.3\src\lobject.c" />
+    <ClCompile Include="..\5.2.3\src\lopcodes.c" />
+    <ClCompile Include="..\5.2.3\src\loslib.c" />
+    <ClCompile Include="..\5.2.3\src\lparser.c" />
+    <ClCompile Include="..\5.2.3\src\lstate.c" />
+    <ClCompile Include="..\5.2.3\src\lstring.c" />
+    <ClCompile Include="..\5.2.3\src\lstrlib.c" />
+    <ClCompile Include="..\5.2.3\src\ltable.c" />
+    <ClCompile Include="..\5.2.3\src\ltablib.c" />
+    <ClCompile Include="..\5.2.3\src\ltm.c" />
+    <ClCompile Include="..\5.2.3\src\lua.c" />
+    <ClCompile Include="..\5.2.3\src\luac.c" />
+    <ClCompile Include="..\5.2.3\src\lundump.c" />
+    <ClCompile Include="..\5.2.3\src\lvm.c" />
+    <ClCompile Include="..\5.2.3\src\lzio.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\lua\5.2.3\src\lapi.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lauxlib.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lcode.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lctype.h" />
-    <ClInclude Include="..\lua\5.2.3\src\ldebug.h" />
-    <ClInclude Include="..\lua\5.2.3\src\ldo.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lfunc.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lgc.h" />
-    <ClInclude Include="..\lua\5.2.3\src\llex.h" />
-    <ClInclude Include="..\lua\5.2.3\src\llimits.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lmem.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lobject.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lopcodes.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lparser.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lstate.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lstring.h" />
-    <ClInclude Include="..\lua\5.2.3\src\ltable.h" />
-    <ClInclude Include="..\lua\5.2.3\src\ltm.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lua.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lua.hpp" />
-    <ClInclude Include="..\lua\5.2.3\src\luaconf.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lualib.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lundump.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lvm.h" />
-    <ClInclude Include="..\lua\5.2.3\src\lzio.h" />
+    <ClInclude Include="..\5.2.3\src\lapi.h" />
+    <ClInclude Include="..\5.2.3\src\lauxlib.h" />
+    <ClInclude Include="..\5.2.3\src\lcode.h" />
+    <ClInclude Include="..\5.2.3\src\lctype.h" />
+    <ClInclude Include="..\5.2.3\src\ldebug.h" />
+    <ClInclude Include="..\5.2.3\src\ldo.h" />
+    <ClInclude Include="..\5.2.3\src\lfunc.h" />
+    <ClInclude Include="..\5.2.3\src\lgc.h" />
+    <ClInclude Include="..\5.2.3\src\llex.h" />
+    <ClInclude Include="..\5.2.3\src\llimits.h" />
+    <ClInclude Include="..\5.2.3\src\lmem.h" />
+    <ClInclude Include="..\5.2.3\src\lobject.h" />
+    <ClInclude Include="..\5.2.3\src\lopcodes.h" />
+    <ClInclude Include="..\5.2.3\src\lparser.h" />
+    <ClInclude Include="..\5.2.3\src\lstate.h" />
+    <ClInclude Include="..\5.2.3\src\lstring.h" />
+    <ClInclude Include="..\5.2.3\src\ltable.h" />
+    <ClInclude Include="..\5.2.3\src\ltm.h" />
+    <ClInclude Include="..\5.2.3\src\lua.h" />
+    <ClInclude Include="..\5.2.3\src\lua.hpp" />
+    <ClInclude Include="..\5.2.3\src\luaconf.h" />
+    <ClInclude Include="..\5.2.3\src\lualib.h" />
+    <ClInclude Include="..\5.2.3\src\lundump.h" />
+    <ClInclude Include="..\5.2.3\src\lvm.h" />
+    <ClInclude Include="..\5.2.3\src\lzio.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\lua\5.2.3\src\Makefile" />
+    <None Include="..\5.2.3\src\Makefile" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{DB83BE24-39B7-4004-81AB-90737676A7A9}</ProjectGuid>
+    <ProjectGuid>{88602370-C636-45E5-B4D1-30D0C3361659}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>LuaLib</RootNamespace>
   </PropertyGroup>
@@ -93,22 +93,22 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\SolutionMacros.props" />
-    <Import Project="..\..\DefaultLocations.props" />
-    <Import Project="..\lua\LuaVersion.props" />
+    <Import Project="..\LuaVersion.props" />
+    <Import Project="..\..\..\SolutionMacros.props" />
+    <Import Project="..\..\..\DefaultLocations.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\SolutionMacros.props" />
-    <Import Project="..\..\DefaultLocations.props" />
-    <Import Project="..\lua\LuaVersion.props" />
+    <Import Project="..\LuaVersion.props" />
+    <Import Project="..\..\..\SolutionMacros.props" />
+    <Import Project="..\..\..\DefaultLocations.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
