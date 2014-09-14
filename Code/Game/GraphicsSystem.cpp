@@ -12,7 +12,12 @@ namespace Engine
 {
 	static D3DVERTEXELEMENT9 s_vertexElements[] =
 	{
+		// Stream 0
+		//---------
+		// POSITION, 2 floats == 8 bytes
 		{ 0, 0, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+		// COLOR0, D3DCOLOR == 4 bytes
+		{ 0, 8, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0 },
 		D3DDECL_END()
 	};
 
@@ -152,7 +157,7 @@ namespace Engine
 		{
 			// Set the shaders
 			{
-				HRESULT result = m_direct3dDevice->SetVertexShader(m_vertexShader);
+				result = m_direct3dDevice->SetVertexShader(m_vertexShader);
 				assert(SUCCEEDED(result));
 				result = m_direct3dDevice->SetPixelShader(m_fragmentShader);
 				assert(SUCCEEDED(result));
@@ -176,7 +181,7 @@ namespace Engine
 				const D3DPRIMITIVETYPE primitiveType = D3DPT_TRIANGLELIST;
 				// It's possible to start rendering primitives in the middle of the stream
 				const unsigned int indexOfFirstVertexToRender = 0;
-				// We are currently only rendering a single triangle
+				// We are drawing a single triangle
 				const unsigned int primitiveCountToRender = 1;
 				result = m_direct3dDevice->DrawPrimitive(primitiveType, indexOfFirstVertexToRender, primitiveCountToRender);
 				assert(SUCCEEDED(result));
@@ -267,6 +272,7 @@ namespace Engine
 			presentationParameters.EnableAutoDepthStencil = FALSE;
 			presentationParameters.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 		}
+
 		HRESULT result = m_direct3dInterface->CreateDevice(useDefaultDevice, useHardwareRendering,
 			i_mainWindow, useHardwareVertexProcessing, &presentationParameters, &m_direct3dDevice);
 		if (SUCCEEDED(result))
@@ -298,6 +304,30 @@ namespace Engine
 
 	bool GraphicsSystem::CreateVertexBuffer()
 	{
+		// The usage tells Direct3D how this vertex buffer will be used
+		DWORD usage = 0;
+		{
+			// Our code will only ever write to the buffer
+			usage |= D3DUSAGE_WRITEONLY;
+			// The type of vertex processing should match what was specified when the device interface was created with CreateDevice()
+			{
+				D3DDEVICE_CREATION_PARAMETERS deviceCreationParameters;
+				const HRESULT result = m_direct3dDevice->GetCreationParameters(&deviceCreationParameters);
+				if (SUCCEEDED(result))
+				{
+					DWORD vertexProcessingType = deviceCreationParameters.BehaviorFlags &
+						(D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MIXED_VERTEXPROCESSING | D3DCREATE_SOFTWARE_VERTEXPROCESSING);
+					usage |= (vertexProcessingType != D3DCREATE_SOFTWARE_VERTEXPROCESSING) ?
+						0 : D3DUSAGE_SOFTWAREPROCESSING;
+				}
+				else
+				{
+					MessageBox(m_mainWindow, "DirectX failed to get device creation parameters", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+					return false;
+				}
+			}
+		}
+
 		// Initialize the vertex format
 		HRESULT result = m_direct3dDevice->CreateVertexDeclaration(s_vertexElements, &m_vertexDeclaration);
 		if (SUCCEEDED(result))
@@ -316,82 +346,64 @@ namespace Engine
 		}
 
 		// Create a vertex buffer
-	{
-		// A triangle has three vertices
-		const unsigned int bufferSize = 3 * sizeof(sVertex);
-		// The usage tells Direct3D how this vertex buffer will be used
-		DWORD usage = 0;
 		{
-			// Our code will only ever write to the buffer
-			usage |= D3DUSAGE_WRITEONLY;
-			// The type of vertex processing should match what was specified when the device interface was created with CreateDevice()
+			// We are drawing a single triangle
+			const unsigned int verticesPerTriangle = 3;
+			const unsigned int bufferSize = verticesPerTriangle * sizeof(sVertex);
+
+			// We will define our own vertex format
+			const DWORD useSeparateVertexDeclaration = 0;
+			// Place the vertex buffer into memory that Direct3D thinks is the most appropriate
+			const D3DPOOL useDefaultPool = D3DPOOL_DEFAULT;
+			HANDLE* const notUsed = NULL;
+
+			result = m_direct3dDevice->CreateVertexBuffer(bufferSize, usage, useSeparateVertexDeclaration, useDefaultPool,
+				&m_vertexBuffer, notUsed);
+			if (FAILED(result))
 			{
-				D3DDEVICE_CREATION_PARAMETERS deviceCreationParameters;
-				result = m_direct3dDevice->GetCreationParameters(&deviceCreationParameters);
-				if (SUCCEEDED(result))
+				MessageBox(m_mainWindow, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+				return false;
+			}
+		}
+		// Fill the vertex buffer with the triangle's vertices
+		{
+			// Before the vertex buffer can be changed it must be "locked"
+			sVertex* vertexData;
+			{
+				const unsigned int lockEntireBuffer = 0;
+				const DWORD useDefaultLockingBehavior = 0;
+				result = m_vertexBuffer->Lock(lockEntireBuffer, lockEntireBuffer,
+					reinterpret_cast<void**>(&vertexData), useDefaultLockingBehavior);
+				if (FAILED(result))
 				{
-					DWORD vertexProcessingType = deviceCreationParameters.BehaviorFlags &
-						(D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MIXED_VERTEXPROCESSING | D3DCREATE_SOFTWARE_VERTEXPROCESSING);
-					usage |= (vertexProcessingType != D3DCREATE_SOFTWARE_VERTEXPROCESSING) ?
-						0 : D3DUSAGE_SOFTWAREPROCESSING;
+					MessageBox(m_mainWindow, "DirectX failed to lock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+					return false;
 				}
-				else
+			}
+			// Fill the buffer
+			{
+				vertexData[0].x = 0.0f;
+				vertexData[0].y = 0.0f;
+				vertexData[0].color = D3DCOLOR_XRGB(255, 0, 0);
+
+				vertexData[1].x = 1.0f;
+				vertexData[1].y = 1.0f;
+				vertexData[1].color = D3DCOLOR_XRGB(0, 255, 0);
+
+				vertexData[2].x = 1.0f;
+				vertexData[2].y = 0.0f;
+				vertexData[2].color = D3DCOLOR_XRGB(0, 0, 255);
+			}
+			// The buffer must be "unlocked" before it can be used
+			{
+				result = m_vertexBuffer->Unlock();
+				if (FAILED(result))
 				{
-					MessageBox(m_mainWindow, "DirectX failed to get device creation parameters", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+					MessageBox(m_mainWindow, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
 					return false;
 				}
 			}
 		}
-		// We will define our own vertex format
-		const DWORD useSeparateVertexDeclaration = 0;
-		// Place the vertex buffer into memory that Direct3D thinks is the most appropriate
-		const D3DPOOL useDefaultPool = D3DPOOL_DEFAULT;
-		HANDLE* const notUsed = NULL;
-
-		result = m_direct3dDevice->CreateVertexBuffer(bufferSize, usage, useSeparateVertexDeclaration, useDefaultPool,
-			&m_vertexBuffer, notUsed);
-		if (FAILED(result))
-		{
-			MessageBox(m_mainWindow, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
-			return false;
-		}
-	}
-		// Fill the vertex buffer with the triangle's vertices
-	{
-		// Before the vertex buffer can be changed it must be "locked"
-		sVertex* vertexData;
-		{
-			const unsigned int lockEntireBuffer = 0;
-			const DWORD useDefaultLockingBehavior = 0;
-			result = m_vertexBuffer->Lock(lockEntireBuffer, lockEntireBuffer,
-				reinterpret_cast<void**>(&vertexData), useDefaultLockingBehavior);
-			if (FAILED(result))
-			{
-				MessageBox(m_mainWindow, "DirectX failed to lock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
-				return false;
-			}
-		}
-		// Fill the buffer
-		{
-			vertexData[0].x = 0.0f;
-			vertexData[0].y = 0.0f;
-
-			vertexData[1].x = 1.0f;
-			vertexData[1].y = 1.0f;
-
-			vertexData[2].x = 1.0f;
-			vertexData[2].y = 0.0f;
-		}
-		// The buffer must be "unlocked" before it can be used
-		{
-			result = m_vertexBuffer->Unlock();
-			if (FAILED(result))
-			{
-				MessageBox(m_mainWindow, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
-				return false;
-			}
-		}
-	}
 
 		return true;
 	}

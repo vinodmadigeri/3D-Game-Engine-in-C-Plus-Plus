@@ -35,6 +35,7 @@ namespace Engine
 		struct sVertex
 		{
 			float x, y;
+			D3DCOLOR color; // D3DCOLOR = 4 bytes, or 8 bits [0,255] per RGBA channel
 		};
 
 		GraphicsSystem(const HWND i_mainWindow,

@@ -5,7 +5,8 @@
 // Entry Point
 //============
 
-void main( in const float2 i_position : POSITION, out float4 o_position : POSITION )
+void main( in const float2 i_position : POSITION, in const float3 i_color : COLOR0,
+	out float4 o_position : POSITION, out float3 o_color : COLOR0 )
 {
 	// Calculate position
 	{
@@ -14,5 +15,10 @@ void main( in const float2 i_position : POSITION, out float4 o_position : POSITI
 		// Or, equivalently:
 		o_position = float4( i_position.xy, 0.0, 1.0 );
 		o_position = float4( i_position, 0.0, 1.0 );
+	}
+	// Calculate color
+	{
+		// Set the "out" color directly from the "in" color:
+		o_color = i_color;
 	}
 }

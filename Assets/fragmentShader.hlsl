@@ -5,11 +5,14 @@
 // Entry Point
 //============
 
-void main( out float4 o_color : COLOR0 )
+void main( in const float3 i_color : COLOR0, out float4 o_color : COLOR0 )
 {
-	// Until we have more sophisticated shaders the output color can be set to an arbitrary RGBA value:
-	o_color = float4( 1.0, 1.0, 1.0, 1.0 );
+	// Set the color of this fragment to the interpolated color value
+	// (The interpolated color will depend on how close
+	// the fragment is to each of the three vertices of the triangle;
+	// the closer it is to a vertex, the more its color will be influenced
+	// by that vertex)
+	o_color = float4( i_color.rgb, 1.0 );
 	// "RGB" = "Red/Green/Blue" and "A" = "Alpha".
-	// The RGB values should each be something between 0.0 and 1.0,
-	// and for now the A value should _always_ be 1.0.
+	// For now the A value should _always_ be 1.0.
 }
