@@ -469,7 +469,7 @@ bool AssetBuilder::InitializeLua(const std::string & i_ScriptDir)
 	luaL_openlibs(mluaState);
 	// Register custom functions
 	{
-		lua_register(mluaState, "CopyFile", CopyAssetFile);
+		lua_register(mluaState, "CopyAssetFile", CopyAssetFile);
 		lua_register(mluaState, "CreateDirectoryIfNecessary", CreateDirectoryIfNecessary);
 		lua_register(mluaState, "DoesFileExist", DoesFileExist);
 		lua_register(mluaState, "GetLastWriteTime", GetLastWriteTime);
