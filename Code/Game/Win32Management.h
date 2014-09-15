@@ -55,15 +55,18 @@ namespace Win32Management
 						const unsigned int i_windowHeight, 
 						const bool i_shouldRenderFullScreen);
 		~WindowsManager();
+		WindowsManager(const WindowsManager & i_Other);
+		WindowsManager& operator=(const WindowsManager & i_rhs);
 
-		bool CreateMainWindow(const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState);
-		
 		// CreateMainWindow
 		//-----------------
+		bool CreateMainWindow(const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState);
 		HWND CreateMainWindowHandle(const HINSTANCE i_thisInstanceOfTheProgram, const int i_initialWindowDisplayState);
 		ATOM RegisterMainWindowClass(const HINSTANCE i_thisInstanceOfTheProgram);
 		//------------------------------------------
 
+		//Cleanup
+		//-------
 		bool CleanupMainWindow();
 		bool OnMainWindowClosed(const HINSTANCE i_thisInstanceOfTheProgram);
 		bool UnregisterMainWindowClass(const HINSTANCE i_thisInstanceOfTheProgram);
@@ -83,8 +86,10 @@ namespace Win32Management
 			const unsigned int i_windowWidth = 800,
 			const unsigned int i_windowHeight = 600,
 			const bool i_shouldRenderFullScreen = false);
+
 		static WindowsManager* GetInstance();
 		static void Destroy();
+
 		void UpdateMainWindow(int& o_exitCode, bool& o_QuitRequested);
 		HWND GetReferenceToMainWindowHandle();
 	};

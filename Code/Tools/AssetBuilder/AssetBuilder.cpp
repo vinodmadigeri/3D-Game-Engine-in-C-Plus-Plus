@@ -22,17 +22,20 @@ AssetBuilder::AssetBuilder()
 		assert(false);
 	}
 
-	if (!InitializeLua(scriptDir))
+	if (!InitializeLua(scriptDir, "BuildAssets.lua"))
 	{
 		assert(false);
 	}
 }
 
-AssetBuilder::AssetBuilder(const std::string & i_AuthoredAssetDir, const std::string & i_BuiltAssetDir, const std::string & i_ScriptDir) :
+AssetBuilder::AssetBuilder(const std::string & i_AuthoredAssetDir, 
+							const std::string & i_BuiltAssetDir, 
+							const std::string & i_ScriptDir,
+							const std::string & i_RelativeScriptPath) :
 	mAuthoredAssetDir(i_AuthoredAssetDir), 
 	mBuiltAssetDir(i_BuiltAssetDir)
 {
-	if (!InitializeLua(i_ScriptDir))
+	if (!InitializeLua(i_ScriptDir, i_RelativeScriptPath))
 	{
 		assert(false);
 	}
@@ -43,7 +46,7 @@ AssetBuilder::~AssetBuilder()
 	ShutDownLua();
 }
 
-AssetBuilder * AssetBuilder ::Create(void)
+AssetBuilder * AssetBuilder::Create(const std::string & i_RelativeScriptPath)
 {
 	std::string AuthoredAssetDir;
 	std::string BuiltAssetDir;
@@ -63,7 +66,7 @@ AssetBuilder * AssetBuilder ::Create(void)
 		return NULL;
 	}
 
-	return new AssetBuilder(AuthoredAssetDir, BuiltAssetDir, scriptDir);
+	return new AssetBuilder(AuthoredAssetDir, BuiltAssetDir, scriptDir, i_RelativeScriptPath);
 }
 
 
@@ -455,7 +458,7 @@ int AssetBuilder::GetLastWriteTime(lua_State* io_luaState)
 	return returnValueCount;
 }
 
-bool AssetBuilder::InitializeLua(const std::string & i_ScriptDir)
+bool AssetBuilder::InitializeLua(const std::string & i_ScriptDir, const std::string & i_RelativeScriptPath)
 {
 	// Create a new Lua state
 	{
@@ -479,7 +482,7 @@ bool AssetBuilder::InitializeLua(const std::string & i_ScriptDir)
 	{
 		std::string path;
 		{
-			path = i_ScriptDir + "BuildAssets.lua";
+			path = i_ScriptDir + i_RelativeScriptPath;
 		}
 		const int result = luaL_dofile(mluaState, path.c_str());
 		if (result != LUA_OK)

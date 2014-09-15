@@ -6,9 +6,9 @@
 	if you ever change to a new version.
 */
 
-#ifndef EAE6320_LUAINCLUDES_H
-#define EAE6320_LUAINCLUDES_H
+#ifndef __EAE2014_LUAINCLUDES_H
+#define __EAE2014_LUAINCLUDES_H
 
 #include "5.2.3/src/lua.hpp"
 
-#endif	// EAE6320_LUAINCLUDES_H
+#endif	// __EAE2014_LUAINCLUDES_H

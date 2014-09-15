@@ -40,8 +40,6 @@
     <ClCompile Include="..\5.2.3\src\ltable.c" />
     <ClCompile Include="..\5.2.3\src\ltablib.c" />
     <ClCompile Include="..\5.2.3\src\ltm.c" />
-    <ClCompile Include="..\5.2.3\src\lua.c" />
-    <ClCompile Include="..\5.2.3\src\luac.c" />
     <ClCompile Include="..\5.2.3\src\lundump.c" />
     <ClCompile Include="..\5.2.3\src\lvm.c" />
     <ClCompile Include="..\5.2.3\src\lzio.c" />
@@ -93,7 +91,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

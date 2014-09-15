@@ -13,7 +13,8 @@
 
 int main( int argumentCount, char** arguments )
 {
-	AssetBuilder * pAssetBuilder = AssetBuilder::Create();
+	std::string RelativeScriptPath = "BuildAssets.lua";
+	AssetBuilder * pAssetBuilder = AssetBuilder::Create(RelativeScriptPath);
 
 	assert(pAssetBuilder != NULL);
 
