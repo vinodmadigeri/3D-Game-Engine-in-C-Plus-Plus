@@ -22,6 +22,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{D3BEA75F-6F62-411F-99CF-458967700AC1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{8ED2DEF1-3E30-4BAB-A15D-7727929C8B1E}"
+	ProjectSection(SolutionItems) = preProject
+		Scripts\BuildAssets.lua = Scripts\BuildAssets.lua
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaLib", "Code\External\Lua\LuaLib\LuaLib.vcxproj", "{88602370-C636-45E5-B4D1-30D0C3361659}"
 EndProject

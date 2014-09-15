@@ -9,16 +9,16 @@
 // Header Files
 //=============
 #include "PreCompiled.h"
-
+#include "../../External/Lua/Includes.h"
 
 	class AssetBuilder
 	{
 	private:
 		std::string mAuthoredAssetDir;
 		std::string mBuiltAssetDir;
-		
+		static lua_State* mluaState;
 		AssetBuilder();
-		AssetBuilder(std::string & i_AuthoredAssetDir, std::string & i_BuiltAssetDir);
+		AssetBuilder(const std::string & i_AuthoredAssetDir, const std::string & i_BuiltAssetDir, const std::string & i_ScriptDir);
 
 		// Errors can be formatted a specific way so that they show up
 		// in Visual Studio's "Error List" tab
@@ -27,12 +27,19 @@
 		// Windows Functions
 		//------------------
 		static bool GetAssetBuilderEnvironmentVariable(const char* i_key, std::string& o_value);
-		static bool CopyAssetFile(const char* i_path_source, const char* i_path_target);
-		static bool CreateDirectoryIfNecessary(const std::string& i_path);
-		static bool DoesFileExist(const char* i_path, bool& o_doesFileExist);
+		static int CopyAssetFile(lua_State* io_luaState);
+		static int CreateDirectoryIfNecessary(lua_State* io_luaState);
+		static int DoesFileExist(lua_State* io_luaState);
 		static std::string GetFormattedWindowsError(const DWORD i_errorCode);
 		static std::string GetLastWindowsError(DWORD* o_optionalErrorCode = NULL);
-		static bool GetLastWriteTime(const char* i_path, uint64_t& o_lastWriteTime);
+		static int GetLastWriteTime(lua_State* io_luaState);
+
+		//Lua Functions
+		//-------------
+		static bool InitializeLua(const std::string & i_ScriptDir);
+
+		static bool ShutDownLua();
+
 
 	public:
 		~AssetBuilder();
@@ -41,9 +48,6 @@
 		static AssetBuilder * Create(void);
 		bool BuildAsset(const char* i_relativePath);
 	};
-
-
-
 
 
 #endif	// __EAE2014_ASSETBUILDER_H

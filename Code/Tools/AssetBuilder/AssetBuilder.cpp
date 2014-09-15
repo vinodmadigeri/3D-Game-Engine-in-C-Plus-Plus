@@ -3,6 +3,8 @@
 #include "PreCompiled.h"
 #include "AssetBuilder.h"
 
+lua_State* AssetBuilder::mluaState = NULL;
+
 AssetBuilder::AssetBuilder()
 {
 	if (!GetAssetBuilderEnvironmentVariable("AuthoredAssetDir", mAuthoredAssetDir))
@@ -13,24 +15,39 @@ AssetBuilder::AssetBuilder()
 	{
 		assert(false);
 	}
+
+	std::string scriptDir;
+	if (!GetAssetBuilderEnvironmentVariable("ScriptDir", scriptDir))
+	{
+		assert(false);
+	}
+
+	if (!InitializeLua(scriptDir))
+	{
+		assert(false);
+	}
 }
 
-AssetBuilder::AssetBuilder(std::string & i_AuthoredAssetDir, std::string & i_BuiltAssetDir):
+AssetBuilder::AssetBuilder(const std::string & i_AuthoredAssetDir, const std::string & i_BuiltAssetDir, const std::string & i_ScriptDir) :
 	mAuthoredAssetDir(i_AuthoredAssetDir), 
 	mBuiltAssetDir(i_BuiltAssetDir)
 {
-
+	if (!InitializeLua(i_ScriptDir))
+	{
+		assert(false);
+	}
 }
 
 AssetBuilder::~AssetBuilder()
 {
-
+	ShutDownLua();
 }
 
 AssetBuilder * AssetBuilder ::Create(void)
 {
 	std::string AuthoredAssetDir;
 	std::string BuiltAssetDir;
+	std::string scriptDir;
 
 	if (!GetAssetBuilderEnvironmentVariable("AuthoredAssetDir", AuthoredAssetDir))
 	{
@@ -41,7 +58,12 @@ AssetBuilder * AssetBuilder ::Create(void)
 		return NULL;
 	}
 
-	return new AssetBuilder(AuthoredAssetDir, BuiltAssetDir);
+	if (!GetAssetBuilderEnvironmentVariable("ScriptDir", scriptDir))
+	{
+		return NULL;
+	}
+
+	return new AssetBuilder(AuthoredAssetDir, BuiltAssetDir, scriptDir);
 }
 
 
@@ -50,66 +72,39 @@ AssetBuilder * AssetBuilder ::Create(void)
 
 bool AssetBuilder::BuildAsset(const char* i_relativePath)
 {
-	// Get the absolute paths to the source and target
-	// (The "source" is the authored asset,
-	// and the "target" is the built asset that is ready to be used in-game.
-	// In this example program we will just copy the source to the target
-	// and so the two will be the same,
-	// but in a real asset build pipeline the two will usually be different:
-	// The source will be in a format that is optimal for authoring purposes
-	// and the target will be in a format that is optimal for real-time purposes.)
-	const std::string path_source = mAuthoredAssetDir + i_relativePath;
-	const std::string path_target = mBuiltAssetDir + i_relativePath;
+	// The only thing that this C/C++ function does
+	// is call the corresponding Lua BuildAsset() function
 
-	// Decide if the target needs to be built
-	bool shouldTargetBeBuilt;
+	// To call a function it must be pushed onto the stack
+	lua_getglobal(mluaState, "BuildAsset");
+	// This function has a single argument
+	const int argumentCount = 1;
 	{
-		// The simplest reason a target should be built is if it doesn't exist
-		bool doesTargetExist;
-		{
-			if ( !DoesFileExist( path_target.c_str(), doesTargetExist ) )
-			{
-				return false;
-			}
-		}
-		if ( doesTargetExist )
-		{
-			// Even if the target exists it may be out-of-date.
-			// If the source has been modified more recently than the target
-			// then the target should be re-built.
-			uint64_t lastWriteTime_source, lastWriteTime_target;
-			{
-				if ( !GetLastWriteTime( path_source.c_str(), lastWriteTime_source ) ||
-					!GetLastWriteTime( path_target.c_str(), lastWriteTime_target ) )
-				{
-					return false;
-				}
-			}
-			shouldTargetBeBuilt = lastWriteTime_source > lastWriteTime_target;
-		}
-		else
-		{
-			shouldTargetBeBuilt = true;
-		}
+		lua_pushstring(mluaState, i_relativePath);
 	}
-
-	// Build the target if necessary
-	if ( shouldTargetBeBuilt )
+	// This function can potentially return two values:
+	//	* A boolean indicating success or failure
+	//	* An optional error message if building the asset failed
+	const int returnValueCount = 2;
+	const int noMessageHandler = 0;
+	int result = lua_pcall(mluaState, argumentCount, returnValueCount, noMessageHandler);
+	if (result == LUA_OK)
 	{
-		// Display a message to the user for each asset
-		std::cout << "Building " << path_source << "\n";
-
-		// Create the target directory if necessary
-		if ( !CreateDirectoryIfNecessary( path_target ) )
+		result = lua_toboolean(mluaState, -2);
+		if (!result)
 		{
-			return false;
+			OutputErrorMessage(lua_tostring(mluaState, -1), i_relativePath);
 		}
+		lua_pop(mluaState, returnValueCount);
+		return result != 0;
+	}
+	else
+	{
+		const char* errorMessage = lua_tostring(mluaState, -1);
+		std::cerr << errorMessage << "\n";
+		lua_pop(mluaState, 1);
 
-		// Copy the source to the target
-		if ( !CopyAssetFile( path_source.c_str(), path_target.c_str() ) )
-		{
-			return false;
-		}
+		return false;
 	}
 
 	return true;
@@ -124,61 +119,120 @@ void AssetBuilder::OutputErrorMessage(const char* i_errorMessage, const char* i_
 // Windows Functions
 //------------------
 
-bool AssetBuilder::CopyAssetFile(const char* i_path_source, const char* i_path_target)
+int AssetBuilder::CopyAssetFile(lua_State* io_luaState)
 {
-	const BOOL shouldFailIfTargetFileAlreadyExists = FALSE;
-	if ( CopyFile( i_path_source, i_path_target, shouldFailIfTargetFileAlreadyExists ) != FALSE )
+	// Argument #1: The source path
+	const char* i_path_source;
 	{
-		return true;
+		if (lua_isstring(io_luaState, 1))
+		{
+			i_path_source = lua_tostring(io_luaState, 1);
+		}
+		else
+		{
+			return luaL_error(io_luaState, "Argument#1 should of string type, (instead of a %s)", luaL_typename(io_luaState, 1));
+		}
+	}
+
+	// Argument #2: The target path
+	const char* i_path_target;
+	{
+		if (lua_isstring(io_luaState, 2))
+		{
+			i_path_target = lua_tostring(io_luaState, 2);
+		}
+		else
+		{
+			return luaL_error(io_luaState, "Argument#2 should of string type, (instead of a %s)", luaL_typename(io_luaState, 2));
+		}
+	}
+
+	// Copy the file
+	const BOOL noErrorIfTargetFileAlreadyExists = FALSE;
+	if (CopyFile(i_path_source, i_path_target, noErrorIfTargetFileAlreadyExists) != FALSE)
+	{
+		lua_pushboolean(io_luaState, true); // If successful, return a boolean "true"
+		int returnValueCount = 1;
+
+		return returnValueCount;
 	}
 	else
 	{
-		OutputErrorMessage( GetLastWindowsError().c_str(), i_path_source );
-		return false;
+		const std::string errorMessage = GetLastWindowsError();
+		return luaL_error(io_luaState, errorMessage.c_str());	// On failure, return a boolean "false" _and_ the error message
+
 	}
+
+	int returnValueCount = 0;
+	return returnValueCount;
 }
 
-bool AssetBuilder::CreateDirectoryIfNecessary(const std::string& i_path)
+int AssetBuilder::CreateDirectoryIfNecessary(lua_State* io_luaState)
 {
-	// If the path is to a file (likely), remove it so only the directory remains
+	// Argument #1: The path
+	std::string i_path;
+	{
+		if (lua_isstring(io_luaState, 1))
+		{
+			i_path = lua_tostring(io_luaState, 1);
+		}
+		else
+		{
+			return luaL_error(io_luaState, "Argument#1 should of string type, (instead of a %s)", luaL_typename(io_luaState, 1));
+		}
+	}
+
+	// If the path is to a file (likely), remove it so that only the directory remains
 	std::string directory;
 	{
-		size_t pos_slash = i_path.find_last_of( "\\/" );
-		if ( pos_slash != std::string::npos )
+		size_t pos_slash = i_path.find_last_of("\\/");
+		if (pos_slash != std::string::npos)
 		{
-			directory = i_path.substr( 0, pos_slash );
+			directory = i_path.substr(0, pos_slash);
 		}
 		else
 		{
 			directory = i_path;
 		}
 	}
-	// Get the path in a form Windows likes (without any ".."s)
-	const DWORD maxCharacterCount = 512;	// See comments in GetEnvironmentVariable()
+
+	// Get the path in a form Windows likes (without any ".."s).
+	// Windows requires a character buffer
+	// to copy the path variable into.
+	// An arbitrary value is chosen that "should" be "big enough":
+	const DWORD maxCharacterCount = MAX_PATH;
 	char buffer[maxCharacterCount];
 	{
 		char** pathIsDirectory = NULL;
-		DWORD characterCount = GetFullPathName( directory.c_str(), maxCharacterCount, buffer, pathIsDirectory );
-		if ( characterCount > 0 )
+		DWORD characterCount = GetFullPathName(directory.c_str(), maxCharacterCount, buffer, pathIsDirectory);
+		if (characterCount > 0)
 		{
-			if ( characterCount <= maxCharacterCount )
+			if (characterCount <= maxCharacterCount)
 			{
 				// Create the directory
 				int result;
 				{
 					HWND noWindowIsDisplayed = NULL;
 					const SECURITY_ATTRIBUTES* useDefaultSecurityAttributes = NULL;
-					result = SHCreateDirectoryEx( noWindowIsDisplayed, buffer, useDefaultSecurityAttributes );
+					result = SHCreateDirectoryEx(noWindowIsDisplayed, buffer, useDefaultSecurityAttributes);
 				}
-				if ( ( result == ERROR_SUCCESS ) ||
-					( ( result == ERROR_FILE_EXISTS ) || ( result== ERROR_ALREADY_EXISTS ) ) )
+				if (result == ERROR_SUCCESS)
 				{
-					return true;
+					std::cout << "Created directory " << buffer << "\n";
+					int returnValueCount = 0;
+					return returnValueCount;
+				}
+				else if ((result == ERROR_FILE_EXISTS) || (result == ERROR_ALREADY_EXISTS))
+				{
+					// If the file already exists that's ok,
+					// still don't return anything but don't print a message
+					int returnValueCount = 0;
+					return returnValueCount;
 				}
 				else
 				{
-					OutputErrorMessage( GetFormattedWindowsError( result ).c_str(), i_path.c_str() );
-					return false;
+					const std::string errorMessage = GetFormattedWindowsError(result);
+					return luaL_error(io_luaState, errorMessage.c_str());	// Throw an error
 				}
 			}
 			else
@@ -187,52 +241,70 @@ bool AssetBuilder::CreateDirectoryIfNecessary(const std::string& i_path)
 				std::stringstream errorMessage;
 				errorMessage << "The full path of \"" << directory << "\" requires " << characterCount <<
 					" characters and the provided buffer only has room for " << maxCharacterCount;
-				OutputErrorMessage( errorMessage.str().c_str(), i_path.c_str() );
-				return false;
+				return luaL_error(io_luaState, errorMessage.str().c_str());	// Throw an error
 			}
 		}
 		else
 		{
-			OutputErrorMessage( GetLastWindowsError().c_str(), i_path.c_str() );
-			return false;
+			const std::string errorMessage = GetLastWindowsError();
+			return luaL_error(io_luaState, errorMessage.c_str());	// Throw an error
 		}
 	}
 }
 
-bool AssetBuilder::DoesFileExist(const char* i_path, bool& o_doesFileExist)
+int AssetBuilder::DoesFileExist(lua_State* io_luaState)
 {
-	// Try to get information about the file
-	WIN32_FIND_DATA fileData;
-	HANDLE file = FindFirstFile( i_path, &fileData );
-	if ( file != INVALID_HANDLE_VALUE )
+	const char* i_FilePath;
 	{
-		if ( FindClose( file ) != FALSE )
+		if (lua_isstring(io_luaState, 1))
 		{
-			o_doesFileExist = true;
-			return true;
+			i_FilePath = lua_tostring(io_luaState, 1);
 		}
 		else
 		{
-			OutputErrorMessage( GetLastWindowsError().c_str(), i_path );
-			return false;
+			return luaL_error(io_luaState,
+				"Argument #1 must be a string (instead of a %s)",
+				luaL_typename(io_luaState, 1));
+		}
+	}
+
+	// Try to get information about the file
+	WIN32_FIND_DATA fileData;
+	HANDLE file = FindFirstFile(i_FilePath, &fileData);
+	if (file != INVALID_HANDLE_VALUE)
+	{
+		if (FindClose(file) != FALSE)
+		{
+			lua_pushboolean(io_luaState, true);
+			int returnValueCount = 1;
+			return returnValueCount;
+		}
+		else
+		{
+			std::stringstream errorMessage; 
+			errorMessage << GetLastWindowsError().c_str() << i_FilePath;
+			return luaL_error(io_luaState, errorMessage.str().c_str());
 		}
 	}
 	else
 	{
 		DWORD errorCode;
-		std::string errorMessage = GetLastWindowsError( &errorCode );
-		if ( ( errorCode == ERROR_FILE_NOT_FOUND ) || ( errorCode == ERROR_PATH_NOT_FOUND ) )
+		std::string errorMessage = GetLastWindowsError(&errorCode);
+		if ((errorCode == ERROR_FILE_NOT_FOUND) || (errorCode == ERROR_PATH_NOT_FOUND))
 		{
-			o_doesFileExist = false;
-			return true;
+			int returnValueCount = 1;
+			lua_pushboolean(io_luaState, false);
+			return returnValueCount;
 		}
 		else
 		{
-			OutputErrorMessage( GetLastWindowsError().c_str(), i_path );
-			return false;
+			std::stringstream errorMessage;
+			errorMessage << GetLastWindowsError().c_str() << i_FilePath;
+			return luaL_error(io_luaState, errorMessage.str().c_str());
 		}
 	}
 }
+
 
 bool AssetBuilder::GetAssetBuilderEnvironmentVariable(const char* i_key, std::string& o_value)
 {
@@ -333,8 +405,22 @@ std::string AssetBuilder::GetLastWindowsError(DWORD* o_optionalErrorCode)
 	return GetFormattedWindowsError( errorCode );
 }
 
-bool AssetBuilder::GetLastWriteTime(const char* i_path, uint64_t& o_lastWriteTime)
+int AssetBuilder::GetLastWriteTime(lua_State* io_luaState)
 {
+	//Argument#1: The path
+	const char * i_path;
+	{
+		if (lua_isstring(io_luaState, 1))
+		{
+			i_path = lua_tostring(io_luaState, 1);
+		}
+		else
+		{
+			return luaL_error(io_luaState, "Argument#1 should be of type string (instead of %s)", 
+								luaL_typename(io_luaState, 1));
+		}
+	}
+
 	// Get the last time that the file was written to
 	ULARGE_INTEGER lastWriteTime_int;
 	{
@@ -345,20 +431,77 @@ bool AssetBuilder::GetLastWriteTime(const char* i_path, uint64_t& o_lastWriteTim
 			{
 				if ( FindClose( file ) == FALSE )
 				{
-					OutputErrorMessage( GetLastWindowsError().c_str(), i_path );
-					return false;
+					std::stringstream errorMessage;
+					errorMessage << GetLastWindowsError() << i_path;
+					return luaL_error(io_luaState, errorMessage.str().c_str());
 				}
 			}
 			else
 			{
-				OutputErrorMessage( GetLastWindowsError().c_str(), i_path );
-				return false;
+				std::stringstream errorMessage;
+				errorMessage << GetLastWindowsError() << i_path;
+				return luaL_error(io_luaState, errorMessage.str().c_str());
 			}
 		}
 		FILETIME fileTime = fileData.ftLastWriteTime;
 		lastWriteTime_int.HighPart = fileTime.dwHighDateTime;
 		lastWriteTime_int.LowPart = fileTime.dwLowDateTime;
 	}
-	o_lastWriteTime = static_cast<uint64_t>( lastWriteTime_int.QuadPart );
+
+	const lua_Number lastWriteTime = static_cast<lua_Number>(lastWriteTime_int.QuadPart);
+	lua_pushnumber(io_luaState, lastWriteTime);
+
+	int returnValueCount = 1;
+	return returnValueCount;
+}
+
+bool AssetBuilder::InitializeLua(const std::string & i_ScriptDir)
+{
+	// Create a new Lua state
+	{
+		mluaState = luaL_newstate();
+		if (!mluaState)
+		{
+			return false;
+		}
+	}
+	// Open the standard libraries
+	luaL_openlibs(mluaState);
+	// Register custom functions
+	{
+		lua_register(mluaState, "CopyFile", CopyAssetFile);
+		lua_register(mluaState, "CreateDirectoryIfNecessary", CreateDirectoryIfNecessary);
+		lua_register(mluaState, "DoesFileExist", DoesFileExist);
+		lua_register(mluaState, "GetLastWriteTime", GetLastWriteTime);
+	}
+
+	// Load and execute the build script
+	{
+		std::string path;
+		{
+			path = i_ScriptDir + "BuildAssets.lua";
+		}
+		const int result = luaL_dofile(mluaState, path.c_str());
+		if (result != LUA_OK)
+		{
+			const char* errorMessage = lua_tostring(mluaState, -1);
+			std::cerr << errorMessage << "\n";
+			lua_pop(mluaState, 1);
+
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool AssetBuilder::ShutDownLua()
+{
+	if (mluaState)
+	{
+		lua_close(mluaState);
+		mluaState = NULL;
+	}
+
 	return true;
 }

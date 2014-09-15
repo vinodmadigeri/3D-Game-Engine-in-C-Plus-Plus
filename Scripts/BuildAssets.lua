@@ -64,7 +64,7 @@ function BuildAsset( i_relativePath )
 
 		-- Copy the source to the target
 		do
-			local result, errorMessage = CopyFile( path_source, path_target )
+			local result, errorMessage = CopyAssetFile( path_source, path_target )
 			if result then
 				-- Display a message for each asset
 				print( "Built " .. path_source )
