@@ -2,9 +2,11 @@
 //=============
 
 #include "PreCompiled.h"
-#include "GraphicsSystem.h"
-
 #include <d3dx9shader.h>
+
+#include "GraphicsSystem.h"
+#include "Material.h"
+
 
 // Static Data Initialization
 //===========================
@@ -36,15 +38,12 @@ namespace Engine
 		m_windowHeight(i_windowHeight),
 		m_shouldRenderFullScreen(i_shouldRenderFullScreen),
 		m_mainWindow(i_mainWindow),
-		m_VertexShaderFilePath(i_VertexShaderPath),
-		m_FragmentShaderFilePath(i_FragmentShaderPath),
 		m_direct3dInterface(NULL),
 		m_direct3dDevice(NULL),
 		m_vertexDeclaration(NULL),
 		m_indexBuffer(NULL),
 		m_vertexBuffer(NULL),
-		m_vertexShader(NULL),
-		m_fragmentShader(NULL),
+		m_material(NULL),
 		mInitilized(false)
 	{
 		if (true == Initialize())
@@ -72,6 +71,7 @@ namespace Engine
 	{
 		if (m_pInstance == NULL)
 		{
+			
 			m_pInstance = new GraphicsSystem(i_mainWindow, i_VertexShaderPath, i_FragmentShaderPath, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen);
 
 			//Handle crash
@@ -119,15 +119,12 @@ namespace Engine
 			goto OnError;
 		}
 
+		if (!CreateMaterial())
+		{
+			goto OnError;
+		}
+
 		if (!CreateVertexandIndexBuffer())
-		{
-			goto OnError;
-		}
-		if (!LoadVertexShader())
-		{
-			goto OnError;
-		}
-		if (!LoadFragmentShader())
 		{
 			goto OnError;
 		}
@@ -171,11 +168,23 @@ namespace Engine
 			{
 				// Set the shaders
 				{
-					result = m_direct3dDevice->SetVertexShader(m_vertexShader);
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					std::string errorMessage;
+#endif
+					result = m_material->Set(m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, &errorMessage
+#endif
+						);
 					assert(SUCCEEDED(result));
-					result = m_direct3dDevice->SetPixelShader(m_fragmentShader);
-					assert(SUCCEEDED(result));
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					if (FAILED(result))
+					{
+						MessageBox(m_mainWindow, errorMessage.c_str(), "Error Setting Material", MB_OK | MB_ICONERROR);
+					}
+#endif
 				}
+
 				// Bind a specific vertex buffer to the device as a data source
 				{
 					// There can be multiple streams of data feeding the display adaptor at the same time
@@ -237,15 +246,10 @@ namespace Engine
 		{
 			if (m_direct3dDevice)
 			{
-				if (m_vertexShader)
+				if (m_material)
 				{
-					m_vertexShader->Release();
-					m_vertexShader = NULL;
-				}
-				if (m_fragmentShader)
-				{
-					m_fragmentShader->Release();
-					m_fragmentShader = NULL;
+					delete m_material;
+					m_material = NULL;
 				}
 
 				if (m_vertexBuffer)
@@ -330,6 +334,33 @@ namespace Engine
 			MessageBox(i_mainWindow, "DirectX failed to create a Direct3D9 interface", "No D3D9 Interface", MB_OK | MB_ICONERROR);
 			return false;
 		}
+	}
+
+	bool GraphicsSystem::CreateMaterial()
+	{
+		if (m_material == NULL)
+		{
+			m_material = new Material();
+			assert(m_material);
+
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			std::string o_errorMessage;
+#endif
+			HRESULT result = m_material->Load("", m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, &o_errorMessage);
+#endif
+
+			if (FAILED(result))
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				MessageBox(m_mainWindow, o_errorMessage.c_str(), "No Shader File", MB_OK | MB_ICONERROR);
+#endif
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	bool GraphicsSystem::CreateVertexandIndexBuffer()
@@ -528,119 +559,4 @@ namespace Engine
 
 		return true;
 	}
-
-	bool GraphicsSystem::LoadFragmentShader()
-	{
-		// Load the source code from file and compile it
-		ID3DXBuffer* compiledShader;
-		{
-			const char* sourceCodeFileName = m_FragmentShaderFilePath.c_str();
-			const D3DXMACRO* noMacros = NULL;
-			ID3DXInclude* noIncludes = NULL;
-			const char* entryPoint = "main";
-			const char* profile = "ps_3_0";
-			const DWORD noFlags = 0;
-			ID3DXBuffer* errorMessages = NULL;
-			ID3DXConstantTable** noConstants = NULL;
-			HRESULT result = D3DXCompileShaderFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile, noFlags,
-				&compiledShader, &errorMessages, noConstants);
-			if (SUCCEEDED(result))
-			{
-				if (errorMessages)
-				{
-					errorMessages->Release();
-				}
-			}
-			else
-			{
-				if (errorMessages)
-				{
-					std::string errorMessage = std::string("DirectX failed to compile the fragment shader from the file ") +
-						sourceCodeFileName + ":\n" +
-						reinterpret_cast<char*>(errorMessages->GetBufferPointer());
-					MessageBox(m_mainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR);
-					errorMessages->Release();
-					return false;
-				}
-				else
-				{
-					std::string errorMessage = "DirectX failed to compile the fragment shader from the file ";
-					errorMessage += sourceCodeFileName;
-					MessageBox(m_mainWindow, errorMessage.c_str(), "No Fragment Shader", MB_OK | MB_ICONERROR);
-					return false;
-				}
-			}
-		}
-		// Create the fragment shader object
-		bool wereThereErrors = false;
-		{
-			HRESULT result = m_direct3dDevice->CreatePixelShader(reinterpret_cast<DWORD*>(compiledShader->GetBufferPointer()),
-				&m_fragmentShader);
-			if (FAILED(result))
-			{
-				MessageBox(m_mainWindow, "DirectX failed to create the fragment shader", "No Fragment Shader", MB_OK | MB_ICONERROR);
-				wereThereErrors = true;
-			}
-			compiledShader->Release();
-		}
-		return !wereThereErrors;
-	}
-
-	bool GraphicsSystem::LoadVertexShader()
-	{
-		// Load the source code from file and compile it
-		ID3DXBuffer* compiledShader;
-		{
-			const char* sourceCodeFileName = m_VertexShaderFilePath.c_str();
-			const D3DXMACRO* noMacros = NULL;
-			ID3DXInclude* noIncludes = NULL;
-			const char* entryPoint = "main";
-			const char* profile = "vs_3_0";
-			const DWORD noFlags = 0;
-			ID3DXBuffer* errorMessages = NULL;
-			ID3DXConstantTable** noConstants = NULL;
-			HRESULT result = D3DXCompileShaderFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile, noFlags,
-				&compiledShader, &errorMessages, noConstants);
-			if (SUCCEEDED(result))
-			{
-				if (errorMessages)
-				{
-					errorMessages->Release();
-				}
-			}
-			else
-			{
-				if (errorMessages)
-				{
-					std::string errorMessage = std::string("DirectX failed to compile the vertex shader from the file ") +
-						sourceCodeFileName + ":\n" +
-						reinterpret_cast<char*>(errorMessages->GetBufferPointer());
-					MessageBox(m_mainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR);
-					errorMessages->Release();
-					return false;
-				}
-				else
-				{
-					std::string errorMessage = "DirectX failed to compile the vertex shader from the file ";
-					errorMessage += sourceCodeFileName;
-					MessageBox(m_mainWindow, errorMessage.c_str(), "No Vertex Shader", MB_OK | MB_ICONERROR);
-					return false;
-				}
-			}
-		}
-		// Create the vertex shader object
-		bool wereThereErrors = false;
-		{
-			HRESULT result = m_direct3dDevice->CreateVertexShader(reinterpret_cast<DWORD*>(compiledShader->GetBufferPointer()),
-				&m_vertexShader);
-			if (FAILED(result))
-			{
-				MessageBox(m_mainWindow, "DirectX failed to create the vertex shader", "No Vertex Shader", MB_OK | MB_ICONERROR);
-				wereThereErrors = true;
-			}
-			compiledShader->Release();
-		}
-		return !wereThereErrors;
-	}
-
 }

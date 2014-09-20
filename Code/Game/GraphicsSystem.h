@@ -13,6 +13,8 @@
 
 namespace Engine
 {
+	class Material; //Forward Decleration
+
 	class GraphicsSystem
 	{
 	private:
@@ -27,10 +29,9 @@ namespace Engine
 		// (i.e. it defines the vertex connectivity)
 		IDirect3DIndexBuffer9* m_indexBuffer;
 		IDirect3DVertexBuffer9* m_vertexBuffer;
-		IDirect3DVertexShader9* m_vertexShader;
-		IDirect3DPixelShader9* m_fragmentShader;
-		std::string m_VertexShaderFilePath;
-		std::string m_FragmentShaderFilePath;
+
+		Material *m_material;
+
 		static GraphicsSystem *m_pInstance;
 		bool mInitilized;
 
@@ -56,8 +57,7 @@ namespace Engine
 		bool CreateVertexandIndexBuffer();
 		bool CreateVertexBuffer(DWORD usage);
 		bool CreateIndexBuffer(DWORD usage);
-		bool LoadFragmentShader();
-		bool LoadVertexShader();
+		bool CreateMaterial();
 
 		bool Initialize();
 		bool ShutDown();
