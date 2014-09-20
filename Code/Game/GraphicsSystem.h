@@ -23,6 +23,9 @@ namespace Engine
 		IDirect3D9* m_direct3dInterface;
 		IDirect3DDevice9* m_direct3dDevice;
 		IDirect3DVertexDeclaration9* m_vertexDeclaration;
+		// The index buffer describes how to make triangles with the vertices
+		// (i.e. it defines the vertex connectivity)
+		IDirect3DIndexBuffer9* m_indexBuffer;
 		IDirect3DVertexBuffer9* m_vertexBuffer;
 		IDirect3DVertexShader9* m_vertexShader;
 		IDirect3DPixelShader9* m_fragmentShader;
@@ -50,7 +53,9 @@ namespace Engine
 		~GraphicsSystem();
 		bool CreateDevice(const HWND i_mainWindow);
 		bool CreateInterface(const HWND i_mainWindow);
-		bool CreateVertexBuffer();
+		bool CreateVertexandIndexBuffer();
+		bool CreateVertexBuffer(DWORD usage);
+		bool CreateIndexBuffer(DWORD usage);
 		bool LoadFragmentShader();
 		bool LoadVertexShader();
 
