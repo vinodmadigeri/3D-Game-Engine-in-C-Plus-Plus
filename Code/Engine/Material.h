@@ -6,7 +6,6 @@ as well as the data that those shader program use
 #ifndef __EAE2014_GRAPHICS_MATERIAL_H
 #define __EAE2014_GRAPHICS_MATERIAL_H
 
-#define EAE2014_SHOULDALLRETURNVALUESBECHECKED
 // Header Files
 //=============
 #include "PreCompiled.h"
