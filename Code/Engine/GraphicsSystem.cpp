@@ -345,13 +345,13 @@ namespace Engine
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			std::string o_errorMessage;
 #endif
-			HRESULT result = m_material->Load(i_MaterialPath, m_direct3dDevice
+			bool result = m_material->Load(i_MaterialPath, m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				, &o_errorMessage
 #endif
 				);
 
-			if (FAILED(result))
+			if (!result)
 			{
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				MessageBox(m_mainWindow, o_errorMessage.c_str(), "No Shader File", MB_OK | MB_ICONERROR);
@@ -459,20 +459,20 @@ namespace Engine
 
 			// Fill the buffer
 			{
-				vertexData[0].x = 0.0f;
-				vertexData[0].y = 0.0f;
+				vertexData[0].x = -0.5f;
+				vertexData[0].y = -0.5f;
 				vertexData[0].color = D3DCOLOR_XRGB(255, 0, 0);
 
-				vertexData[1].x = 0.0f;
-				vertexData[1].y = 1.0f;
+				vertexData[1].x = -0.5f;
+				vertexData[1].y = 0.5f;
 				vertexData[1].color = D3DCOLOR_XRGB(0, 255, 0);
 
-				vertexData[2].x = 1.0f;
-				vertexData[2].y = 1.0f;
+				vertexData[2].x = 0.5f;
+				vertexData[2].y = 0.5f;
 				vertexData[2].color = D3DCOLOR_XRGB(0, 0, 255);
 
-				vertexData[3].x = 1.0f;
-				vertexData[3].y = 0.0f;
+				vertexData[3].x = 0.5f;
+				vertexData[3].y = -0.5f;
 				vertexData[3].color = D3DCOLOR_XRGB(255, 255, 255);
 			}
 

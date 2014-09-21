@@ -18,5 +18,5 @@ This file will be #included before anything else in the project
 
 #include <cassert>
 #include <string>
-
+#include <sstream>
 #endif	// __EAE2014_ENGINE_PRECOMPILED_H

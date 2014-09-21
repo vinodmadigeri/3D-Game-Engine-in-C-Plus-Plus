@@ -6,7 +6,7 @@ as well as the data that those shader program use
 #ifndef __EAE2014_GRAPHICS_MATERIAL_H
 #define __EAE2014_GRAPHICS_MATERIAL_H
 
-//#define EAE2014_SHOULDALLRETURNVALUESBECHECKED
+#define EAE2014_SHOULDALLRETURNVALUESBECHECKED
 // Header Files
 //=============
 #include "PreCompiled.h"
@@ -37,7 +37,7 @@ namespace Engine
 		// Initialization / Shut Down
 		//---------------------------
 
-		HRESULT Load(const char* i_MaterialFilepath, IDirect3DDevice9* i_direct3dDevice
+		bool Load(const char* i_MaterialFilepath, IDirect3DDevice9* i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage = NULL
 #endif
@@ -72,10 +72,29 @@ namespace Engine
 		std::string mPathVertexShader;
 		std::string mPathFragmentShader;
 
-		bool LoadLuaAsset(const char* i_path);
-		bool LoadTableValues(lua_State& io_luaState);
-		bool LoadTableValues_Shaders(lua_State& io_luaState, const char* key, std::string& o_PathShader);
-		bool LoadTableValues_Shader_paths(lua_State& io_luaState, std::string& o_PathShader);
+		bool LoadLuaAsset(const char* i_path
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage = NULL
+#endif
+			);
+
+		bool LoadTableValues(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+		bool LoadTableValues_Shaders(lua_State& io_luaState, const char* key, std::string& o_PathShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+		bool LoadTableValues_Shader_paths(lua_State& io_luaState, std::string& o_PathShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
 
 		bool LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
@@ -88,7 +107,6 @@ namespace Engine
 			, std::string* o_errorMessage = NULL
 #endif
 			);
-
 
 	};
 }

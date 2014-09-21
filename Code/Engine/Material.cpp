@@ -71,7 +71,11 @@ namespace Engine
 	}
 
 
-	bool Material::LoadLuaAsset(const char* i_path)
+	bool Material::LoadLuaAsset(const char* i_path
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
 	{
 		assert(i_path);
 		bool wereThereErrors = false;
@@ -83,7 +87,12 @@ namespace Engine
 			if (!luaState)
 			{
 				wereThereErrors = true;
-				std::cerr << "Failed to create a new Lua state\n";
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					*o_errorMessage = "Failed to create a new Lua state\n";
+				}
+#endif
 				goto OnExit;
 			}
 		}
@@ -95,7 +104,12 @@ namespace Engine
 			if (luaResult != LUA_OK)
 			{
 				wereThereErrors = true;
-				std::cerr << lua_tostring(luaState, -1);
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					*o_errorMessage = lua_tostring(luaState, -1);
+				}
+#endif
 				// Pop the error message
 				lua_pop(luaState, 1);
 				goto OnExit;
@@ -118,8 +132,16 @@ namespace Engine
 					if (!lua_istable(luaState, -1))
 					{
 						wereThereErrors = true;
-						std::cerr << "Asset files must return a table (instead of a " <<
-							luaL_typename(luaState, -1) << ")\n";
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "Asset files must return a table (instead of a " 
+										<<	luaL_typename(luaState, -1) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+#endif
 						// Pop the returned non-table value
 						lua_pop(luaState, 1);
 						goto OnExit;
@@ -128,8 +150,17 @@ namespace Engine
 				else
 				{
 					wereThereErrors = true;
-					std::cerr << "Asset files must return a single table (instead of " <<
-						returnedValueCount << " values)\n";
+
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					if (o_errorMessage)
+					{
+						std::stringstream errorMessage;
+						errorMessage << "Asset files must return a single table (instead of " <<
+							returnedValueCount << " values)\n";
+
+						*o_errorMessage = errorMessage.str();
+					}
+#endif
 					// Pop every value that was returned
 					lua_pop(luaState, returnedValueCount);
 					goto OnExit;
@@ -138,7 +169,12 @@ namespace Engine
 			else
 			{
 				wereThereErrors = true;
-				std::cerr << lua_tostring(luaState, -1);
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					*o_errorMessage = lua_tostring(luaState, -1);
+				}
+#endif
 				// Pop the error message
 				lua_pop(luaState, 1);
 				goto OnExit;
@@ -147,7 +183,11 @@ namespace Engine
 
 		// If this code is reached the asset file was loaded successfully,
 		// and its table is now at index -1
-		if (!LoadTableValues(*luaState))
+		if (!LoadTableValues(*luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif
+			))
 		{
 			wereThereErrors = true;
 		}
@@ -171,14 +211,26 @@ namespace Engine
 		return !wereThereErrors;
 	}
 
-	bool Material::LoadTableValues(lua_State& io_luaState)
+	bool Material::LoadTableValues(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
 	{
-		if (!LoadTableValues_Shaders(io_luaState, "VertexShader", mPathVertexShader))
+		if (!LoadTableValues_Shaders(io_luaState, "VertexShader", mPathVertexShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif
+			))
 		{
 			return false;
 		}
 
-		if (!LoadTableValues_Shaders(io_luaState, "FragmentShader", mPathFragmentShader))
+		if (!LoadTableValues_Shaders(io_luaState, "FragmentShader", mPathFragmentShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif
+			))
 		{
 			return false;
 		}
@@ -186,7 +238,11 @@ namespace Engine
 		return true;
 	}
 
-	bool Material::LoadTableValues_Shaders(lua_State& io_luaState, const char* key, std::string& o_PathShader)
+	bool Material::LoadTableValues_Shaders(lua_State& io_luaState, const char* key, std::string& o_PathShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
 	{
 		assert(key);
 		bool wereThereErrors = false;
@@ -212,7 +268,11 @@ namespace Engine
 		// (look at the "OnExit" label):
 		if (lua_istable(&io_luaState, -1))
 		{
-			if (!LoadTableValues_Shader_paths(io_luaState, o_PathShader))
+			if (!LoadTableValues_Shader_paths(io_luaState, o_PathShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif
+				))
 			{
 				wereThereErrors = true;
 				goto OnExit;
@@ -221,8 +281,17 @@ namespace Engine
 		else
 		{
 			wereThereErrors = true;
-			std::cerr << "The value at \"" << key << "\" must be a table "
-				"(instead of a " << luaL_typename(&io_luaState, -1) << ")\n";
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			if (o_errorMessage)
+			{
+				std::stringstream errorMessage;
+				errorMessage << "The value at \"" << key << "\" must be a table "
+					"(instead of a " << luaL_typename(&io_luaState, -1) << ")\n";
+
+				*o_errorMessage = errorMessage.str();
+			}
+#endif
+
 			goto OnExit;
 		}
 
@@ -234,7 +303,11 @@ namespace Engine
 		return !wereThereErrors;
 	}
 
-	bool Material::LoadTableValues_Shader_paths(lua_State& io_luaState, std::string& o_PathShader)
+	bool Material::LoadTableValues_Shader_paths(lua_State& io_luaState, std::string& o_PathShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
 	{
 		// Right now the asset table is at -2
 		// and the textures table is at -1.
@@ -246,7 +319,7 @@ namespace Engine
 		// As long as I make sure that when I leave this function it is _still_
 		// at -1 then it doesn't matter to me at all what is on the stack below it.
 		bool wereThereErrors = false;
-		std::cout << "Iterating through every shader path:\n";
+
 		const int ShaderPathCount = luaL_len(&io_luaState, -1);
 
 		if (ShaderPathCount == 1)
@@ -259,8 +332,17 @@ namespace Engine
 			if (lua_type(&io_luaState, -1) != LUA_TSTRING)
 			{
 				wereThereErrors = true;
-				std::cerr << "file paths must be a string (instead of a " <<
-					luaL_typename(&io_luaState, -1) << ")\n";
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "file paths must be a string (instead of a " <<
+									luaL_typename(&io_luaState, -1) << ")\n";
+
+					*o_errorMessage = errorMessage.str();
+				}
+#endif
+
 				// Pop the returned non-table value
 				lua_pop(&io_luaState, 1);
 				goto OnExit;
@@ -269,7 +351,12 @@ namespace Engine
 		else
 		{
 			wereThereErrors = true;
-			std::cerr << "Only one return value for shader path should be returned";
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			if (o_errorMessage)
+			{
+				*o_errorMessage = "Only one return value for shader path should be returned";
+			}
+#endif
 			lua_pop(&io_luaState, ShaderPathCount);
 			goto OnExit;
 		}
@@ -282,7 +369,7 @@ namespace Engine
 		return !wereThereErrors;
 	}
 
-	HRESULT Material::Load(const char* i_MaterialFilepath, IDirect3DDevice9* i_direct3dDevice
+	bool Material::Load(const char* i_MaterialFilepath, IDirect3DDevice9* i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
 #endif
@@ -293,7 +380,14 @@ namespace Engine
 
 		//Lua Logic
 		//---------
-		LoadLuaAsset(i_MaterialFilepath);
+		if (!LoadLuaAsset(i_MaterialFilepath
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif		
+			))
+		{
+			return false;
+		}
 
 		if (!LoadFragmentShader(mPathFragmentShader.c_str(), i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
