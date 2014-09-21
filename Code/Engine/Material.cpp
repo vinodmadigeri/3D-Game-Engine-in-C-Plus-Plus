@@ -71,8 +71,6 @@ namespace Engine
 	}
 
 
-
-
 	bool Material::LoadLuaAsset(const char* i_path)
 	{
 		assert(i_path);

@@ -5,26 +5,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Graphics System">
-      <UniqueIdentifier>{39ddbed2-40d9-40e6-918d-b416aeed2981}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Win32">
       <UniqueIdentifier>{3e79d4ba-01e8-4109-943d-cc52d2c1a9be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Debug">
-      <UniqueIdentifier>{a33bf4c5-4636-47b1-a1a4-eab48b7e8f62}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="Win32Management.h">
       <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsSystem.h">
-      <Filter>Graphics System</Filter>
-    </ClInclude>
-    <ClInclude Include="Debug.h">
-      <Filter>Debug</Filter>
     </ClInclude>
     <ClInclude Include="Resources\targetver.h">
       <Filter>Resource Files</Filter>
@@ -33,25 +21,13 @@
       <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="PreCompiled.h" />
-    <ClInclude Include="Material.h">
-      <Filter>Graphics System</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Win32Management.cpp">
       <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsSystem.cpp">
-      <Filter>Graphics System</Filter>
-    </ClCompile>
-    <ClCompile Include="Debug.cpp">
-      <Filter>Debug</Filter>
-    </ClCompile>
     <ClCompile Include="PreCompiled.cpp" />
-    <ClCompile Include="Material.cpp">
-      <Filter>Graphics System</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Game.rc">
