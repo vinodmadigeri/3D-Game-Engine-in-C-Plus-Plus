@@ -17,7 +17,6 @@ This file will be #included before anything else in the project
 #undef WIN32_LEAN_AND_MEAN
 
 #include <cassert>
-#include <cstdint>
 #include <string>
 #include <iostream>
 #include <ShlObj.h>

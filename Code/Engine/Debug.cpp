@@ -2,8 +2,6 @@
 #include "PreCompiled.h"
 
 #include "Debug.h"
-#include <stdarg.h>
-#include <stdio.h>
 
 
 namespace Engine

@@ -1,7 +1,6 @@
 
 #include "PreCompiled.h"
 #include <d3dx9shader.h>
-#include <iostream>
 #include "Material.h"
 
 
