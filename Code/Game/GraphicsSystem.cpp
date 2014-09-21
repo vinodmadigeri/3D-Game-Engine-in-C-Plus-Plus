@@ -29,8 +29,7 @@ namespace Engine
 	//==========
 
 	GraphicsSystem::GraphicsSystem(const HWND i_mainWindow,
-		const std::string &i_VertexShaderPath,
-		const std::string &i_FragmentShaderPath,
+		const char *i_MaterialPath,
 		const unsigned int i_windowWidth,
 		const unsigned int i_windowHeight,
 		const bool i_shouldRenderFullScreen) :
@@ -46,7 +45,7 @@ namespace Engine
 		m_material(NULL),
 		mInitilized(false)
 	{
-		if (true == Initialize())
+		if (true == Initialize(i_MaterialPath))
 		{
 			mInitilized = true;
 		}
@@ -63,16 +62,16 @@ namespace Engine
 
 	//Creates only one instance
 	bool GraphicsSystem::CreateInstance(const HWND i_mainWindow,
-		const std::string &i_VertexShaderPath,
-		const std::string &i_FragmentShaderPath,
+		const char *i_MaterialPath,
 		const unsigned int i_windowWidth,
 		const unsigned int i_windowHeight,
 		const bool i_shouldRenderFullScreen)
 	{
-		if (m_pInstance == NULL)
+		assert(i_MaterialPath);
+
+		if ((m_pInstance == NULL) && (i_MaterialPath != NULL))
 		{
-			
-			m_pInstance = new GraphicsSystem(i_mainWindow, i_VertexShaderPath, i_FragmentShaderPath, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen);
+			m_pInstance = new GraphicsSystem(i_mainWindow, i_MaterialPath, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen);
 
 			//Handle crash
 			if (m_pInstance == NULL)
@@ -106,7 +105,7 @@ namespace Engine
 		m_pInstance = NULL;
 	}
 
-	bool GraphicsSystem::Initialize(void)
+	bool GraphicsSystem::Initialize(const char *i_MaterialPath)
 	{
 		// Initialize the interface to the Direct3D9 library
 		if (!CreateInterface(m_mainWindow))
@@ -119,7 +118,7 @@ namespace Engine
 			goto OnError;
 		}
 
-		if (!CreateMaterial())
+		if (!CreateMaterial(i_MaterialPath))
 		{
 			goto OnError;
 		}
@@ -336,7 +335,7 @@ namespace Engine
 		}
 	}
 
-	bool GraphicsSystem::CreateMaterial()
+	bool GraphicsSystem::CreateMaterial(const char *i_MaterialPath)
 	{
 		if (m_material == NULL)
 		{
@@ -346,10 +345,11 @@ namespace Engine
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			std::string o_errorMessage;
 #endif
-			HRESULT result = m_material->Load("", m_direct3dDevice
+			HRESULT result = m_material->Load(i_MaterialPath, m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				, &o_errorMessage);
+				, &o_errorMessage
 #endif
+				);
 
 			if (FAILED(result))
 			{
@@ -433,13 +433,14 @@ namespace Engine
 			HANDLE* const notUsed = NULL;
 
 			result = m_direct3dDevice->CreateVertexBuffer(bufferSize, i_usage, useSeparateVertexDeclaration, useDefaultPool,
-				&m_vertexBuffer, notUsed);
+															&m_vertexBuffer, notUsed);
 			if (FAILED(result))
 			{
 				MessageBox(m_mainWindow, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
 				return false;
 			}
 		}
+
 		// Fill the vertex buffer with the rectangle's vertices
 		{
 			// Before the vertex buffer can be changed it must be "locked"

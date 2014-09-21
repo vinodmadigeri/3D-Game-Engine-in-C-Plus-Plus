@@ -6,12 +6,12 @@ as well as the data that those shader program use
 #ifndef __EAE2014_GRAPHICS_MATERIAL_H
 #define __EAE2014_GRAPHICS_MATERIAL_H
 
-#define EAE2014_SHOULDALLRETURNVALUESBECHECKED
+//#define EAE2014_SHOULDALLRETURNVALUESBECHECKED
 // Header Files
 //=============
 #include "PreCompiled.h"
 #include <d3d9.h>
-
+#include "../External/Lua/Includes.h"
 
 // Class Declaration
 //==================
@@ -29,18 +29,6 @@ namespace Engine
 		//-------
 
 		HRESULT Set(IDirect3DDevice9 * i_direct3dDevice
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, std::string* o_errorMessage = NULL
-#endif
-			);
-
-		bool LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, std::string* o_errorMessage = NULL
-#endif
-			);
-
-		bool LoadVertexShader(const char* i_VertexShaderpath, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage = NULL
 #endif
@@ -80,6 +68,28 @@ namespace Engine
 		// Its output is:
 		//	* The final color that the pixel should be
 		IDirect3DPixelShader9* m_fragmentShader;
+
+		std::string mPathVertexShader;
+		std::string mPathFragmentShader;
+
+		bool LoadLuaAsset(const char* i_path);
+		bool LoadTableValues(lua_State& io_luaState);
+		bool LoadTableValues_Shaders(lua_State& io_luaState, const char* key, std::string& o_PathShader);
+		bool LoadTableValues_Shader_paths(lua_State& io_luaState, std::string& o_PathShader);
+
+		bool LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage = NULL
+#endif
+			);
+
+		bool LoadVertexShader(const char* i_VertexShaderpath, IDirect3DDevice9 * i_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage = NULL
+#endif
+			);
+
+
 	};
 }
 

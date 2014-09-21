@@ -43,8 +43,7 @@ namespace Engine
 		};
 
 		GraphicsSystem(const HWND i_mainWindow,
-			const std::string &i_VertexShaderPath,
-			const std::string &i_FragmentShaderPath,
+			const char *i_MaterialPath,
 			const unsigned int i_windowWidth,
 			const unsigned int i_windowHeight,
 			const bool i_shouldRenderFullScreen); //Constructor
@@ -57,15 +56,14 @@ namespace Engine
 		bool CreateVertexandIndexBuffer();
 		bool CreateVertexBuffer(DWORD usage);
 		bool CreateIndexBuffer(DWORD usage);
-		bool CreateMaterial();
+		bool CreateMaterial(const char *i_MaterialPath);
 
-		bool Initialize();
+		bool Initialize(const char *i_MaterialPath);
 		bool ShutDown();
 
 	public:
 		static bool CreateInstance(const HWND i_mainWindow,
-			const std::string &i_VertexShaderPath,
-			const std::string &i_FragmentShaderPath,
+			const char *i_MaterialPath,
 			const unsigned int i_windowWidth = 800,
 			const unsigned int i_windowHeight = 600,
 			const bool i_shouldRenderFullScreen = false);

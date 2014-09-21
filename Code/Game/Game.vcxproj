@@ -61,8 +61,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x86\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d9.lib;D3dx9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;D3dx9.lib;LuaLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(LibDir);$(DXSDK_DIR)Lib\x86\</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
       <Command>copy "$(TargetPath)" "$(GameDir)$(TargetFileName)" /y</Command>
@@ -93,8 +93,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x86\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d9.lib;D3dx9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;D3dx9.lib;LuaLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(LibDir);$(DXSDK_DIR)Lib\x86\</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
       <Command>copy "$(TargetPath)" "$(GameDir)$(TargetFileName)" /y</Command>

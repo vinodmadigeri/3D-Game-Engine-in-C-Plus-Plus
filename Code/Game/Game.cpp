@@ -40,11 +40,11 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		return mInitilized;
 	}
 
-	std::string VertexShaderPath = "data/vertexShader.hlsl";
-	std::string FragmentShaderPath = "data/fragmentShader.hlsl";
+	std::string MaterialPath = "data/Simple.mat.lua";
 	HWND mainWindowHandle = Win32Management::WindowsManager::GetInstance()->GetReferenceToMainWindowHandle();
 
-	mInitilized = Engine::GraphicsSystem::CreateInstance(mainWindowHandle, VertexShaderPath, FragmentShaderPath);
+	mInitilized = Engine::GraphicsSystem::CreateInstance(mainWindowHandle, MaterialPath.c_str(), g_windowWidth,
+											g_windowHeight, g_shouldRenderFullScreen);
 
 	if (mInitilized == false)
 	{
