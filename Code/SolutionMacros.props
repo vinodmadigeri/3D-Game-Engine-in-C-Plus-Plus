@@ -5,6 +5,7 @@
     <TempDir>$(SolutionDir)temp\$(PlatformName)\$(Configuration)\</TempDir>
     <IntermediateDir>$(TempDir)intermediates\$(ProjectName)\</IntermediateDir>
     <LibDir>$(TempDir)lib\</LibDir>
+	<EngineDir>$(SolutionDir)Code\Engine\</EngineDir>
     <BinDir>$(TempDir)bin\</BinDir>
     <GameDir>$(TempDir)game\</GameDir>
     <AuthoredAssetDir>$(SolutionDir)Assets\</AuthoredAssetDir>
@@ -22,6 +23,10 @@
     </BuildMacro>
     <BuildMacro Include="LibDir">
       <Value>$(LibDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+	<BuildMacro Include="EngineDir">
+      <Value>$(EngineDir)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
     <BuildMacro Include="BinDir">

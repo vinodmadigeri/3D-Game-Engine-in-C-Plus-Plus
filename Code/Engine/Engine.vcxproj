@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="GraphicsSystem.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="PreCompiled.cpp">
@@ -20,12 +19,27 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreCompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreCompiled.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="Util\Debug.cpp" />
+    <ClCompile Include="Util\HashedString.cpp" />
+    <ClCompile Include="Util\HighResTime.cpp" />
+    <ClCompile Include="Util\MathUtil.cpp" />
+    <ClCompile Include="Util\Vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Debug.h" />
     <ClInclude Include="GraphicsSystem.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="PreCompiled.h" />
+    <ClInclude Include="Util\Debug.h" />
+    <ClInclude Include="Util\HashedString.h" />
+    <ClInclude Include="Util\HighResTime.h" />
+    <ClInclude Include="Util\MathUtil.h" />
+    <ClInclude Include="Util\SharedPointer.h" />
+    <ClInclude Include="Util\Vector3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Util\HashedString.inl" />
+    <None Include="Util\SharedPointer.inl" />
+    <None Include="Util\Vector3.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8A456F4F-DAB4-4C14-A9F8-87E4ECB9B50F}</ProjectGuid>
@@ -73,7 +87,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_ENABLE_DEBUG_LOGS;EAE2014_SHOULDALLRETURNVALUESBECHECKED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>PreCompiled.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include\;$(EngineDir)Util;$(EngineDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -95,7 +109,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>PreCompiled.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include\;$(EngineDir)Util;$(EngineDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -2,34 +2,78 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="PreCompiled.cpp" />
-    <ClCompile Include="Debug.cpp">
-      <Filter>Debug</Filter>
-    </ClCompile>
     <ClCompile Include="GraphicsSystem.cpp">
       <Filter>GraphicsSystem</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>GraphicsSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Util\Debug.cpp">
+      <Filter>Util\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Vector3.cpp">
+      <Filter>Util\Vector3</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\MathUtil.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\HashedString.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\HighResTime.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PreCompiled.h" />
-    <ClInclude Include="Debug.h">
-      <Filter>Debug</Filter>
-    </ClInclude>
     <ClInclude Include="GraphicsSystem.h">
       <Filter>GraphicsSystem</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>GraphicsSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Util\Debug.h">
+      <Filter>Util\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Vector3.h">
+      <Filter>Util\Vector3</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\MathUtil.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\HashedString.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\HighResTime.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\SharedPointer.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GraphicsSystem">
       <UniqueIdentifier>{bd1813e4-a295-496b-bb19-28eab9baaf4d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Debug">
+    <Filter Include="Util">
+      <UniqueIdentifier>{3a245189-6863-48a4-80cf-7469c75c58f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Vector3">
+      <UniqueIdentifier>{33b77cf8-b28a-4010-a6d1-6e077f58866d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Debug">
       <UniqueIdentifier>{434c9b6c-8ee7-4816-b0ab-3838a640c9c9}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Util\Vector3.inl">
+      <Filter>Util\Vector3</Filter>
+    </None>
+    <None Include="Util\HashedString.inl">
+      <Filter>Util</Filter>
+    </None>
+    <None Include="Util\SharedPointer.inl">
+      <Filter>Util</Filter>
+    </None>
   </ItemGroup>
 </Project>
