@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GraphicsObjects.cpp" />
     <ClCompile Include="GraphicsSystem.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="PreCompiled.cpp">
@@ -19,27 +20,42 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreCompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreCompiled.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="Util\Actor.cpp" />
+    <ClCompile Include="Util\BitArray.cpp" />
     <ClCompile Include="Util\Debug.cpp" />
     <ClCompile Include="Util\HashedString.cpp" />
     <ClCompile Include="Util\HighResTime.cpp" />
     <ClCompile Include="Util\MathUtil.cpp" />
+    <ClCompile Include="Util\Matrix4x4.cpp" />
+    <ClCompile Include="Util\MemoryPool.cpp" />
     <ClCompile Include="Util\Vector3.cpp" />
+    <ClCompile Include="WorldSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GraphicsObjects.h" />
     <ClInclude Include="GraphicsSystem.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="MeshData.h" />
     <ClInclude Include="PreCompiled.h" />
+    <ClInclude Include="Util\Actor.h" />
+    <ClInclude Include="Util\ActorController.h" />
+    <ClInclude Include="Util\BitArray.h" />
     <ClInclude Include="Util\Debug.h" />
     <ClInclude Include="Util\HashedString.h" />
     <ClInclude Include="Util\HighResTime.h" />
     <ClInclude Include="Util\MathUtil.h" />
+    <ClInclude Include="Util\Matrix4x4.h" />
+    <ClInclude Include="Util\MemoryPool.h" />
     <ClInclude Include="Util\SharedPointer.h" />
     <ClInclude Include="Util\Vector3.h" />
+    <ClInclude Include="Util\Vector4.h" />
+    <ClInclude Include="WorldSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Util\HashedString.inl" />
     <None Include="Util\SharedPointer.inl" />
     <None Include="Util\Vector3.inl" />
+    <None Include="Util\Vector4.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8A456F4F-DAB4-4C14-A9F8-87E4ECB9B50F}</ProjectGuid>
