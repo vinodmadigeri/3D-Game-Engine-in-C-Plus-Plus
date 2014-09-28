@@ -6,12 +6,13 @@
 #include "Debug.h"
 //#include "PhysicsSystem.h"
 #include "WorldSystem.h"
+#include "RenderableObjectSystem.h"
 
 namespace Engine
 {
 
-		static unsigned int MAX_WORLD_OBJECTS = 100;
-		static WorldSystem * mInstance = NULL;
+		unsigned int WorldSystem::MAX_WORLD_OBJECTS = 100;
+		WorldSystem* WorldSystem::mInstance = NULL;
 		MemoryPool * WorldSystem::WorldObject::WorldMemoryPool = NULL;
 		
 		/******************************************************************************
@@ -65,15 +66,18 @@ namespace Engine
 			const char *i_ActorType,
 			const Vector3 & i_Size,
 			const float i_Rotation,
-			const char *i_Type)
+			const char *pcMaterialPath,
+			const DrawInfo &i_DrawInfo)
 		{
+			assert(pcMaterialPath && i_GameObjectName && i_ActorType);
 
-			SharedPointer<Actor> NewActor = Actor::Create(i_vInitialPosition, i_InitialVelocity, i_vInitialAcceleration, i_GameObjectName, i_ActorType, i_Size, i_Rotation, i_Type);
+			SharedPointer<Actor> NewActor = Actor::Create(i_vInitialPosition, i_InitialVelocity, i_vInitialAcceleration, i_GameObjectName, i_ActorType, i_Size, i_Rotation);
 
 			//Add actor in world system
 			AddActorGameObject(NewActor);
 
-			//Create Graphics Object and add
+			//add Graphics Object 
+			RenderableObjectSystem::GetInstance()->Add3DActorGameObject(NewActor, pcMaterialPath, i_DrawInfo);
 
 			//Create Physics object and add
 			return;
@@ -252,7 +256,7 @@ namespace Engine
 			if (WorldObject::WorldMemoryPool == NULL)
 			{
 				WorldObject::WorldMemoryPool = MemoryPool::Create(sizeof(WorldObject), MAX_WORLD_OBJECTS);
-				if (WorldObject::WorldMemoryPool)
+				if (WorldObject::WorldMemoryPool == NULL)
 				{
 					assert(false);
 					WereThereErrors = false;

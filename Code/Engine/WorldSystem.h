@@ -8,11 +8,10 @@
 #include "Actor.h"
 #include "MemoryPool.h"
 #include "SharedPointer.h"
+#include "MeshData.h"
 
 namespace Engine
 {
-	
-
 	class WorldSystem
 	{
 	private:
@@ -63,7 +62,9 @@ namespace Engine
 			const char *i_ActorType,
 			const Vector3 & i_Size,
 			const float i_Rotation,
-			const char *i_Type);
+			const char *pcMaterialPath,
+			const DrawInfo &i_DrawInfo);
+
 		void AddActorGameObject(SharedPointer<Actor> &i_Object);
 		std::vector< SharedPointer<Actor>> FindActorsByType(const char *i_ActorType);
 		unsigned int FindActorCountByType(const char *i_ActorType);

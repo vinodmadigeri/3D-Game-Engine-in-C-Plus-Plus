@@ -38,7 +38,10 @@
     <ClCompile Include="Util\Matrix4x4.cpp">
       <Filter>Util\Matrix4X4</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsObjects.cpp">
+    <ClCompile Include="Mesh.cpp">
+      <Filter>GraphicsSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderableObjectSystem.cpp">
       <Filter>GraphicsSystem</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,10 +92,13 @@
     <ClInclude Include="Util\Vector4.h">
       <Filter>Util\Matrix4X4</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicsObjects.h">
+    <ClInclude Include="MeshData.h">
       <Filter>GraphicsSystem</Filter>
     </ClInclude>
-    <ClInclude Include="MeshData.h">
+    <ClInclude Include="Mesh.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderableObjectSystem.h">
       <Filter>GraphicsSystem</Filter>
     </ClInclude>
   </ItemGroup>

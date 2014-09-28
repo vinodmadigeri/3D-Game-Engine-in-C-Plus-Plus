@@ -6,7 +6,8 @@
 
 #include "GraphicsSystem.h"
 #include "Material.h"
-
+#include "Mesh.h"
+#include "MeshData.h"
 
 // Static Data Initialization
 //===========================
@@ -29,7 +30,6 @@ namespace Engine
 	//==========
 
 	GraphicsSystem::GraphicsSystem(const HWND i_mainWindow,
-		const char *i_MaterialPath,
 		const unsigned int i_windowWidth,
 		const unsigned int i_windowHeight,
 		const bool i_shouldRenderFullScreen) :
@@ -39,13 +39,9 @@ namespace Engine
 		m_mainWindow(i_mainWindow),
 		m_direct3dInterface(NULL),
 		m_direct3dDevice(NULL),
-		m_vertexDeclaration(NULL),
-		m_indexBuffer(NULL),
-		m_vertexBuffer(NULL),
-		m_material(NULL),
 		mInitilized(false)
 	{
-		if (true == Initialize(i_MaterialPath))
+		if (true == Initialize())
 		{
 			mInitilized = true;
 		}
@@ -62,16 +58,13 @@ namespace Engine
 
 	//Creates only one instance
 	bool GraphicsSystem::CreateInstance(const HWND i_mainWindow,
-		const char *i_MaterialPath,
 		const unsigned int i_windowWidth,
 		const unsigned int i_windowHeight,
 		const bool i_shouldRenderFullScreen)
 	{
-		assert(i_MaterialPath);
-
-		if ((m_pInstance == NULL) && (i_MaterialPath != NULL))
+		if (m_pInstance == NULL)
 		{
-			m_pInstance = new GraphicsSystem(i_mainWindow, i_MaterialPath, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen);
+			m_pInstance = new GraphicsSystem(i_mainWindow, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen);
 
 			//Handle crash
 			if (m_pInstance == NULL)
@@ -105,7 +98,7 @@ namespace Engine
 		m_pInstance = NULL;
 	}
 
-	bool GraphicsSystem::Initialize(const char *i_MaterialPath)
+	bool GraphicsSystem::Initialize()
 	{
 		// Initialize the interface to the Direct3D9 library
 		if (!CreateInterface(m_mainWindow))
@@ -118,16 +111,6 @@ namespace Engine
 			goto OnError;
 		}
 
-		if (!CreateMaterial(i_MaterialPath))
-		{
-			goto OnError;
-		}
-
-		if (!CreateVertexandIndexBuffer())
-		{
-			goto OnError;
-		}
-
 		return true;
 
 	OnError:
@@ -136,7 +119,7 @@ namespace Engine
 		return false;
 	}
 
-	void GraphicsSystem::Render()
+	void GraphicsSystem::Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh)
 	{
 		assert(mInitilized == true);
 
@@ -170,7 +153,7 @@ namespace Engine
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 					std::string errorMessage;
 #endif
-					result = m_material->Set(m_direct3dDevice
+					result = i_Material->Set(m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 						, &errorMessage
 #endif
@@ -192,13 +175,13 @@ namespace Engine
 					const unsigned int bufferOffset = 0;
 					// The "stride" defines how large a single vertex is in the stream of data
 					const unsigned int bufferStride = sizeof(sVertex);
-					result = m_direct3dDevice->SetStreamSource(streamIndex, m_vertexBuffer, bufferOffset, bufferStride);
+					result = m_direct3dDevice->SetStreamSource(streamIndex, i_Mesh->GetVertexBuffer(), bufferOffset, bufferStride);
 					assert(SUCCEEDED(result));
 				}
 
 				// Set the indices to use
 				{
-					HRESULT result = m_direct3dDevice->SetIndices(m_indexBuffer);
+					HRESULT result = m_direct3dDevice->SetIndices(i_Mesh->GetIndexBuffer());
 					assert(SUCCEEDED(result));
 				}
 
@@ -207,13 +190,13 @@ namespace Engine
 					// We are using triangles as the "primitive" type,
 					// and we have defined the vertex buffer as a triangle list
 					// (meaning that every triangle is defined by three vertices)
-					const D3DPRIMITIVETYPE primitiveType = D3DPT_TRIANGLELIST;
+					const D3DPRIMITIVETYPE primitiveType = i_Mesh->mDrawInfo.m_PrimitiveType;
 					// It's possible to start rendering primitives in the middle of the stream
-					const unsigned int indexOfFirstVertexToRender = 0;
-					const unsigned int indexOfFirstIndexToUse = 0;
+					const unsigned int indexOfFirstVertexToRender = i_Mesh->mDrawInfo.m_indexOfFirstVertexToRender;
+					const unsigned int indexOfFirstIndexToUse = i_Mesh->mDrawInfo.m_indexOfFirstIndexToUse;
 					// We are drawing a single triangle
-					const unsigned int primitiveCountToRender = 2;
-					const unsigned int vertexCountToRender = 4; //Rectangle contains 4 vertices
+					const unsigned int primitiveCountToRender = i_Mesh->mDrawInfo.m_PrimitiveCount;
+					const unsigned int vertexCountToRender = i_Mesh->mDrawInfo.m_NumOfVertices; //Rectangle contains 4 vertices
 
 					result = m_direct3dDevice->DrawIndexedPrimitive(primitiveType, indexOfFirstVertexToRender, indexOfFirstVertexToRender, vertexCountToRender, indexOfFirstIndexToUse, primitiveCountToRender);
 					assert(SUCCEEDED(result));
@@ -245,29 +228,17 @@ namespace Engine
 		{
 			if (m_direct3dDevice)
 			{
-				if (m_material)
+				if (m_Materials.size() > 0)
 				{
-					delete m_material;
-					m_material = NULL;
+					m_Materials.clear();
 				}
 
-				if (m_vertexBuffer)
+				if (m_Meshes.size() > 0)
 				{
-					m_vertexBuffer->Release();
-					m_vertexBuffer = NULL;
-				}
-				if (m_vertexDeclaration)
-				{
-					m_direct3dDevice->SetVertexDeclaration(NULL);
-					m_vertexDeclaration->Release();
-					m_vertexDeclaration = NULL;
-				}
-				if (m_indexBuffer)
-				{
-					m_indexBuffer->Release();
-					m_indexBuffer = NULL;
+					m_Meshes.clear();
 				}
 
+				m_direct3dDevice->SetVertexDeclaration(NULL);
 				m_direct3dDevice->Release();
 				m_direct3dDevice = NULL;
 			}
@@ -334,18 +305,17 @@ namespace Engine
 			return false;
 		}
 	}
-
-	bool GraphicsSystem::CreateMaterial(const char *i_MaterialPath)
+	SharedPointer<Material> GraphicsSystem::CreateMaterial(const char *i_MaterialPath)
 	{
-		if (m_material == NULL)
+		SharedPointer<Material> OutMaterial = NULL;
 		{
-			m_material = new Material();
-			assert(m_material);
+			OutMaterial = new Material();
+			assert(OutMaterial != NULL);
 
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			std::string o_errorMessage;
 #endif
-			bool result = m_material->Load(i_MaterialPath, m_direct3dDevice
+			bool result = OutMaterial->Load(i_MaterialPath, m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				, &o_errorMessage
 #endif
@@ -356,20 +326,22 @@ namespace Engine
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				MessageBox(m_mainWindow, o_errorMessage.c_str(), "No Shader File", MB_OK | MB_ICONERROR);
 #endif
-				return false;
+				return NULL;
 			}
 		}
 
-		return true;
+		m_Materials.push_back(OutMaterial);
+
+		return OutMaterial;
 	}
 
-	bool GraphicsSystem::CreateVertexandIndexBuffer()
+
+	bool GraphicsSystem::ComputeUsage(DWORD &o_usage)
 	{
 		// The usage tells Direct3D how this vertex buffer will be used
-		DWORD usage = 0;
 		{
 			// Our code will only ever write to the buffer
-			usage |= D3DUSAGE_WRITEONLY;
+			o_usage |= D3DUSAGE_WRITEONLY;
 			// The type of vertex processing should match what was specified when the device interface was created with CreateDevice()
 			{
 				D3DDEVICE_CREATION_PARAMETERS deviceCreationParameters;
@@ -378,7 +350,7 @@ namespace Engine
 				{
 					DWORD vertexProcessingType = deviceCreationParameters.BehaviorFlags &
 						(D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MIXED_VERTEXPROCESSING | D3DCREATE_SOFTWARE_VERTEXPROCESSING);
-					usage |= (vertexProcessingType != D3DCREATE_SOFTWARE_VERTEXPROCESSING) ? 0 : D3DUSAGE_SOFTWAREPROCESSING;
+					o_usage |= (vertexProcessingType != D3DCREATE_SOFTWARE_VERTEXPROCESSING) ? 0 : D3DUSAGE_SOFTWAREPROCESSING;
 				}
 				else
 				{
@@ -388,26 +360,73 @@ namespace Engine
 			}
 		}
 
-		if (!CreateVertexBuffer(usage))
-		{
-			return false;
-		}
-
-		if (!CreateIndexBuffer(usage))
-		{
-			return false;
-		}
-
 		return true;
 	}
 
-	bool GraphicsSystem::CreateVertexBuffer(DWORD i_usage)
+
+	SharedPointer<Mesh> GraphicsSystem::CreateMesh(const DrawInfo &i_DrawInfo)
+	{
+		std::string errorMessage;
+
+		DWORD usage = 0;
+		{
+			if (true == ComputeUsage(usage))
+			{
+				IDirect3DVertexDeclaration9* vertexDeclaration = NULL;
+				IDirect3DVertexBuffer9* vertexBuffer = NULL;
+				{
+					if (!CreateVertexBuffer(usage, &vertexDeclaration, &vertexBuffer, i_DrawInfo))
+					{
+						errorMessage = "DirectX Failed to create Vertex Buffer";
+						goto OnError;
+					}
+				}
+
+				IDirect3DIndexBuffer9* indexBuffer = NULL;
+				{
+					if (!CreateIndexBuffer(usage, &indexBuffer, i_DrawInfo))
+					{
+						errorMessage = "DirectX Failed to create Index Buffer";
+						goto OnError;
+					}
+				}
+
+				SharedPointer<Mesh> pMesh = NULL;
+				{
+					pMesh = new Mesh(i_DrawInfo, vertexDeclaration, vertexBuffer, indexBuffer);
+
+					if (pMesh == NULL)
+					{
+						errorMessage = "Mesh Creation failed";
+						goto OnError;
+					}
+
+					m_Meshes.push_back(pMesh);
+
+					return pMesh;
+				}
+			}
+			else
+			{
+				errorMessage =  "Failed";
+				goto OnError;
+			}
+		}
+
+	OnError:
+		MessageBox(m_mainWindow, errorMessage.c_str(), "Can not create Mesh", MB_OK | MB_ICONERROR);
+
+		return NULL;
+
+	}
+
+	bool GraphicsSystem::CreateVertexBuffer(DWORD i_usage, IDirect3DVertexDeclaration9** i_ppvertexDeclaration, IDirect3DVertexBuffer9** i_ppvertexBuffer, const DrawInfo &i_DrawInfo)
 	{
 		// Initialize the vertex format
-		HRESULT result = m_direct3dDevice->CreateVertexDeclaration(s_vertexElements, &m_vertexDeclaration);
+		HRESULT result = m_direct3dDevice->CreateVertexDeclaration(s_vertexElements, i_ppvertexDeclaration);
 		if (SUCCEEDED(result))
 		{
-			result = m_direct3dDevice->SetVertexDeclaration(m_vertexDeclaration);
+			result = m_direct3dDevice->SetVertexDeclaration(*i_ppvertexDeclaration);
 			if (FAILED(result))
 			{
 				MessageBox(m_mainWindow, "DirectX failed to set the vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR);
@@ -423,7 +442,7 @@ namespace Engine
 		// Create a vertex buffer
 		{
 			// We are drawing a rectangle
-			const unsigned int vertexCount = 4;
+			const unsigned int vertexCount = i_DrawInfo.m_NumOfVertices;
 			const unsigned int bufferSize = vertexCount * sizeof(sVertex);
 
 			// We will define our own vertex format
@@ -433,7 +452,7 @@ namespace Engine
 			HANDLE* const notUsed = NULL;
 
 			result = m_direct3dDevice->CreateVertexBuffer(bufferSize, i_usage, useSeparateVertexDeclaration, useDefaultPool,
-															&m_vertexBuffer, notUsed);
+															i_ppvertexBuffer, notUsed);
 			if (FAILED(result))
 			{
 				MessageBox(m_mainWindow, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
@@ -448,7 +467,7 @@ namespace Engine
 			{
 				const unsigned int lockEntireBuffer = 0;
 				const DWORD useDefaultLockingBehavior = 0;
-				result = m_vertexBuffer->Lock(lockEntireBuffer, lockEntireBuffer,
+				result = (*i_ppvertexBuffer)->Lock(lockEntireBuffer, lockEntireBuffer,
 					reinterpret_cast<void**>(&vertexData), useDefaultLockingBehavior);
 				if (FAILED(result))
 				{
@@ -478,7 +497,7 @@ namespace Engine
 
 			// The buffer must be "unlocked" before it can be used
 			{
-				result = m_vertexBuffer->Unlock();
+				result = (*i_ppvertexBuffer)->Unlock();
 				if (FAILED(result))
 				{
 					MessageBox(m_mainWindow, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
@@ -490,7 +509,7 @@ namespace Engine
 		return true;
 	}
 
-	bool GraphicsSystem::CreateIndexBuffer(DWORD i_usage)
+	bool GraphicsSystem::CreateIndexBuffer(DWORD i_usage, IDirect3DIndexBuffer9** i_ppindexBuffer, const DrawInfo &i_DrawInfo)
 	{
 		// Create an index buffer
 		{
@@ -498,16 +517,13 @@ namespace Engine
 			D3DFORMAT format = D3DFMT_INDEX32;
 			unsigned int bufferLength;
 			{
-				// EAE6320_TODO: How many triangles in a rectangle?
-				const unsigned int verticesPerTriangle = 3;
-				const unsigned int trianglesPerRectangle = 2;
-				bufferLength = verticesPerTriangle * trianglesPerRectangle * sizeof(DWORD32);
+				bufferLength = i_DrawInfo.m_IndexCount * sizeof(DWORD32);
 			}
 			D3DPOOL useDefaultPool = D3DPOOL_DEFAULT;
 			HANDLE* notUsed = NULL;
 
 			HRESULT result = m_direct3dDevice->CreateIndexBuffer(bufferLength, i_usage, format, useDefaultPool,
-																	&m_indexBuffer, notUsed);
+																i_ppindexBuffer, notUsed);
 			if (FAILED(result))
 			{
 				MessageBox(m_mainWindow, "DirectX failed to create an index buffer", "No Index Buffer", MB_OK | MB_ICONERROR);
@@ -521,7 +537,7 @@ namespace Engine
 			{
 				const unsigned int lockEntireBuffer = 0;
 				const DWORD useDefaultLockingBehavior = 0;
-				const HRESULT result = m_indexBuffer->Lock(lockEntireBuffer, lockEntireBuffer,
+				const HRESULT result = (*i_ppindexBuffer)->Lock(lockEntireBuffer, lockEntireBuffer,
 					reinterpret_cast<void**>(&indices), useDefaultLockingBehavior);
 				if (FAILED(result))
 				{
@@ -549,7 +565,7 @@ namespace Engine
 			}
 			// The buffer must be "unlocked" before it can be used
 			{
-				const HRESULT result = m_indexBuffer->Unlock();
+				const HRESULT result = (*i_ppindexBuffer)->Unlock();
 				if (FAILED(result))
 				{
 					MessageBox(m_mainWindow, "DirectX failed to unlock the index buffer", "No Index Buffer", MB_OK | MB_ICONERROR);

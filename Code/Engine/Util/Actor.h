@@ -60,8 +60,7 @@ namespace Engine
 			const char *i_GameObjectName, 
 			const char *i_ActorType,
 			const Vector3 & i_Size,
-			const float i_Rotation,
-			const char *i_Type
+			const float i_Rotation
 		);
 
 		static void DeleteActorMemoryPool();

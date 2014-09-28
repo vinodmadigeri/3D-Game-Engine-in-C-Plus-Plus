@@ -8,7 +8,9 @@ namespace Engine
 {
 	Material::Material():
 		m_vertexShader(NULL),
-		m_fragmentShader(NULL)
+		m_fragmentShader(NULL),
+		m_pvertexShaderConsts(NULL),
+		m_pfragmentShaderConsts(NULL)
 	{
 
 	}
@@ -21,10 +23,22 @@ namespace Engine
 			m_vertexShader = NULL;
 		}
 
+		if (m_pvertexShaderConsts)
+		{
+			m_pvertexShaderConsts->Release();
+			m_pvertexShaderConsts = NULL;
+		}
+
 		if (m_fragmentShader)
 		{
 			m_fragmentShader->Release();
 			m_fragmentShader = NULL;
+		}
+
+		if (m_pfragmentShaderConsts)
+		{
+			m_pfragmentShaderConsts->Release();
+			m_pfragmentShaderConsts = NULL;
 		}
 	}
 
@@ -427,9 +441,9 @@ namespace Engine
 			const char* profile = "ps_3_0";
 			const DWORD noFlags = 0;
 			ID3DXBuffer* errorMessages = NULL;
-			ID3DXConstantTable** noConstants = NULL;
+			
 			HRESULT result = D3DXCompileShaderFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile, noFlags,
-														&compiledShader, &errorMessages, noConstants);
+				&compiledShader, &errorMessages, &m_pfragmentShaderConsts);
 			if (SUCCEEDED(result))
 			{
 				if (errorMessages)
@@ -497,9 +511,8 @@ namespace Engine
 			const char* profile = "vs_3_0";
 			const DWORD noFlags = 0;
 			ID3DXBuffer* errorMessages = NULL;
-			ID3DXConstantTable** noConstants = NULL;
 			HRESULT result = D3DXCompileShaderFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile, noFlags,
-														&compiledShader, &errorMessages, noConstants);
+														&compiledShader, &errorMessages, &m_pvertexShaderConsts);
 			if (SUCCEEDED(result))
 			{
 				if (errorMessages)

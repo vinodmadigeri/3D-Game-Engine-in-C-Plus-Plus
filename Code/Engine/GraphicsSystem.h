@@ -9,11 +9,16 @@
 //=============
 #include "PreCompiled.h"
 
+
 #include <d3d9.h>
+#include <vector>
+#include "MeshData.h"
+#include "SharedPointer.h"
 
 namespace Engine
 {
 	class Material; //Forward Decleration
+	class Mesh;
 
 	class GraphicsSystem
 	{
@@ -24,13 +29,8 @@ namespace Engine
 		HWND m_mainWindow;
 		IDirect3D9* m_direct3dInterface;
 		IDirect3DDevice9* m_direct3dDevice;
-		IDirect3DVertexDeclaration9* m_vertexDeclaration;
-		// The index buffer describes how to make triangles with the vertices
-		// (i.e. it defines the vertex connectivity)
-		IDirect3DIndexBuffer9* m_indexBuffer;
-		IDirect3DVertexBuffer9* m_vertexBuffer;
-
-		Material *m_material;
+		std::vector<SharedPointer<Material>> m_Materials; //Shared materials
+		std::vector<SharedPointer<Mesh>> m_Meshes; //Shared meshes
 
 		static GraphicsSystem *m_pInstance;
 		bool mInitilized;
@@ -43,7 +43,6 @@ namespace Engine
 		};
 
 		GraphicsSystem(const HWND i_mainWindow,
-			const char *i_MaterialPath,
 			const unsigned int i_windowWidth,
 			const unsigned int i_windowHeight,
 			const bool i_shouldRenderFullScreen); //Constructor
@@ -53,23 +52,30 @@ namespace Engine
 		~GraphicsSystem();
 		bool CreateDevice(const HWND i_mainWindow);
 		bool CreateInterface(const HWND i_mainWindow);
-		bool CreateVertexandIndexBuffer();
-		bool CreateVertexBuffer(DWORD usage);
-		bool CreateIndexBuffer(DWORD usage);
-		bool CreateMaterial(const char *i_MaterialPath);
+		
+		bool CreateVertexBuffer(DWORD i_usage, IDirect3DVertexDeclaration9** i_ppvertexDeclaration, IDirect3DVertexBuffer9** i_ppvertexBuffer, const DrawInfo &i_DrawInfo);
+		bool CreateIndexBuffer(DWORD i_usage, IDirect3DIndexBuffer9** i_ppindexBuffer, const DrawInfo &i_DrawInfo);
 
-		bool Initialize(const char *i_MaterialPath);
+		
+
+		bool Initialize();
 		bool ShutDown();
+
+
+		bool ComputeUsage(DWORD &o_usage);
+
 
 	public:
 		static bool CreateInstance(const HWND i_mainWindow,
-			const char *i_MaterialPath,
 			const unsigned int i_windowWidth = 800,
 			const unsigned int i_windowHeight = 600,
 			const bool i_shouldRenderFullScreen = false);
 
 		static GraphicsSystem * GetInstance();
-		void Render();
+		void Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh);
+		SharedPointer<Mesh> CreateMesh(const DrawInfo &i_DrawInfo);
+		SharedPointer<Material> CreateMaterial(const char *i_MaterialPath);
+
 		static void Destroy();
 	};
 }

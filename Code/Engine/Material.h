@@ -10,6 +10,7 @@ as well as the data that those shader program use
 //=============
 #include "PreCompiled.h"
 #include <d3d9.h>
+#include <d3dx9shader.h>
 #include "../External/Lua/Includes.h"
 
 // Class Declaration
@@ -67,6 +68,9 @@ namespace Engine
 		// Its output is:
 		//	* The final color that the pixel should be
 		IDirect3DPixelShader9* m_fragmentShader;
+		ID3DXConstantTable* m_pvertexShaderConsts;
+
+		ID3DXConstantTable* m_pfragmentShaderConsts;
 
 		std::string mPathVertexShader;
 		std::string mPathFragmentShader;

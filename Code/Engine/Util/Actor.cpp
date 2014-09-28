@@ -47,13 +47,11 @@ namespace Engine
 		const char *i_GameObjectName, 
 		const char *i_ActorType,
 		const Vector3 & i_Size,
-		const float i_Rotation,
-		const char *i_Type
+		const float i_Rotation
 	)
 	{
 		assert(i_ActorType != NULL);
 		assert(i_GameObjectName != NULL);
-		assert(i_Type);
 		char *pGameObjName = _strdup(i_GameObjectName);
 
 		Matrix4x4 Translation, Rotation, LocalToWorld;
@@ -63,7 +61,7 @@ namespace Engine
 
 		LocalToWorld = Translation * Rotation;
 
-		return SharedPointer<Actor>(new Actor(i_Position, i_Size, i_Velocity, i_Acceleration, i_Rotation, pGameObjName, LocalToWorld, i_Type));
+		return SharedPointer<Actor>(new Actor(i_Position, i_Size, i_Velocity, i_Acceleration, i_Rotation, pGameObjName, LocalToWorld, i_ActorType));
 	}
 
 	Actor::~Actor()

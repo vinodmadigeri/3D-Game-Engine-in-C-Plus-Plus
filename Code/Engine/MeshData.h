@@ -2,10 +2,21 @@
 #define __MESH_DATA_H
 
 #include <d3d9.h>
-#include <d3dx9math.h>
+//#include <d3dx9math.h>
 
 namespace Engine
 {
+	typedef struct _DrawInfo
+	{
+		D3DPRIMITIVETYPE	m_PrimitiveType;
+		UINT				m_indexOfFirstVertexToRender;
+		UINT				m_NumOfVertices;
+		UINT				m_indexOfFirstIndexToUse;
+		UINT				m_PrimitiveCount;
+		//IndexBufferInfo
+		UINT				m_IndexCount; 
+	}DrawInfo;
+
 	typedef struct _MeshData
 	{
 		void *				m_pVertices;

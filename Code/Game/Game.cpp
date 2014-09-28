@@ -6,7 +6,10 @@
 
 #include "Debug.h"
 #include "Game.h"
-#include "GraphicsSystem.h"
+#include "RenderableObjectSystem.h"
+#include "MeshData.h"
+#include "Vector3.h"
+#include "WorldSystem.h"
 #include "Win32Management.h"
 
 #ifdef _DEBUG
@@ -43,14 +46,57 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	std::string MaterialPath = "data/Simple.mat.lua";
 	HWND mainWindowHandle = Win32Management::WindowsManager::GetInstance()->GetReferenceToMainWindowHandle();
 
-	mInitilized = Engine::GraphicsSystem::CreateInstance(mainWindowHandle, MaterialPath.c_str(), g_windowWidth,
-											g_windowHeight, g_shouldRenderFullScreen);
+	mInitilized = Engine::RenderableObjectSystem::CreateInstance(mainWindowHandle, g_windowWidth,
+													g_windowHeight, g_shouldRenderFullScreen);
 
 	if (mInitilized == false)
 	{
 		Engine::DebugPrint("Failed to Create Graphics Engine Instance");
 		return mInitilized;
 	}
+
+	mInitilized = Engine::WorldSystem::CreateInstance();
+
+	if (mInitilized == false)
+	{
+		Engine::DebugPrint("Failed to Create WorldSystem Instance");
+		return mInitilized;
+	}
+
+
+	//------Input Actor Data and Create one-------------
+	using namespace Engine;
+	Vector3 Position = Vector3(0.0f, 0.0f, 0.0f);
+	Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
+	Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
+	Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
+	float Rotation = 0.0f;
+	DrawInfo DrawInfoData;
+
+	typedef struct _DrawInfo
+	{
+		D3DPRIMITIVETYPE	m_PrimitiveType;
+		UINT				m_indexOfFirstVertexToRender;
+		UINT				m_NumOfVertices;
+		UINT				m_indexOfFirstIndexToUse;
+		UINT				m_PrimitiveCount;
+		//IndexBufferInfo
+		UINT				m_IndexCount;
+	}DrawInfo;
+
+	DrawInfoData.m_PrimitiveType = D3DPT_TRIANGLELIST;
+	DrawInfoData.m_PrimitiveCount = 2;
+	DrawInfoData.m_NumOfVertices = 4;
+	DrawInfoData.m_indexOfFirstVertexToRender = 0;
+	DrawInfoData.m_indexOfFirstIndexToUse = 0;
+	const unsigned int verticesPerTriangle = 3;
+	const unsigned int trianglesPerRectangle = 2;
+
+	DrawInfoData.m_IndexCount = trianglesPerRectangle * verticesPerTriangle;
+
+	const char * pMaterialPath = "data/Simple.mat.lua";
+
+	WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "Rectangle", "Rectangle", Size, Rotation, pMaterialPath, DrawInfoData);
 
 	return mInitilized;
 }
@@ -65,7 +111,7 @@ int MainGame::Run(void)
 		bool QuitRequested = false;
 		do
 		{
-			Engine::GraphicsSystem::GetInstance()->Render();
+			Engine::RenderableObjectSystem::GetInstance()->Render();
 			Win32Management::WindowsManager::GetInstance()->UpdateMainWindow(exitCode, QuitRequested);
 			
 		} while (QuitRequested == false);
@@ -80,7 +126,8 @@ void MainGame::Shutdown(const HINSTANCE i_thisInstanceOfTheProgram)
 {
 	if (mInitilized)
 	{
-		Engine::GraphicsSystem::Destroy();
+		Engine::WorldSystem::Destroy();
+		Engine::RenderableObjectSystem::Destroy();
 		Win32Management::WindowsManager::Destroy();
 	}
 
