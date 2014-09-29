@@ -52,7 +52,6 @@ namespace Engine
 			}
 		};
 
-
 		RenderableObjectSystem();
 		~RenderableObjectSystem();
 		RenderableObjectSystem(const RenderableObjectSystem & i_Other);

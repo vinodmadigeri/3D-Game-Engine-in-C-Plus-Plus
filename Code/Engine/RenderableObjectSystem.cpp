@@ -114,7 +114,7 @@ namespace Engine
 			NewMaterial = GraphicsSystem::GetInstance()->CreateMaterial(pcMaterialPath);
 
 			//Set color constant from fragment shader
-			NewMaterial->SetFragmentShaderConstantValue(Vector3(3.0f, 4.0f, 2.0f));
+			//NewMaterial->SetFragmentShaderConstantValue(Vector3(3.0f, 6.0f, 2.0f));
 		}
 
 		assert(NewMaterial != NULL);

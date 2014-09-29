@@ -234,6 +234,16 @@ namespace Engine
 #endif
 		)
 	{
+		if (!LoadConstantDataTable(io_luaState, "Constants"
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif
+			))
+		{
+			return false;
+		}
+
+
 		if (!LoadTableValues_Shaders(io_luaState, "VertexShader", mPathVertexShader
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
@@ -255,6 +265,210 @@ namespace Engine
 		return true;
 	}
 
+
+	//================================================================
+	//Constant load logic
+	bool Material::LoadConstantDataTable(lua_State& io_luaState, const char* RootConstantTableName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		assert(RootConstantTableName);
+		bool wereThereErrors = false;
+
+		// Right now the asset table is at -1.
+		// After the following table operation it will be at -2
+		// and the "textures" table will be at -1:
+		lua_pushstring(&io_luaState, RootConstantTableName);
+		lua_gettable(&io_luaState, -2);
+		// It can be hard to remember where the stack is at
+		// and how many values to pop.
+		// One strategy I would suggest is to always call a new function
+		// When you are at a new level:
+		// Right now we know that we have an original table at -2,
+		// and a new one at -1,
+		// and so we _know_ that we always have to pop at least _one_
+		// value before leaving this function
+		// (to make the original table be back to index -1).
+		// If we don't do any further stack manipulation in this function
+		// then it becomes easy to remember how many values to pop
+		// because it will always be one.
+		// This is the strategy I'll take in this example
+		// (look at the "OnExit" label):
+		if (lua_istable(&io_luaState, -1))
+		{
+			if (!LoadEachConstantData(io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif
+				))
+			{
+				wereThereErrors = true;
+				goto OnExit;
+			}
+		}
+		else
+		{
+			wereThereErrors = true;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			if (o_errorMessage)
+			{
+				std::stringstream errorMessage;
+				errorMessage << "The value at \"" << RootConstantTableName << "\" must be a table "
+					"(instead of a " << luaL_typename(&io_luaState, -1) << ")\n";
+
+				*o_errorMessage = errorMessage.str();
+			}
+#endif
+
+			goto OnExit;
+		}
+
+	OnExit:
+
+		// Pop the textures table
+		lua_pop(&io_luaState, 1);
+
+		return !wereThereErrors;
+	}
+
+
+	bool Material::LoadEachConstantData(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		bool wereThereErrors = false;
+
+		//Iterating through the constant key value pairs
+		lua_pushnil(&io_luaState);
+		int CurrentIndexOfConstantTable = -2;
+		while (lua_next(&io_luaState, CurrentIndexOfConstantTable))
+		{
+			//Current Table is at -3 inside the while loop
+			int IndexOfKey = -2; int IndexOfValue = -1;
+			if (lua_type(&io_luaState, IndexOfKey) != LUA_TSTRING)
+			{
+				wereThereErrors = true;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "key must be a string (instead of a " <<
+						luaL_typename(&io_luaState, IndexOfKey) << ")\n";
+
+					*o_errorMessage = errorMessage.str();
+				}
+
+				// Pop the returned key value pair on error
+				lua_pop(&io_luaState, 2);
+				goto OnExit;
+#endif
+			}
+
+			//Store the valid key in a variable
+			MaterialConstantData ThisData;
+			ThisData.ConstantName = lua_tostring(&io_luaState, IndexOfKey);
+
+			if (!lua_istable(&io_luaState, IndexOfValue))
+			{
+				wereThereErrors = true;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "value must be a table (instead of a " <<
+						luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+					*o_errorMessage = errorMessage.str();
+				}
+
+				// Pop the returned key value pair on error
+				lua_pop(&io_luaState, 2);
+				goto OnExit;
+#endif
+			}
+
+			if (!LoadEachConstantDataValue(io_luaState, ThisData.Values
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif
+				))
+			{
+				wereThereErrors = true;
+				// Pop the returned key value pair on error
+				lua_pop(&io_luaState, 2);
+				goto OnExit;
+			}
+			
+			//At this point both key and value pairs are stored in ThisData,
+			//Store it in the vector
+			m_ConstantDatas.push_back(ThisData);
+
+			//Pop the value, but leave the key
+			lua_pop(&io_luaState, 1);
+		}
+
+
+	OnExit:
+
+		return !wereThereErrors;
+	}
+
+	bool Material::LoadEachConstantDataValue(lua_State& io_luaState, std::vector<float> & DataVector
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		// Right now the asset table is at -2
+		// and the constant table is at -1.
+		// NOTE, however, that it doesn't matter to me in this function
+		// that the asset table is at -2.
+		// Because I've carefully called a new function for every "stack level"
+		// The only thing I care about is that the textures table that I care about
+		// is at the top of the stack.
+		// As long as I make sure that when I leave this function it is _still_
+		// at -1 then it doesn't matter to me at all what is on the stack below it.
+
+		//Iterating through every table values
+		const int DataCount = luaL_len(&io_luaState, -1);
+		for (int i = 1; i <= DataCount; ++i)
+		{
+			lua_pushinteger(&io_luaState, i);
+			const int currentIndexOfConstantDataTable = -2;
+			lua_gettable(&io_luaState, currentIndexOfConstantDataTable);
+			
+			if (lua_type(&io_luaState, -1) != LUA_TNUMBER)
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "value must be a number (instead of a " <<
+						luaL_typename(&io_luaState, -1) << ")\n";
+					*o_errorMessage = errorMessage.str();
+				}
+#endif
+				//Pop the invalid data value from stack and return false on error
+				lua_pop(&io_luaState, 1);
+
+				return false;
+			}
+
+			DataVector.push_back(static_cast<float>(lua_tonumber(&io_luaState, -1)));
+			//Pop the value from the stack since it is stored
+			lua_pop(&io_luaState, 1);
+		}
+
+		return true;
+	}
+
+
+	//==================================================================
+	//Shader load logic
 	bool Material::LoadTableValues_Shaders(lua_State& io_luaState, const char* key, std::string& o_PathShader
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
@@ -314,7 +528,7 @@ namespace Engine
 
 	OnExit:
 
-		// Pop the textures table
+		// Pop the shader table
 		lua_pop(&io_luaState, 1);
 
 		return !wereThereErrors;
@@ -380,9 +594,9 @@ namespace Engine
 
 		//No Errors, Value is a string
 		o_PathShader = lua_tostring(&io_luaState, -1);
+		lua_pop(&io_luaState, ShaderPathCount);
 
 	OnExit:
-		lua_pop(&io_luaState, 1);
 		return !wereThereErrors;
 	}
 
@@ -591,7 +805,12 @@ namespace Engine
 		i_Value.GetAsFloatArray(PosValue, count);
 		assert(count == 3);
 
-		m_pvertexShaderConsts->SetFloatArray(m_direct3dDevice, m_vertexShaderConstHandle, PosValue, count);
+		HRESULT result = m_pvertexShaderConsts->SetFloatArray(m_direct3dDevice, m_vertexShaderConstHandle, PosValue, count);
+
+		if (FAILED(result))
+		{
+			assert(false);
+		}
 	}
 
 	void Material::SetFragmentShaderConstantValue(Vector3 i_Value)
@@ -604,6 +823,11 @@ namespace Engine
 		i_Value.GetAsFloatArray(PosValue, count);
 		assert(count == 3);
 
-		m_pfragmentShaderConsts->SetFloatArray(m_direct3dDevice, m_fragmentShaderConstHandle, PosValue, count);
+		HRESULT result = m_pfragmentShaderConsts->SetFloatArray(m_direct3dDevice, m_fragmentShaderConstHandle, PosValue, count);
+
+		if (FAILED(result))
+		{
+			assert(false);
+		}
 	}
 }

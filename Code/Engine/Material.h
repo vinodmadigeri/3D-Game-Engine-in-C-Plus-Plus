@@ -11,6 +11,8 @@ as well as the data that those shader program use
 #include "PreCompiled.h"
 #include <d3d9.h>
 #include <d3dx9shader.h>
+#include <vector>
+
 #include "../External/Lua/Includes.h"
 
 #include "Vector3.h"
@@ -20,6 +22,12 @@ as well as the data that those shader program use
 
 namespace Engine
 {
+	typedef struct _MaterialConstantData
+	{
+		std::string ConstantName;
+		std::vector<float> Values;
+	}MaterialConstantData;
+
 	class Material
 	{
 		// Interface
@@ -50,8 +58,6 @@ namespace Engine
 
 		void SetFragmentShaderConstantValue(Vector3 i_Value);
 
-		// Data
-		//=====
 	private:
 		IDirect3DDevice9 * m_direct3dDevice;
 		// The vertex shader is a program that operates on vertices.
@@ -63,6 +69,8 @@ namespace Engine
 		//		(So that the graphics hardware knows which pixels to fill in for the triangle)
 		//	* Any other data we want
 		IDirect3DVertexShader9* m_vertexShader;
+		D3DXHANDLE m_vertexShaderConstHandle;
+		ID3DXConstantTable* m_pvertexShaderConsts;
 		// The fragment shader is a program that operates on fragments
 		// (or "potential pixels").
 		// Its input is:
@@ -72,21 +80,42 @@ namespace Engine
 		// Its output is:
 		//	* The final color that the pixel should be
 		IDirect3DPixelShader9* m_fragmentShader;
-		ID3DXConstantTable* m_pvertexShaderConsts;
-		D3DXHANDLE m_vertexShaderConstHandle;
-		
-		ID3DXConstantTable* m_pfragmentShaderConsts;
 		D3DXHANDLE m_fragmentShaderConstHandle;
-		
+		ID3DXConstantTable* m_pfragmentShaderConsts;
+
 		std::string mPathVertexShader;
 		std::string mPathFragmentShader;
 
+		std::vector<MaterialConstantData> m_ConstantDatas;
+		//==========
+		// Lua Logic
 		bool LoadLuaAsset(const char* i_path
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage = NULL
 #endif
 			);
 
+		//Constant
+		bool LoadConstantDataTable(lua_State& io_luaState, const char* RootConstantTableName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+		bool LoadEachConstantData(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+		bool LoadEachConstantDataValue(lua_State& io_luaState, std::vector<float> & DataVector
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+
+		//Shaders
 		bool LoadTableValues(lua_State& io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
