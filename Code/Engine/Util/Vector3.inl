@@ -33,6 +33,15 @@ namespace Engine
 		fZ = fZvalue;
 	}
 
+	void Vector3::GetAsFloatArray(float (&o_Array)[3], int &o_Count) const
+	{
+		o_Array[0] = fX;
+		o_Array[1] = fY;
+		o_Array[2] = fZ;
+
+		o_Count = 3;
+	}
+
 	inline void Vector3::SetCoordinates(const float fXvalue, const float fYvalue, const float fZvalue)
 	{
 		assert(!IsNan(fXvalue));

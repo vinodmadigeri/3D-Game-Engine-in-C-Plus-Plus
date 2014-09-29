@@ -25,6 +25,8 @@ namespace Engine
 		inline float y() const;
 		inline float z() const;
 	
+		inline void Vector3::GetAsFloatArray(float(&o_Array)[3], int &o_Count) const;
+
 		inline void SetCoordinates(const float fX, const float fY, const float fZ);
 
 		//Binary operators

@@ -9,8 +9,15 @@
 #include "RenderableObjectSystem.h"
 #include "MeshData.h"
 #include "Vector3.h"
+#include "HighResTime.h"
 #include "WorldSystem.h"
+#include "UserInput.h"
+#include "PhysicsSystem.h"
+
 #include "Win32Management.h"
+
+
+#include "PlayerController.h"
 
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
@@ -43,7 +50,6 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		return mInitilized;
 	}
 
-	std::string MaterialPath = "data/Simple.mat.lua";
 	HWND mainWindowHandle = Win32Management::WindowsManager::GetInstance()->GetReferenceToMainWindowHandle();
 
 	mInitilized = Engine::RenderableObjectSystem::CreateInstance(mainWindowHandle, g_windowWidth,
@@ -63,6 +69,21 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		return mInitilized;
 	}
 
+	mInitilized = Engine::UserInput::CreateInstance();
+
+	if (mInitilized == false)
+	{
+		Engine::DebugPrint("Failed to Create UserInput Instance");
+		return mInitilized;
+	}
+
+	mInitilized = Engine::PhysicsSystem::CreateInstance();
+
+	if (mInitilized == false)
+	{
+		Engine::DebugPrint("Failed to Create PhysicsSystem Instance");
+		return mInitilized;
+	}
 
 	//------Input Actor Data and Create one-------------
 	using namespace Engine;
@@ -71,46 +92,50 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
 	Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
 	float Rotation = 0.0f;
+
 	DrawInfo DrawInfoData;
-
-	typedef struct _DrawInfo
-	{
-		D3DPRIMITIVETYPE	m_PrimitiveType;
-		UINT				m_indexOfFirstVertexToRender;
-		UINT				m_NumOfVertices;
-		UINT				m_indexOfFirstIndexToUse;
-		UINT				m_PrimitiveCount;
-		//IndexBufferInfo
-		UINT				m_IndexCount;
-	}DrawInfo;
-
 	DrawInfoData.m_PrimitiveType = D3DPT_TRIANGLELIST;
 	DrawInfoData.m_PrimitiveCount = 2;
 	DrawInfoData.m_NumOfVertices = 4;
 	DrawInfoData.m_indexOfFirstVertexToRender = 0;
 	DrawInfoData.m_indexOfFirstIndexToUse = 0;
+	
 	const unsigned int verticesPerTriangle = 3;
 	const unsigned int trianglesPerRectangle = 2;
-
 	DrawInfoData.m_IndexCount = trianglesPerRectangle * verticesPerTriangle;
 
 	const char * pMaterialPath = "data/Simple.mat.lua";
 
 	WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "Rectangle", "Rectangle", Size, Rotation, pMaterialPath, DrawInfoData);
 
+	std::vector< SharedPointer<Actor>> ActorsList = WorldSystem::GetInstance()->FindActorsByType("Rectangle");
+
+	Player::CreateController();
+
+	for (unsigned int i = 0; i < ActorsList.size(); i++)
+	{
+		ActorsList.at(i)->SetController(Player::GetController());
+	}
+
 	return mInitilized;
 }
+
 
 int MainGame::Run(void)
 {
 	int exitCode = -1;
 	
+	Engine::HighResTimer GameTimer;
+	GameTimer.Initilize();
 	//Game Loop
 	if (mInitilized)
 	{
 		bool QuitRequested = false;
 		do
 		{
+			GameTimer.CalculateFrameTime();
+			Engine::WorldSystem::GetInstance()->ActorsUpdate(static_cast<float>(GameTimer.GetLastFrameMS()));
+			Engine::PhysicsSystem::GetInstance()->ApplyEulerPhysics(static_cast<float>(GameTimer.GetLastFrameMS()));
 			Engine::RenderableObjectSystem::GetInstance()->Render();
 			Win32Management::WindowsManager::GetInstance()->UpdateMainWindow(exitCode, QuitRequested);
 			
@@ -122,10 +147,13 @@ int MainGame::Run(void)
 	return exitCode;
 }
 
+
 void MainGame::Shutdown(const HINSTANCE i_thisInstanceOfTheProgram)
 {
 	if (mInitilized)
 	{
+		Engine::PhysicsSystem::Destroy();
+		Engine::UserInput::Destroy();
 		Engine::WorldSystem::Destroy();
 		Engine::RenderableObjectSystem::Destroy();
 		Win32Management::WindowsManager::Destroy();
@@ -133,12 +161,6 @@ void MainGame::Shutdown(const HINSTANCE i_thisInstanceOfTheProgram)
 
 	Engine::DebugPrint("ShutDown");
 }
-
-
-
-
-
-
 
 
 

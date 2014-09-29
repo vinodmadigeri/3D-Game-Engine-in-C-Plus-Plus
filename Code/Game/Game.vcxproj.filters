@@ -21,6 +21,7 @@
       <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="PreCompiled.h" />
+    <ClInclude Include="PlayerController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -28,6 +29,7 @@
       <Filter>Win32</Filter>
     </ClCompile>
     <ClCompile Include="PreCompiled.cpp" />
+    <ClCompile Include="PlayerController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Game.rc">

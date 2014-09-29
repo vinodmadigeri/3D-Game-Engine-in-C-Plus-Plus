@@ -6,13 +6,17 @@
 
 namespace Engine
 {
-	Material::Material():
+	Material::Material(IDirect3DDevice9 * i_direct3dDevice) :
+		m_direct3dDevice(i_direct3dDevice),
 		m_vertexShader(NULL),
 		m_fragmentShader(NULL),
 		m_pvertexShaderConsts(NULL),
-		m_pfragmentShaderConsts(NULL)
-	{
+		m_vertexShaderConstHandle(NULL),
+		m_pfragmentShaderConsts(NULL),
+		m_fragmentShaderConstHandle(NULL)
 
+	{
+		assert(m_direct3dDevice);
 	}
 
 	Material::~Material()
@@ -471,7 +475,12 @@ namespace Engine
 			}
 		}
 
-		// Create the fragment shader object
+		if (m_pfragmentShaderConsts != NULL)
+		{
+			m_pfragmentShaderConsts->SetDefaults(i_direct3dDevice);
+			m_fragmentShaderConstHandle = m_pfragmentShaderConsts->GetConstantByName(NULL, "g_colorModifier");
+		}
+		
 		bool wereThereErrors = false;
 		{
 			HRESULT result = i_direct3dDevice->CreatePixelShader(reinterpret_cast<DWORD*>(compiledShader->GetBufferPointer()),
@@ -489,6 +498,7 @@ namespace Engine
 
 			compiledShader->Release();
 		}
+
 		return !wereThereErrors;
 	}
 
@@ -540,6 +550,12 @@ namespace Engine
 			}
 		}
 
+		if (m_pvertexShaderConsts != NULL)
+		{
+			m_pvertexShaderConsts->SetDefaults(i_direct3dDevice);
+			m_vertexShaderConstHandle = m_pvertexShaderConsts->GetConstantByName(NULL, "g_meshPosition_screen");
+		}
+
 		// Create the vertex shader object
 		bool wereThereErrors = false;
 		{
@@ -561,5 +577,33 @@ namespace Engine
 		}
 
 		return !wereThereErrors;
+	}
+
+
+
+	void Material::SetVertexShaderConstantValue(Vector3 i_Value)
+	{
+		assert(m_pvertexShaderConsts != NULL && m_vertexShaderConstHandle != NULL);
+
+		float PosValue[3];
+		int count;
+
+		i_Value.GetAsFloatArray(PosValue, count);
+		assert(count == 3);
+
+		m_pvertexShaderConsts->SetFloatArray(m_direct3dDevice, m_vertexShaderConstHandle, PosValue, count);
+	}
+
+	void Material::SetFragmentShaderConstantValue(Vector3 i_Value)
+	{
+		assert(m_pfragmentShaderConsts != NULL && m_fragmentShaderConstHandle != NULL);
+
+		float PosValue[3];
+		int count;
+
+		i_Value.GetAsFloatArray(PosValue, count);
+		assert(count == 3);
+
+		m_pfragmentShaderConsts->SetFloatArray(m_direct3dDevice, m_fragmentShaderConstHandle, PosValue, count);
 	}
 }

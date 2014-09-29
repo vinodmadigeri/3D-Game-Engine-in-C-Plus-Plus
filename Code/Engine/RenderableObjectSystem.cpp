@@ -108,13 +108,16 @@ namespace Engine
 	{
 		assert(pcMaterialPath);
 
-		SharedPointer<Material> NewMatrial;
+		SharedPointer<Material> NewMaterial;
 		{
-			//Else create new material and insert into material cache eventually
-			NewMatrial = GraphicsSystem::GetInstance()->CreateMaterial(pcMaterialPath);
+			//create new material and insert into material cache eventually
+			NewMaterial = GraphicsSystem::GetInstance()->CreateMaterial(pcMaterialPath);
+
+			//Set color constant from fragment shader
+			NewMaterial->SetFragmentShaderConstantValue(Vector3(3.0f, 4.0f, 2.0f));
 		}
 
-		assert(NewMatrial != NULL);
+		assert(NewMaterial != NULL);
 
 		SharedPointer<Mesh> NewMesh;
 		{
@@ -124,7 +127,7 @@ namespace Engine
 
 		assert( NewMesh != NULL);
 
-		m3DRenderableObjects.push_back(new Renderable3DObject(i_Object, NewMatrial, NewMesh));
+		m3DRenderableObjects.push_back(new Renderable3DObject(i_Object, NewMaterial, NewMesh));
 	}
 
 	/***************************Global Rendering***********************************/
@@ -203,6 +206,9 @@ namespace Engine
 		//Render Logic
 		for (unsigned long ulCount = 0; ulCount < m3DRenderableObjects.size(); ulCount++)
 		{
+			
+			//Set position constant from VertexShader to update the position of the actor
+			m3DRenderableObjects.at(ulCount)->GetMaterial()->SetVertexShaderConstantValue(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition());
 			GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh());
 		}
 

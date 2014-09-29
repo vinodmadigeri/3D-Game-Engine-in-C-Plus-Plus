@@ -44,6 +44,12 @@
     <ClCompile Include="RenderableObjectSystem.cpp">
       <Filter>GraphicsSystem</Filter>
     </ClCompile>
+    <ClCompile Include="PhysicsSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\UserInput.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PreCompiled.h" />
@@ -101,6 +107,15 @@
     <ClInclude Include="RenderableObjectSystem.h">
       <Filter>GraphicsSystem</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\RandomNumber.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UserInput.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GraphicsSystem">
@@ -127,6 +142,9 @@
     <Filter Include="Util\Matrix4X4">
       <UniqueIdentifier>{59011d2c-7636-4444-8729-b81fbb9bdfe3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{ede9e3cb-b25b-4601-83aa-d4f0b469c586}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Util\Vector3.inl">
@@ -140,6 +158,9 @@
     </None>
     <None Include="Util\Vector4.inl">
       <Filter>Util\Matrix4X4</Filter>
+    </None>
+    <None Include="Util\RandomNumber.inl">
+      <Filter>Util</Filter>
     </None>
   </ItemGroup>
 </Project>

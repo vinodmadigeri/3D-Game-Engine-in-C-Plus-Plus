@@ -4,7 +4,7 @@
 
 #include "ActorController.h"
 #include "Debug.h"
-//#include "PhysicsSystem.h"
+#include "PhysicsSystem.h"
 #include "WorldSystem.h"
 #include "RenderableObjectSystem.h"
 
@@ -79,7 +79,8 @@ namespace Engine
 			//add Graphics Object 
 			RenderableObjectSystem::GetInstance()->Add3DActorGameObject(NewActor, pcMaterialPath, i_DrawInfo);
 
-			//Create Physics object and add
+			//Add Actor to Physics object
+			PhysicsSystem::GetInstance()->AddActorGameObject(NewActor);
 			return;
 		}
 

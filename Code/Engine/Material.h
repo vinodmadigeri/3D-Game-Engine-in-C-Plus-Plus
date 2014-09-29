@@ -13,6 +13,8 @@ as well as the data that those shader program use
 #include <d3dx9shader.h>
 #include "../External/Lua/Includes.h"
 
+#include "Vector3.h"
+
 // Class Declaration
 //==================
 
@@ -24,10 +26,11 @@ namespace Engine
 		//==========
 
 	public:
+		Material(IDirect3DDevice9 * i_direct3dDevice);
+		~Material();
 
 		// Render
 		//-------
-
 		HRESULT Set(IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage = NULL
@@ -42,14 +45,15 @@ namespace Engine
 			, std::string* o_errorMessage = NULL
 #endif
 			);
-		Material();
-		~Material();
+
+		void SetVertexShaderConstantValue(Vector3 i_Value);
+
+		void SetFragmentShaderConstantValue(Vector3 i_Value);
 
 		// Data
 		//=====
-
 	private:
-
+		IDirect3DDevice9 * m_direct3dDevice;
 		// The vertex shader is a program that operates on vertices.
 		// Its input comes from a C/C++ "draw call" and is:
 		//	* Position
@@ -69,9 +73,11 @@ namespace Engine
 		//	* The final color that the pixel should be
 		IDirect3DPixelShader9* m_fragmentShader;
 		ID3DXConstantTable* m_pvertexShaderConsts;
-
+		D3DXHANDLE m_vertexShaderConstHandle;
+		
 		ID3DXConstantTable* m_pfragmentShaderConsts;
-
+		D3DXHANDLE m_fragmentShaderConstHandle;
+		
 		std::string mPathVertexShader;
 		std::string mPathFragmentShader;
 

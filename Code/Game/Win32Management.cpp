@@ -493,7 +493,7 @@ namespace Win32Management
 		// Enter an infinite loop that will continue until a quit message (WM_QUIT) is received from Windows
 		MSG message = { 0 };
 		o_QuitRequested = false;
-		bool hasWindowsSentAMessage;
+		bool hasWindowsSentAMessage = false;
 		do
 		{
 			// To send us a message, Windows will add it to a queue.
@@ -531,7 +531,7 @@ namespace Win32Management
 					o_QuitRequested = true;
 				}
 			}
-		} while ( (hasWindowsSentAMessage == false) && (o_QuitRequested != true) );
+		} while ( (hasWindowsSentAMessage == true) && (o_QuitRequested != true) );
 
 		// The exit code for the application is stored in the WPARAM of a WM_QUIT message
 		if (o_QuitRequested == true)

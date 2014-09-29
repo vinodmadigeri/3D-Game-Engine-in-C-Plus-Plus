@@ -305,11 +305,14 @@ namespace Engine
 			return false;
 		}
 	}
+
 	SharedPointer<Material> GraphicsSystem::CreateMaterial(const char *i_MaterialPath)
 	{
+		assert(m_direct3dDevice);
+
 		SharedPointer<Material> OutMaterial = NULL;
 		{
-			OutMaterial = new Material();
+			OutMaterial = new Material(m_direct3dDevice);
 			assert(OutMaterial != NULL);
 
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
@@ -478,21 +481,21 @@ namespace Engine
 
 			// Fill the buffer
 			{
-				vertexData[0].x = -0.5f;
-				vertexData[0].y = -0.5f;
-				vertexData[0].color = D3DCOLOR_XRGB(255, 0, 0);
+				vertexData[0].x = -0.2f;
+				vertexData[0].y = -0.2f;
+				vertexData[0].color = D3DCOLOR_XRGB(22, 22, 22);
 
-				vertexData[1].x = -0.5f;
-				vertexData[1].y = 0.5f;
-				vertexData[1].color = D3DCOLOR_XRGB(0, 255, 0);
+				vertexData[1].x = -0.2f;
+				vertexData[1].y = 0.2f;
+				vertexData[1].color = D3DCOLOR_XRGB(15, 15, 15);
 
-				vertexData[2].x = 0.5f;
-				vertexData[2].y = 0.5f;
-				vertexData[2].color = D3DCOLOR_XRGB(0, 0, 255);
+				vertexData[2].x = 0.2f;
+				vertexData[2].y = 0.2f;
+				vertexData[2].color = D3DCOLOR_XRGB(44, 44, 44);
 
-				vertexData[3].x = 0.5f;
-				vertexData[3].y = -0.5f;
-				vertexData[3].color = D3DCOLOR_XRGB(255, 255, 255);
+				vertexData[3].x = 0.2f;
+				vertexData[3].y = -0.2f;
+				vertexData[3].color = D3DCOLOR_XRGB(52, 52, 52);
 			}
 
 			// The buffer must be "unlocked" before it can be used

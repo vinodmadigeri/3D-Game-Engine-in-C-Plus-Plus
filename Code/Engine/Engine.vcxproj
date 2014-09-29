@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="RenderableObjectSystem.cpp" />
     <ClCompile Include="GraphicsSystem.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -26,6 +27,7 @@
     <ClCompile Include="Util\Debug.cpp" />
     <ClCompile Include="Util\HashedString.cpp" />
     <ClCompile Include="Util\HighResTime.cpp" />
+    <ClCompile Include="Util\UserInput.cpp" />
     <ClCompile Include="Util\MathUtil.cpp" />
     <ClCompile Include="Util\Matrix4x4.cpp" />
     <ClCompile Include="Util\MemoryPool.cpp" />
@@ -33,6 +35,7 @@
     <ClCompile Include="WorldSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="RenderableObjectSystem.h" />
     <ClInclude Include="GraphicsSystem.h" />
     <ClInclude Include="Material.h" />
@@ -45,9 +48,11 @@
     <ClInclude Include="Util\Debug.h" />
     <ClInclude Include="Util\HashedString.h" />
     <ClInclude Include="Util\HighResTime.h" />
+    <ClInclude Include="Util\UserInput.h" />
     <ClInclude Include="Util\MathUtil.h" />
     <ClInclude Include="Util\Matrix4x4.h" />
     <ClInclude Include="Util\MemoryPool.h" />
+    <ClInclude Include="Util\RandomNumber.h" />
     <ClInclude Include="Util\SharedPointer.h" />
     <ClInclude Include="Util\Vector3.h" />
     <ClInclude Include="Util\Vector4.h" />
@@ -55,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Util\HashedString.inl" />
+    <None Include="Util\RandomNumber.inl" />
     <None Include="Util\SharedPointer.inl" />
     <None Include="Util\Vector3.inl" />
     <None Include="Util\Vector4.inl" />
