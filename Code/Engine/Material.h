@@ -24,8 +24,22 @@ namespace Engine
 {
 	typedef struct _MaterialConstantData
 	{
+		struct BelongsToenum
+		{
+			enum BELONGSTO
+			{
+				FRAGMENT_SHADER = 1,
+				VERTEX_SHADER,
+				NONE
+			};
+		};
+
+		//If not valid, it means, constant defined in a material 
+		//has no corresponding constant in fragment or vertex shader
+		BelongsToenum::BELONGSTO eBelongsTo;
+		D3DXHANDLE Handle;
 		std::string ConstantName;
-		std::vector<float> Values;
+		std::vector<float> DefaultValues;
 	}MaterialConstantData;
 
 	class Material
@@ -54,10 +68,7 @@ namespace Engine
 #endif
 			);
 
-		void SetVertexShaderConstantValue(Vector3 i_Value);
-
-		void SetFragmentShaderConstantValue(Vector3 i_Value);
-
+		bool SetConstantDataByName(const std::string &i_name, std::vector<float> &i_Value);
 	private:
 		IDirect3DDevice9 * m_direct3dDevice;
 		// The vertex shader is a program that operates on vertices.
@@ -69,7 +80,6 @@ namespace Engine
 		//		(So that the graphics hardware knows which pixels to fill in for the triangle)
 		//	* Any other data we want
 		IDirect3DVertexShader9* m_vertexShader;
-		D3DXHANDLE m_vertexShaderConstHandle;
 		ID3DXConstantTable* m_pvertexShaderConsts;
 		// The fragment shader is a program that operates on fragments
 		// (or "potential pixels").
@@ -80,7 +90,6 @@ namespace Engine
 		// Its output is:
 		//	* The final color that the pixel should be
 		IDirect3DPixelShader9* m_fragmentShader;
-		D3DXHANDLE m_fragmentShaderConstHandle;
 		ID3DXConstantTable* m_pfragmentShaderConsts;
 
 		std::string mPathVertexShader;
@@ -89,7 +98,7 @@ namespace Engine
 		std::vector<MaterialConstantData> m_ConstantDatas;
 		//==========
 		// Lua Logic
-		bool LoadLuaAsset(const char* i_path
+		bool LoadMaterialLuaAsset(const char* i_path
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage = NULL
 #endif
@@ -144,6 +153,18 @@ namespace Engine
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage = NULL
 #endif
+			);
+			
+		bool InitilizeConstantDataFromMaterialFile(IDirect3DDevice9 * i_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif		
+			);
+
+		bool SetAllConstantDataFromMaterialFile(IDirect3DDevice9 * i_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif		
 			);
 
 	};

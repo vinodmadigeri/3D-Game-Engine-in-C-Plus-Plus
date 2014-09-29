@@ -206,9 +206,13 @@ namespace Engine
 		//Render Logic
 		for (unsigned long ulCount = 0; ulCount < m3DRenderableObjects.size(); ulCount++)
 		{
-			
 			//Set position constant from VertexShader to update the position of the actor
-			m3DRenderableObjects.at(ulCount)->GetMaterial()->SetVertexShaderConstantValue(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition());
+			std::vector<float> PositionValues;
+			PositionValues.push_back(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().x());
+			PositionValues.push_back(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().y());
+			
+			m3DRenderableObjects.at(ulCount)->GetMaterial()->SetConstantDataByName("g_meshPosition_screen", PositionValues);
+			
 			GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh());
 		}
 
