@@ -6,6 +6,7 @@
 --===========================
 
 local s_AuthoredAssetDir, s_BuiltAssetDir
+local s_BinDir
 do
 	-- AuthoredAssetDir
 	do
@@ -20,6 +21,15 @@ do
 		local key = "BuiltAssetDir"
 		s_BuiltAssetDir = os.getenv( key )
 		if not s_BuiltAssetDir then
+			error( "The environment variable \"" .. key .. "\" doesn't exist" )
+		end
+	end
+
+	-- BinDir
+	do
+		local key = "BinDir"
+		s_BinDir = os.getenv( key )
+		if not s_BinDir then
 			error( "The environment variable \"" .. key .. "\" doesn't exist" )
 		end
 	end
@@ -39,6 +49,12 @@ function BuildAsset( i_relativePath )
 	-- and the target will be in a format that is optimal for real-time purposes.)
 	local path_source = s_AuthoredAssetDir .. i_relativePath
 	local path_target = s_BuiltAssetDir .. i_relativePath
+
+	-- Verify that the source exists
+	if not DoesFileExist( path_source ) then
+		OutputErrorMessage( "The source path \"" .. path_source .. "\" specified to build does not exist" )
+		return false
+	end
 
 	-- Decide if the target needs to be built
 	local shouldTargetBeBuilt
@@ -61,17 +77,43 @@ function BuildAsset( i_relativePath )
 	if shouldTargetBeBuilt then
 		-- Create the target directory if necessary
 		CreateDirectoryIfNecessary( path_target )
-
-		-- Copy the source to the target
+		-- Build
 		do
-			local result, errorMessage = CopyAssetFile( path_source, path_target )
+			-- Use the appropriate builder for this asset type
+			-- (As of this comment there is only a single generic builder)
+			local builderFileName = "GenericBuilder.exe"
+			local command = "\"" .. s_BinDir .. builderFileName .. "\""
+			-- The source and target path must always be passed in
+			local arguments = "\"" .. path_source .. "\" \"" .. path_target .. "\""
+			-- [If a specific builder uses extra arguments add them here]
+
+			-- Surround the entire command line in quotes
+			local commandLine = "\"" .. command .. " " .. arguments .. "\""
+			local result, terminationType, exitCode = os.execute( commandLine )
 			if result then
 				-- Display a message for each asset
 				print( "Built " .. path_source )
-
-				return true
+				print( "Vinod Target" .. path_target)
+				return true, exitCode
 			else
-				return false, errorMessage
+				-- The builder should already output a descriptive error message,
+				-- but you can do another one if you wish
+				-- (this can be helpful if there is a bug in a specific builder
+				-- which causes it to _not_ output an error message;
+				-- without a final error message here it can be confusing
+				-- why the asset build failed otherwise)
+				do
+					local errorMessage = "The command " .. tostring( commandLine )
+					if terminationType ~= "signal" then
+						errorMessage = errorMessage .. " exited with code "
+					else
+						errorMessage = errorMessage .. " was terminated by the signal "
+					end
+					errorMessage = errorMessage .. tostring( exitCode )
+					OutputErrorMessage( errorMessage, path_source )
+				end
+
+				return false, exitCode
 			end
 		end
 	else
