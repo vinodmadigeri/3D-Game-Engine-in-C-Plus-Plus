@@ -47,6 +47,7 @@
 		static int CopyAssetFile(lua_State* io_luaState);
 		static int CreateDirectoryIfNecessary(lua_State* io_luaState);
 		static int DoesFileExist(lua_State* io_luaState);
+		static int AssetBuilder::OutputErrorMessage(lua_State* io_luaState);
 
 	public:
 		~AssetBuilder();

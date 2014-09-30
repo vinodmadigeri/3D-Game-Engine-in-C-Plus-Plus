@@ -113,6 +113,33 @@ bool AssetBuilder::BuildAsset(const char* i_relativePath)
 	return true;
 }
 
+int AssetBuilder::OutputErrorMessage(lua_State* io_luaState)
+{
+	// Argument #1: The error message
+	const char* i_errorMessage;
+	if (lua_isstring(io_luaState, 1))
+	{
+		i_errorMessage = lua_tostring(io_luaState, 1);
+	}
+	else
+	{
+		return luaL_error(io_luaState,
+			"Argument #1 must be a string (instead of a %s)",
+			luaL_typename(io_luaState, 1));
+	}
+	// Argument #2: An optional file name
+	const char* i_optionalFileName = NULL;
+	if (lua_isstring(io_luaState, 2))
+	{
+		i_optionalFileName = lua_tostring(io_luaState, 2);
+	}
+
+	// Output the error message
+	OutputErrorMessage(i_errorMessage, i_optionalFileName);
+
+	return 0;
+}
+
 void AssetBuilder::OutputErrorMessage(const char* i_errorMessage, const char* i_optionalFileName)
 {
 	std::cerr << ( i_optionalFileName ? i_optionalFileName : "Asset Build" ) << ": error: " <<
@@ -476,6 +503,7 @@ bool AssetBuilder::InitializeLua(const std::string & i_ScriptDir, const std::str
 		lua_register(mluaState, "CreateDirectoryIfNecessary", CreateDirectoryIfNecessary);
 		lua_register(mluaState, "DoesFileExist", DoesFileExist);
 		lua_register(mluaState, "GetLastWriteTime", GetLastWriteTime);
+		lua_register(mluaState, "OutputErrorMessage", OutputErrorMessage);
 	}
 
 	// Load and execute the build script
