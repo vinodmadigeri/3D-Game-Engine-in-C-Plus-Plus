@@ -93,7 +93,6 @@ function BuildAsset( i_relativePath )
 			if result then
 				-- Display a message for each asset
 				print( "Built " .. path_source )
-				print( "Vinod Target" .. path_target)
 				return true, exitCode
 			else
 				-- The builder should already output a descriptive error message,

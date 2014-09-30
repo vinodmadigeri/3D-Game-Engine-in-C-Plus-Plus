@@ -14,7 +14,6 @@ namespace Engine
 		m_pfragmentShaderConsts(NULL)
 
 	{
-		m_ConstantDatas.clear();
 		assert(m_direct3dDevice);
 	}
 
@@ -85,7 +84,6 @@ namespace Engine
 
 		return result;
 	}
-
 
 	bool Material::LoadMaterialLuaAsset(const char* i_path
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
@@ -392,7 +390,7 @@ namespace Engine
 			
 			//At this point both key and value pairs are stored in ThisData,
 			//Store it in the vector
-			m_ConstantDatas.push_back(ThisData);
+			m_perMaterialConstantDatas.push_back(ThisData);
 
 			//Pop the value, but leave the key
 			lua_pop(&io_luaState, 1);
@@ -648,26 +646,26 @@ namespace Engine
 		m_pfragmentShaderConsts->SetDefaults(i_direct3dDevice);
 		m_pvertexShaderConsts->SetDefaults(i_direct3dDevice);
 
-		for (unsigned int i = 0; i < m_ConstantDatas.size(); i++)
+		for (unsigned int i = 0; i < m_perMaterialConstantDatas.size(); i++)
 		{
-			D3DXHANDLE ConstHandle = m_pvertexShaderConsts->GetConstantByName(NULL, m_ConstantDatas.at(i).ConstantName.c_str());
-			m_ConstantDatas.at(i).eBelongsTo = MaterialConstantData::BelongsToenum::VERTEX_SHADER;
+			D3DXHANDLE ConstHandle = m_pvertexShaderConsts->GetConstantByName(NULL, m_perMaterialConstantDatas.at(i).ConstantName.c_str());
+			m_perMaterialConstantDatas.at(i).eBelongsTo = MaterialConstantData::BelongsToenum::VERTEX_SHADER;
 				
 			if (ConstHandle == NULL)
 			{
-				ConstHandle = m_pfragmentShaderConsts->GetConstantByName(NULL, m_ConstantDatas.at(i).ConstantName.c_str());
-				m_ConstantDatas.at(i).eBelongsTo = MaterialConstantData::BelongsToenum::FRAGMENT_SHADER;
+				ConstHandle = m_pfragmentShaderConsts->GetConstantByName(NULL, m_perMaterialConstantDatas.at(i).ConstantName.c_str());
+				m_perMaterialConstantDatas.at(i).eBelongsTo = MaterialConstantData::BelongsToenum::FRAGMENT_SHADER;
 			}
 
 			if (ConstHandle == NULL)
 			{
-				m_ConstantDatas.at(i).eBelongsTo = MaterialConstantData::BelongsToenum::NONE;
+				m_perMaterialConstantDatas.at(i).eBelongsTo = MaterialConstantData::BelongsToenum::NONE;
 			}
 
-			m_ConstantDatas.at(i).Handle = ConstHandle;
+			m_perMaterialConstantDatas.at(i).Handle = ConstHandle;
 		}
 
-		if (!SetAllConstantDataFromMaterialFile(i_direct3dDevice
+		if (!SetPerMaterialConstantDataFromMaterialFile(i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
 #endif
@@ -681,7 +679,7 @@ namespace Engine
 		return true;;
 	}
 
-	bool Material::SetAllConstantDataFromMaterialFile(IDirect3DDevice9 * i_direct3dDevice
+	bool Material::SetPerMaterialConstantDataFromMaterialFile(IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
 #endif		
@@ -689,16 +687,16 @@ namespace Engine
 	{
 		bool WereThereErrors = false;
 
-		for (unsigned int i = 0; i < m_ConstantDatas.size(); i++)
+		for (unsigned int i = 0; i < m_perMaterialConstantDatas.size(); i++)
 		{
 			ID3DXConstantTable* ThisConstTable;
 			D3DXHANDLE ThisShaderConstHandle;
 
-			if (m_ConstantDatas.at(i).eBelongsTo == MaterialConstantData::BelongsToenum::FRAGMENT_SHADER)
+			if (m_perMaterialConstantDatas.at(i).eBelongsTo == MaterialConstantData::BelongsToenum::FRAGMENT_SHADER)
 			{
 				ThisConstTable = m_pfragmentShaderConsts;
 			}
-			else if (m_ConstantDatas.at(i).eBelongsTo == MaterialConstantData::BelongsToenum::VERTEX_SHADER)
+			else if (m_perMaterialConstantDatas.at(i).eBelongsTo == MaterialConstantData::BelongsToenum::VERTEX_SHADER)
 			{
 				ThisConstTable = m_pvertexShaderConsts;
 			}
@@ -707,16 +705,16 @@ namespace Engine
 				continue;
 			}
 
-			ThisShaderConstHandle = ThisConstTable->GetConstantByName(NULL, m_ConstantDatas.at(i).ConstantName.c_str());
+			ThisShaderConstHandle = ThisConstTable->GetConstantByName(NULL, m_perMaterialConstantDatas.at(i).ConstantName.c_str());
 
-			if (m_ConstantDatas.at(i).DefaultValues.size() > 0)
+			if (m_perMaterialConstantDatas.at(i).DefaultValues.size() > 0)
 			{
-				int count = m_ConstantDatas.at(i).DefaultValues.size();
+				int count = m_perMaterialConstantDatas.at(i).DefaultValues.size();
 				float *pfvalue = new float[count];
 
 				for (int j = 0; j < count; j++)
 				{
-					pfvalue[j] = m_ConstantDatas.at(i).DefaultValues.at(j);
+					pfvalue[j] = m_perMaterialConstantDatas.at(i).DefaultValues.at(j);
 				}
 
 				HRESULT result = ThisConstTable->SetFloatArray(m_direct3dDevice, ThisShaderConstHandle, pfvalue, count);
@@ -743,7 +741,7 @@ namespace Engine
 		return !WereThereErrors;
 	}
 
-	bool Material::SetConstantDataByName(const std::string &i_name, std::vector<float> &i_Value)
+	bool Material::SetPerInstanceConstantDataByName(const std::string &i_name, std::vector<float> &i_Value)
 	{
 		bool WereThereErrors = false;
 		
@@ -752,24 +750,24 @@ namespace Engine
 			return true;
 		}
 
-		for (unsigned int i = 0; i < m_ConstantDatas.size(); i++)
+		for (unsigned int i = 0; i < m_perInstanceConstantDatas.size(); i++)
 		{
 
-			if (m_ConstantDatas.at(i).ConstantName != i_name)
+			if (m_perInstanceConstantDatas.at(i).ConstantName != i_name)
 			{
 				continue;
 			}
 
-			assert(m_ConstantDatas.at(i).DefaultValues.size() == i_Value.size());
+			assert(m_perInstanceConstantDatas.at(i).DefaultValues.size() == i_Value.size());
 
 			ID3DXConstantTable* ThisConstTable;
 			D3DXHANDLE ThisShaderConstHandle;
 
-			if (m_ConstantDatas.at(i).eBelongsTo == MaterialConstantData::BelongsToenum::FRAGMENT_SHADER)
+			if (m_perInstanceConstantDatas.at(i).eBelongsTo == MaterialConstantData::BelongsToenum::FRAGMENT_SHADER)
 			{
 				ThisConstTable = m_pfragmentShaderConsts;
 			}
-			else if (m_ConstantDatas.at(i).eBelongsTo == MaterialConstantData::BelongsToenum::VERTEX_SHADER)
+			else if (m_perInstanceConstantDatas.at(i).eBelongsTo == MaterialConstantData::BelongsToenum::VERTEX_SHADER)
 			{
 				ThisConstTable = m_pvertexShaderConsts;
 			}
@@ -778,7 +776,7 @@ namespace Engine
 				continue;
 			}
 
-			ThisShaderConstHandle = ThisConstTable->GetConstantByName(NULL, m_ConstantDatas.at(i).ConstantName.c_str());
+			ThisShaderConstHandle = ThisConstTable->GetConstantByName(NULL, m_perInstanceConstantDatas.at(i).ConstantName.c_str());
 
 			int count = i_Value.size();
 			float *pfvalue = new float[count];
@@ -923,20 +921,20 @@ namespace Engine
 		//Get reference to per-instance constant
 		if (m_pvertexShaderConsts != NULL)
 		{
-			MaterialConstantData ThisMaterialConstant;
+			MaterialConstantData PerInstanceMaterialConstant;
 
-			ThisMaterialConstant.ConstantName = "g_meshPosition_screen";
+			PerInstanceMaterialConstant.ConstantName = "g_meshPosition_screen";
 			
 			//Two float values for position, change it to 3 for 3D
-			ThisMaterialConstant.DefaultValues.push_back(0.0f);
-			ThisMaterialConstant.DefaultValues.push_back(0.0f);
+			PerInstanceMaterialConstant.DefaultValues.push_back(0.0f);
+			PerInstanceMaterialConstant.DefaultValues.push_back(0.0f);
 
-			ThisMaterialConstant.eBelongsTo = MaterialConstantData::BelongsToenum::VERTEX_SHADER;
-			ThisMaterialConstant.Handle = m_pvertexShaderConsts->GetConstantByName(NULL, ThisMaterialConstant.ConstantName.c_str());
+			PerInstanceMaterialConstant.eBelongsTo = MaterialConstantData::BelongsToenum::VERTEX_SHADER;
+			PerInstanceMaterialConstant.Handle = m_pvertexShaderConsts->GetConstantByName(NULL, PerInstanceMaterialConstant.ConstantName.c_str());
 
-			if (ThisMaterialConstant.Handle != NULL)
+			if (PerInstanceMaterialConstant.Handle != NULL)
 			{
-				m_ConstantDatas.push_back(ThisMaterialConstant);
+				m_perInstanceConstantDatas.push_back(PerInstanceMaterialConstant);
 			}
 		}
 

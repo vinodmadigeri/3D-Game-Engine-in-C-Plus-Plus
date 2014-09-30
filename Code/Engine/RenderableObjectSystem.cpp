@@ -211,7 +211,7 @@ namespace Engine
 			PositionValues.push_back(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().x());
 			PositionValues.push_back(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().y());
 			
-			m3DRenderableObjects.at(ulCount)->GetMaterial()->SetConstantDataByName("g_meshPosition_screen", PositionValues);
+			m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerInstanceConstantDataByName("g_meshPosition_screen", PositionValues);
 			
 			GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh());
 		}

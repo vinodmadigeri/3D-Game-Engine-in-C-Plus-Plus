@@ -68,7 +68,8 @@ namespace Engine
 #endif
 			);
 
-		bool SetConstantDataByName(const std::string &i_name, std::vector<float> &i_Value);
+		bool SetPerInstanceConstantDataByName(const std::string &i_name, std::vector<float> &i_Value);
+
 	private:
 		IDirect3DDevice9 * m_direct3dDevice;
 		// The vertex shader is a program that operates on vertices.
@@ -95,7 +96,9 @@ namespace Engine
 		std::string mPathVertexShader;
 		std::string mPathFragmentShader;
 
-		std::vector<MaterialConstantData> m_ConstantDatas;
+		std::vector<MaterialConstantData> m_perMaterialConstantDatas;
+		std::vector<MaterialConstantData> m_perInstanceConstantDatas;
+
 		//==========
 		// Lua Logic
 		bool LoadMaterialLuaAsset(const char* i_path
@@ -161,7 +164,7 @@ namespace Engine
 #endif		
 			);
 
-		bool SetAllConstantDataFromMaterialFile(IDirect3DDevice9 * i_direct3dDevice
+		bool SetPerMaterialConstantDataFromMaterialFile(IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif		

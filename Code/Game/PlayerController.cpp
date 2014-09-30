@@ -96,7 +96,7 @@ namespace Player
 			case 'W':
 			{
 				//Set velocity of the Player in Positive Y axis since 'W' is pressed
-				i_Actor.SetAcceleration(Vector3(0.0f, 0.0000009f, 0.0f));
+				i_Actor.SetAcceleration(Vector3(0.0f, 0.00005f, 0.0f));
 
 				CONSOLE_PRINT("Positive Y axis since 'W' is pressed");
 				break;
@@ -106,7 +106,7 @@ namespace Player
 			case 'a':
 			case 'A':
 			{
-				i_Actor.SetAcceleration(Vector3(-0.0000009f, 0.0f, 0.0f));
+				i_Actor.SetAcceleration(Vector3(-0.00005f, 0.0f, 0.0f));
 				CONSOLE_PRINT("Negative X axis since 'A' is pressed");
 				break;
 			}
@@ -114,7 +114,7 @@ namespace Player
 			case 's':
 			case 'S':
 			{
-				i_Actor.SetAcceleration(Vector3(0.0f, -0.0000009f, 0.0f));
+				i_Actor.SetAcceleration(Vector3(0.0f, -0.00005f, 0.0f));
 				CONSOLE_PRINT("Negative Y axis since 'S' is pressed");
 				break;
 			}
@@ -124,37 +124,39 @@ namespace Player
 			case 'D':
 			{
 				//Move the Player in Positive X axis since 'D' is pressed
-				i_Actor.SetAcceleration(Vector3(0.0000009f, 0.0f, 0.0f));
+				i_Actor.SetAcceleration(Vector3(0.00005f, 0.0f, 0.0f));
 				CONSOLE_PRINT("Postive X axis since 'D' is pressed");
 				break;
 			}
 
-			default: // Add friction
+			default: 
 			{
+				//Set acceleration to zero
 				i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, 0.0f));
-			
-				Friction = Vector3(0.00000008f, 0.00000008f, 0.00000008f);
-
-				if  ((i_Actor.GetVelocity().x() - Friction.x()) < 0)
-				{
-					i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), i_Actor.GetVelocity().z() ));
-					Friction.x(0.0f);
-				}
-				if  ((i_Actor.GetVelocity().y() - Friction.y()) < 0)
-				{
-					i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f, i_Actor.GetVelocity().z() ));
-					Friction.y(0.0f);
-				}
-				if  ((i_Actor.GetVelocity().z() - Friction.z()) < 0)
-				{
-					i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().z(), 0.0f, i_Actor.GetVelocity().z() ));
-					Friction.z(0.0f);
-				}
-
-				CONSOLE_PRINT("Friction Set: %d, %d, %d", Friction.x(), Friction.y(), Friction.z());
-				i_Actor.SetFriction(Friction);
 			}
 		}
+
+		// Add friction
+		Friction = Vector3(0.0000005f, 0.0000005f, 0.0000005f);
+
+		if ((i_Actor.GetVelocity().x() - Friction.x()) < 0)
+		{
+			i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), i_Actor.GetVelocity().z()));
+			Friction.x(0.0f);
+		}
+		if ((i_Actor.GetVelocity().y() - Friction.y()) < 0)
+		{
+			i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f, i_Actor.GetVelocity().z()));
+			Friction.y(0.0f);
+		}
+		if ((i_Actor.GetVelocity().z() - Friction.z()) < 0)
+		{
+			i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().z(), 0.0f, i_Actor.GetVelocity().z()));
+			Friction.z(0.0f);
+		}
+
+		CONSOLE_PRINT("Friction Set: %d, %d, %d", Friction.x(), Friction.y(), Friction.z());
+		i_Actor.SetFriction(Friction);
 
 		return;
 	}
