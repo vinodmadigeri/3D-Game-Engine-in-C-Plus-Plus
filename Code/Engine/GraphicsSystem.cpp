@@ -24,6 +24,7 @@ namespace Engine
 		D3DDECL_END()
 	};
 
+	bool GraphicsSystem::s_bInFrame = false;
 	GraphicsSystem *GraphicsSystem::m_pInstance = NULL;
 
 	// Interface
@@ -118,98 +119,55 @@ namespace Engine
 		ShutDown();
 		return false;
 	}
-
-	void GraphicsSystem::Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh)
+	
+	bool GraphicsSystem::CanSubmit(void)
 	{
-		assert(mInitilized == true);
+		return s_bInFrame;
+	}
 
-		// Every frame an entirely new image will be created.
-		// Before drawing anything, then, the previous image will be erased
-		// by "clearing" the image buffer (filling it with a solid color)
+	bool GraphicsSystem::BeingFrame(const ColorRGBA & i_ClearColor)
+	{
+		assert(mInitilized);
+
+		if (m_direct3dDevice)
 		{
-			const D3DRECT* subRectanglesToClear = NULL;
-			const DWORD subRectangleCount = 0;
-			const DWORD clearTheRenderTarget = D3DCLEAR_TARGET;
-			D3DCOLOR clearColor;
+			// Every frame an entirely new image will be created.
+			// Before drawing anything, then, the previous image will be erased
+			// by "clearing" the image buffer (filling it with a solid color)
 			{
-				// Black is usually used:
-				clearColor = D3DCOLOR_XRGB(0, 0, 0);
+				const D3DRECT* subRectanglesToClear = NULL;
+				const DWORD subRectangleCount = 0;
+				const DWORD clearTheRenderTarget = D3DCLEAR_TARGET;
+				D3DCOLOR clearColor;
+				{
+					// Black is usually used:
+					clearColor = D3DCOLOR_XRGB(i_ClearColor.r, i_ClearColor.g, i_ClearColor.b);
+				}
+				const float noZBuffer = 0.0f;
+				const DWORD noStencilBuffer = 0;
+				HRESULT result = m_direct3dDevice->Clear(subRectangleCount, subRectanglesToClear,
+					clearTheRenderTarget, clearColor, noZBuffer, noStencilBuffer);
+				assert(SUCCEEDED(result));
 			}
-			const float noZBuffer = 0.0f;
-			const DWORD noStencilBuffer = 0;
-			HRESULT result = m_direct3dDevice->Clear(subRectangleCount, subRectanglesToClear,
-				clearTheRenderTarget, clearColor, noZBuffer, noStencilBuffer);
-			assert(SUCCEEDED(result));
-		}
 
-		// The actual function calls that draw geometry must be made between paired calls to
-		// BeginScene() and EndScene()
-		{
 			HRESULT result = m_direct3dDevice->BeginScene();
 			assert(SUCCEEDED(result));
-			{
-				// Set the shaders
-				{
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-					std::string errorMessage;
-#endif
-					result = i_Material->Set(m_direct3dDevice
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-						, &errorMessage
-#endif
-						);
-					assert(SUCCEEDED(result));
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-					if (FAILED(result))
-					{
-						MessageBox(m_mainWindow, errorMessage.c_str(), "Error Setting Material", MB_OK | MB_ICONERROR);
-					}
-#endif
-				}
 
-				// Bind a specific vertex buffer to the device as a data source
-				{
-					// There can be multiple streams of data feeding the display adaptor at the same time
-					const unsigned int streamIndex = 0;
-					// It's possible to start streaming data in the middle of a vertex buffer
-					const unsigned int bufferOffset = 0;
-					// The "stride" defines how large a single vertex is in the stream of data
-					const unsigned int bufferStride = sizeof(sVertex);
-					result = m_direct3dDevice->SetStreamSource(streamIndex, i_Mesh->GetVertexBuffer(), bufferOffset, bufferStride);
-					assert(SUCCEEDED(result));
-				}
 
-				// Set the indices to use
-				{
-					HRESULT result = m_direct3dDevice->SetIndices(i_Mesh->GetIndexBuffer());
-					assert(SUCCEEDED(result));
-				}
-
-				// Render objects from the current streams
-				{
-					// We are using triangles as the "primitive" type,
-					// and we have defined the vertex buffer as a triangle list
-					// (meaning that every triangle is defined by three vertices)
-					const D3DPRIMITIVETYPE primitiveType = i_Mesh->mDrawInfo.m_PrimitiveType;
-					// It's possible to start rendering primitives in the middle of the stream
-					const unsigned int indexOfFirstVertexToRender = i_Mesh->mDrawInfo.m_indexOfFirstVertexToRender;
-					const unsigned int indexOfFirstIndexToUse = i_Mesh->mDrawInfo.m_indexOfFirstIndexToUse;
-					// We are drawing a single triangle
-					const unsigned int primitiveCountToRender = i_Mesh->mDrawInfo.m_PrimitiveCount;
-					const unsigned int vertexCountToRender = i_Mesh->mDrawInfo.m_NumOfVertices; //Rectangle contains 4 vertices
-
-					result = m_direct3dDevice->DrawIndexedPrimitive(primitiveType, indexOfFirstVertexToRender, indexOfFirstVertexToRender, vertexCountToRender, indexOfFirstIndexToUse, primitiveCountToRender);
-					assert(SUCCEEDED(result));
-				}
-			}
-
-			result = m_direct3dDevice->EndScene();
-			assert(SUCCEEDED(result));
+			s_bInFrame = true;
 		}
 
-			// Everything has been drawn to the "back buffer", which is just an image in memory.
-			// In order to display it, the contents of the back buffer must be "presented"
-			// (to the front buffer)
+		return true;
+	}
+	
+	bool GraphicsSystem::EndFrame(void)
+	{
+		HRESULT result = m_direct3dDevice->EndScene();
+		assert(SUCCEEDED(result));
+
+		// Everything has been drawn to the "back buffer", which is just an image in memory.
+		// In order to display it, the contents of the back buffer must be "presented"
+		// (to the front buffer)
 		{
 			const RECT* noSourceRectangle = NULL;
 			const RECT* noDestinationRectangle = NULL;
@@ -217,6 +175,73 @@ namespace Engine
 			const RGNDATA* noDirtyRegion = NULL;
 			HRESULT result = m_direct3dDevice->Present(noSourceRectangle, noDestinationRectangle, useDefaultWindow, noDirtyRegion);
 			assert(SUCCEEDED(result));
+		}
+
+		s_bInFrame = false;
+
+		return true;
+	}
+
+	void GraphicsSystem::Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh)
+	{
+		assert(mInitilized == true);
+
+		//Only render when in frame
+		assert(s_bInFrame);
+		{
+			// Set the shaders
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				std::string errorMessage;
+#endif
+				HRESULT result = i_Material->Set(m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, &errorMessage
+#endif
+					);
+				assert(SUCCEEDED(result));
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (FAILED(result))
+				{
+					MessageBox(m_mainWindow, errorMessage.c_str(), "Error Setting Material", MB_OK | MB_ICONERROR);
+				}
+#endif
+			}
+
+			// Bind a specific vertex buffer to the device as a data source
+			{
+				// There can be multiple streams of data feeding the display adaptor at the same time
+				const unsigned int streamIndex = 0;
+				// It's possible to start streaming data in the middle of a vertex buffer
+				const unsigned int bufferOffset = 0;
+				// The "stride" defines how large a single vertex is in the stream of data
+				const unsigned int bufferStride = i_Mesh->mDrawInfo.m_VertexStride;
+				HRESULT result = m_direct3dDevice->SetStreamSource(streamIndex, i_Mesh->GetVertexBuffer(), bufferOffset, bufferStride);
+				assert(SUCCEEDED(result));
+			}
+
+			// Set the indices to use
+			{
+				HRESULT result = m_direct3dDevice->SetIndices(i_Mesh->GetIndexBuffer());
+				assert(SUCCEEDED(result));
+			}
+
+			// Render objects from the current streams
+			{
+				// We are using triangles as the "primitive" type,
+				// and we have defined the vertex buffer as a triangle list
+				// (meaning that every triangle is defined by three vertices)
+				const D3DPRIMITIVETYPE primitiveType = i_Mesh->mDrawInfo.m_PrimitiveType;
+				// It's possible to start rendering primitives in the middle of the stream
+				const unsigned int indexOfFirstVertexToRender = i_Mesh->mDrawInfo.m_indexOfFirstVertexToRender;
+				const unsigned int indexOfFirstIndexToUse = i_Mesh->mDrawInfo.m_indexOfFirstIndexToUse;
+				// We are drawing a single triangle
+				const unsigned int primitiveCountToRender = i_Mesh->mDrawInfo.m_PrimitiveCount;
+				const unsigned int vertexCountToRender = i_Mesh->mDrawInfo.m_NumOfVertices; //Rectangle contains 4 vertices
+
+				HRESULT result = m_direct3dDevice->DrawIndexedPrimitive(primitiveType, indexOfFirstVertexToRender, indexOfFirstVertexToRender, vertexCountToRender, indexOfFirstIndexToUse, primitiveCountToRender);
+				assert(SUCCEEDED(result));
+			}
 		}
 	}
 
@@ -446,7 +471,7 @@ namespace Engine
 		{
 			// We are drawing a rectangle
 			const unsigned int vertexCount = i_DrawInfo.m_NumOfVertices;
-			const unsigned int bufferSize = vertexCount * sizeof(sVertex);
+			const unsigned int bufferSize = vertexCount * i_DrawInfo.m_VertexStride;
 
 			// We will define our own vertex format
 			const DWORD useSeparateVertexDeclaration = 0;
@@ -466,7 +491,7 @@ namespace Engine
 		// Fill the vertex buffer with the rectangle's vertices
 		{
 			// Before the vertex buffer can be changed it must be "locked"
-			sVertex* vertexData;
+			sVertexData* vertexData;
 			{
 				const unsigned int lockEntireBuffer = 0;
 				const DWORD useDefaultLockingBehavior = 0;
@@ -481,21 +506,7 @@ namespace Engine
 
 			// Fill the buffer
 			{
-				vertexData[0].x = -0.2f;
-				vertexData[0].y = -0.2f;
-				vertexData[0].color = D3DCOLOR_XRGB(22, 22, 22);
-
-				vertexData[1].x = -0.2f;
-				vertexData[1].y = 0.2f;
-				vertexData[1].color = D3DCOLOR_XRGB(15, 15, 15);
-
-				vertexData[2].x = 0.2f;
-				vertexData[2].y = 0.2f;
-				vertexData[2].color = D3DCOLOR_XRGB(44, 44, 44);
-
-				vertexData[3].x = 0.2f;
-				vertexData[3].y = -0.2f;
-				vertexData[3].color = D3DCOLOR_XRGB(52, 52, 52);
+				memcpy(vertexData, i_DrawInfo.m_pVerticesData, i_DrawInfo.m_VertexStride * i_DrawInfo.m_NumOfVertices);
 			}
 
 			// The buffer must be "unlocked" before it can be used
@@ -553,17 +564,7 @@ namespace Engine
 				// EAE6320_TODO: What should the indices be
 				// in order to draw the required number of triangles
 				// using a left-handed winding order?
-
-				// The first triangle can be filled in like this:
-				indices[0] = 0;
-				indices[1] = 1;
-				indices[2] = 3;
-
-				// A second triangle could be filled in like this:
-				indices[3] = 1;
-				indices[4] = 2;
-				indices[5] = 3;
-
+				memcpy(indices, i_DrawInfo.m_pIndices, i_DrawInfo.m_IndexCount * sizeof(DWORD32));
 				// And so on for all of the required triangles
 			}
 			// The buffer must be "unlocked" before it can be used

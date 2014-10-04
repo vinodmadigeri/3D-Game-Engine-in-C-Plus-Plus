@@ -35,13 +35,6 @@ namespace Engine
 		static GraphicsSystem *m_pInstance;
 		bool mInitilized;
 
-		// The vertex information that is sent to the display adaptor must match what the vertex shader expects
-		struct sVertex
-		{
-			float x, y;
-			D3DCOLOR color; // D3DCOLOR = 4 bytes, or 8 bits [0,255] per RGBA channel
-		};
-
 		GraphicsSystem(const HWND i_mainWindow,
 			const unsigned int i_windowWidth,
 			const unsigned int i_windowHeight,
@@ -63,7 +56,9 @@ namespace Engine
 
 
 		bool ComputeUsage(DWORD &o_usage);
-
+		static bool s_bInFrame;
+		bool CanSubmit(void);
+		
 
 	public:
 		static bool CreateInstance(const HWND i_mainWindow,
@@ -72,7 +67,9 @@ namespace Engine
 			const bool i_shouldRenderFullScreen = false);
 
 		static GraphicsSystem * GetInstance();
+		bool BeingFrame(const ColorRGBA & i_ClearColor = ColorRGBA(0, 0, 0, 0));
 		void Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh);
+		bool EndFrame(void);
 		SharedPointer<Mesh> CreateMesh(const DrawInfo &i_DrawInfo);
 		SharedPointer<Material> CreateMaterial(const char *i_MaterialPath);
 

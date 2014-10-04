@@ -84,29 +84,111 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		Engine::DebugPrint("Failed to Create PhysicsSystem Instance");
 		return mInitilized;
 	}
-
-	//------Input Actor Data and Create one-------------
 	using namespace Engine;
-	Vector3 Position = Vector3(0.0f, 0.0f, 0.0f);
-	Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
-	Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
-	Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
-	float Rotation = 0.0f;
+	//------Input Actor Data and Create one-------------
+	{
+		Vector3 Position = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
+		float Rotation = 0.0f;
 
-	DrawInfo DrawInfoData;
-	DrawInfoData.m_PrimitiveType = D3DPT_TRIANGLELIST;
-	DrawInfoData.m_PrimitiveCount = 2;
-	DrawInfoData.m_NumOfVertices = 4;
-	DrawInfoData.m_indexOfFirstVertexToRender = 0;
-	DrawInfoData.m_indexOfFirstIndexToUse = 0;
-	
-	const unsigned int verticesPerTriangle = 3;
-	const unsigned int trianglesPerRectangle = 2;
-	DrawInfoData.m_IndexCount = trianglesPerRectangle * verticesPerTriangle;
+		DrawInfo DrawInfoData;
+		DrawInfoData.m_PrimitiveType = D3DPT_TRIANGLELIST;
+		DrawInfoData.m_PrimitiveCount = 2;
+		DrawInfoData.m_NumOfVertices = 4;
+		DrawInfoData.m_indexOfFirstVertexToRender = 0;
+		DrawInfoData.m_indexOfFirstIndexToUse = 0;
+		sVertexData vertexData[4]; //m_NumOfVertices
+		vertexData[0].x = -0.2f;
+		vertexData[0].y = -0.2f;
+		vertexData[0].color = D3DCOLOR_XRGB(22, 22, 22);
 
-	const char * pMaterialPath = "data/Simple.mat.lua";
+		vertexData[1].x = -0.2f;
+		vertexData[1].y = 0.2f;
+		vertexData[1].color = D3DCOLOR_XRGB(15, 15, 15);
 
-	WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "Rectangle", "Rectangle", Size, Rotation, pMaterialPath, DrawInfoData);
+		vertexData[2].x = 0.2f;
+		vertexData[2].y = 0.2f;
+		vertexData[2].color = D3DCOLOR_XRGB(44, 44, 44);
+
+		vertexData[3].x = 0.2f;
+		vertexData[3].y = -0.2f;
+		vertexData[3].color = D3DCOLOR_XRGB(52, 52, 52);
+
+		DrawInfoData.m_pVerticesData = vertexData;
+		DrawInfoData.m_VertexStride = sizeof(sVertexData);
+
+		const unsigned int verticesPerTriangle = 3;
+		const unsigned int trianglesPerRectangle = 2;
+		DrawInfoData.m_IndexCount = trianglesPerRectangle * verticesPerTriangle;
+		DWORD32 indices[6];
+		indices[0] = 0;
+		indices[1] = 1;
+		indices[2] = 3;
+
+		// A second triangle could be filled in like this:
+		indices[3] = 1;
+		indices[4] = 2;
+		indices[5] = 3;
+
+		DrawInfoData.m_pIndices = indices;
+
+		const char * pMaterialPath = "data/Simple.mat.lua";
+
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "Rectangle", "Rectangle", Size, Rotation, pMaterialPath, DrawInfoData);
+	}
+
+	{
+		Vector3 Position = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
+		float Rotation = 0.0f;
+
+		DrawInfo DrawInfoDataSecondMesh;
+		DrawInfoDataSecondMesh.m_PrimitiveType = D3DPT_TRIANGLELIST;
+		DrawInfoDataSecondMesh.m_PrimitiveCount = 2;
+		DrawInfoDataSecondMesh.m_NumOfVertices = 4;
+		DrawInfoDataSecondMesh.m_indexOfFirstVertexToRender = 0;
+		DrawInfoDataSecondMesh.m_indexOfFirstIndexToUse = 0;
+		sVertexData vertexData[4]; //m_NumOfVertices
+		vertexData[0].x = -0.4f;
+		vertexData[0].y = -0.4f;
+		vertexData[0].color = D3DCOLOR_XRGB(20, 60, 92);
+
+		vertexData[1].x = -0.4f;
+		vertexData[1].y = 0.4f;
+		vertexData[1].color = D3DCOLOR_XRGB(15, 75, 220);
+
+		vertexData[2].x = 0.4f;
+		vertexData[2].y = 0.4f;
+		vertexData[2].color = D3DCOLOR_XRGB(44, 99, 150);
+
+		vertexData[3].x = 0.4f;
+		vertexData[3].y = -0.4f;
+		vertexData[3].color = D3DCOLOR_XRGB(52, 200, 20);
+
+		DrawInfoDataSecondMesh.m_pVerticesData = vertexData;
+		DrawInfoDataSecondMesh.m_VertexStride = sizeof(sVertexData);
+
+		const unsigned int verticesPerTriangle = 3;
+		const unsigned int trianglesPerRectangle = 2;
+		DWORD32 indices[6];
+		indices[0] = 0;
+		indices[1] = 1;
+		indices[2] = 3;
+
+		// A second triangle could be filled in like this:
+		indices[3] = 1;
+		indices[4] = 2;
+		indices[5] = 3;
+		DrawInfoDataSecondMesh.m_pIndices = indices;
+		DrawInfoDataSecondMesh.m_IndexCount = trianglesPerRectangle * verticesPerTriangle;
+
+		const char * pMaterialPath = "data/Simple.mat.lua";
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "Rectangle", "Rectangle", Size, Rotation, pMaterialPath, DrawInfoDataSecondMesh);
+	}
 
 	std::vector< SharedPointer<Actor>> ActorsList = WorldSystem::GetInstance()->FindActorsByType("Rectangle");
 
@@ -115,6 +197,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	for (unsigned int i = 0; i < ActorsList.size(); i++)
 	{
 		ActorsList.at(i)->SetController(Player::GetController());
+		break;
 	}
 
 	return mInitilized;

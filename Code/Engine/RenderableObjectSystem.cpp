@@ -202,7 +202,7 @@ namespace Engine
 		Vector3 CurrentFriction;
 		
 		DeleteMarkedToDeathGameObjects();
-		
+		GraphicsSystem::GetInstance()->BeingFrame();
 		//Render Logic
 		for (unsigned long ulCount = 0; ulCount < m3DRenderableObjects.size(); ulCount++)
 		{
@@ -215,7 +215,7 @@ namespace Engine
 			
 			GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh());
 		}
-
+		GraphicsSystem::GetInstance()->EndFrame();
 		return;
 	}
 

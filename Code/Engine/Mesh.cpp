@@ -6,17 +6,29 @@
 
 namespace Engine
 {
-
 	Mesh::Mesh(const DrawInfo &i_DrawInfo,
 		IDirect3DVertexDeclaration9* i_vertexDeclaration,
 		IDirect3DVertexBuffer9* i_vertexBuffer,
 		IDirect3DIndexBuffer9* i_indexBuffer) :
-		mDrawInfo(i_DrawInfo),
 		m_vertexDeclaration(i_vertexDeclaration),
 		m_vertexBuffer(i_vertexBuffer),
 		m_indexBuffer(i_indexBuffer)
 	{
+		mDrawInfo.m_PrimitiveType = i_DrawInfo.m_PrimitiveType;
+		mDrawInfo.m_indexOfFirstVertexToRender = i_DrawInfo.m_indexOfFirstVertexToRender;
+		mDrawInfo.m_indexOfFirstIndexToUse = i_DrawInfo.m_indexOfFirstIndexToUse;
+		mDrawInfo.m_PrimitiveCount = i_DrawInfo.m_PrimitiveCount;
+		mDrawInfo.m_NumOfVertices = i_DrawInfo.m_NumOfVertices;
+		mDrawInfo.m_VertexStride = i_DrawInfo.m_VertexStride;
+		mDrawInfo.m_IndexCount = i_DrawInfo.m_IndexCount;
+		
+		assert(i_DrawInfo.m_pVerticesData && i_DrawInfo.m_pIndices);
 
+		mDrawInfo.m_pVerticesData = (sVertexData *)malloc(i_DrawInfo.m_VertexStride * i_DrawInfo.m_NumOfVertices);
+		mDrawInfo.m_pIndices = (DWORD32 *)malloc(i_DrawInfo.m_IndexCount * sizeof(DWORD32));
+
+		memcpy(mDrawInfo.m_pVerticesData, i_DrawInfo.m_pVerticesData, i_DrawInfo.m_VertexStride * i_DrawInfo.m_NumOfVertices);
+		memcpy(mDrawInfo.m_pIndices, i_DrawInfo.m_pIndices, i_DrawInfo.m_IndexCount * sizeof(DWORD32));
 	}
 
 	Mesh::~Mesh()
@@ -38,8 +50,17 @@ namespace Engine
 			m_indexBuffer->Release();
 			m_indexBuffer = NULL;
 		}
-	}
 
+		if (mDrawInfo.m_pVerticesData)
+		{
+			free(mDrawInfo.m_pVerticesData);
+		}
+
+		if (mDrawInfo.m_pIndices)
+		{
+			free(mDrawInfo.m_pIndices);
+		}
+	}
 
 	IDirect3DVertexDeclaration9* Mesh::GetVertexDeclaration() const
 	{
