@@ -9,6 +9,9 @@
 //=============
 #include "PreCompiled.h"
 
+#ifdef EAE2014_GRAPHICS_SHOULDD3DDEBUGINFOBEENABLED
+#define D3D_DEBUG_INFO
+#endif
 
 #include <d3d9.h>
 #include <vector>

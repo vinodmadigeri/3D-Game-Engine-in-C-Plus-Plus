@@ -207,12 +207,17 @@ namespace Engine
 		for (unsigned long ulCount = 0; ulCount < m3DRenderableObjects.size(); ulCount++)
 		{
 			//Set position constant from VertexShader to update the position of the actor
-			std::vector<float> PositionValues;
-			PositionValues.push_back(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().x());
-			PositionValues.push_back(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().y());
+			//Vector3 PositionValues;
+			//PositionValues.push_back(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().x());
+			//PositionValues.push_back(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().y());
 			
-			m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerInstanceConstantDataByName("g_meshPosition_screen", PositionValues);
-			
+			//m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerInstanceConstantDataByName("g_meshPosition_screen", PositionValues);
+			float iPosition[3] = { m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().x() ,
+									m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().y(),
+									m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().x() };
+			unsigned int floatcount = 3;
+
+			m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerInstanceConstantDataByName("g_meshPosition_screen", iPosition, 3);
 			GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh());
 		}
 		GraphicsSystem::GetInstance()->EndFrame();

@@ -116,6 +116,9 @@
     <ClInclude Include="Util\UserInput.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="MaterialConstantData.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GraphicsSystem">

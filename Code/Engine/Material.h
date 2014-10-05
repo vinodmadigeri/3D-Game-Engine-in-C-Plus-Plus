@@ -15,6 +15,7 @@ as well as the data that those shader program use
 
 #include "../External/Lua/Includes.h"
 
+#include "MaterialConstantData.h"
 #include "Vector3.h"
 
 // Class Declaration
@@ -22,26 +23,6 @@ as well as the data that those shader program use
 
 namespace Engine
 {
-	typedef struct _MaterialConstantData
-	{
-		struct BelongsToenum
-		{
-			enum BELONGSTO
-			{
-				FRAGMENT_SHADER = 1,
-				VERTEX_SHADER,
-				NONE
-			};
-		};
-
-		//If not valid, it means, constant defined in a material 
-		//has no corresponding constant in fragment or vertex shader
-		BelongsToenum::BELONGSTO eBelongsTo;
-		D3DXHANDLE Handle;
-		std::string ConstantName;
-		std::vector<float> DefaultValues;
-	}MaterialConstantData;
-
 	class Material
 	{
 		// Interface
@@ -68,7 +49,7 @@ namespace Engine
 #endif
 			);
 
-		bool SetPerInstanceConstantDataByName(const std::string &i_name, std::vector<float> &i_Value);
+		bool SetPerInstanceConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count);
 
 	private:
 		IDirect3DDevice9 * m_direct3dDevice;
@@ -96,16 +77,11 @@ namespace Engine
 		std::string mPathVertexShader;
 		std::string mPathFragmentShader;
 
-		std::vector<MaterialConstantData> m_perMaterialConstantDatas;
-		std::vector<MaterialConstantData> m_perInstanceConstantDatas;
-
+		std::vector<IMaterialConstant *> m_perMaterialConstantDatas; //optional
+		std::vector<IMaterialConstant *> m_perInstanceConstantDatas; //optional
+		
 		//==========
 		// Lua Logic
-		bool LoadMaterialLuaAsset(const char* i_path
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, std::string* o_errorMessage = NULL
-#endif
-			);
 
 		//Constant
 		bool LoadConstantDataTable(lua_State& io_luaState, const char* RootConstantTableName
@@ -120,7 +96,7 @@ namespace Engine
 #endif
 			);
 
-		bool LoadEachConstantDataValue(lua_State& io_luaState, std::vector<float> & DataVector
+		bool LoadEachConstantDataValue(lua_State& io_luaState, const char * i_ConstantName
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif
@@ -158,18 +134,11 @@ namespace Engine
 #endif
 			);
 			
-		bool InitilizeConstantDataFromMaterialFile(IDirect3DDevice9 * i_direct3dDevice
+		bool SetPerMaterialConstantDataFromMaterialFile(
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, std::string* o_errorMessage
+			std::string* o_errorMessage
 #endif		
 			);
-
-		bool SetPerMaterialConstantDataFromMaterialFile(IDirect3DDevice9 * i_direct3dDevice
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, std::string* o_errorMessage
-#endif		
-			);
-
 	};
 }
 
