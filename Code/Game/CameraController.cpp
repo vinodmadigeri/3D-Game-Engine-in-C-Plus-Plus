@@ -94,146 +94,52 @@ namespace Camera
 
 		switch (CharID)
 		{
-		case 'w':
-		case 'W':
-		{
-			//Set velocity of the camera in Positive Y axis since 'W' is pressed
-			i_Actor.SetAcceleration(Vector3(0.0f, singleAccelerationvalue, 0.0f));
-
-			CONSOLE_PRINT("Positive Y axis since 'W' is pressed");
-			break;
-		}
-
-		case 37:
-		case 'a':
-		case 'A':
-		{
-			i_Actor.SetAcceleration(Vector3(-singleAccelerationvalue, 0.0f, 0.0f));
-			CONSOLE_PRINT("Negative X axis since 'A' is pressed");
-			break;
-		}
-
-		case 's':
-		case 'S':
-		{
-			i_Actor.SetAcceleration(Vector3(0.0f, -singleAccelerationvalue, 0.0f));
-			CONSOLE_PRINT("Negative Y axis since 'S' is pressed");
-			break;
-		}
-
-		case 39:
-		case 'd':
-		case 'D':
-		{
-			//Move the camera in Positive X axis since 'D' is pressed
-			i_Actor.SetAcceleration(Vector3(singleAccelerationvalue, 0.0f, 0.0f));
-			CONSOLE_PRINT("Postive X axis since 'D' is pressed");
-			break;
-		}
-
-		default:
-		{
-			//Set acceleration to zero
-			i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, 0.0f));
-			i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
-		}
-		}
-#if 0
-		float singleFrictionvalue = 0.00003f;
-		// Add friction
-		Friction = Vector3(singleFrictionvalue, singleFrictionvalue, singleFrictionvalue);
-
-		if (i_Actor.GetVelocity().x() > 0)
-		{
-			if ((i_Actor.GetVelocity().x() - Friction.x()) < 0)
+			case 'w':
+			case 'W':
 			{
-				i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), i_Actor.GetVelocity().z()));
-				Friction.x(0.0f);
+				//Set velocity of the camera in Positive Y axis since 'W' is pressed
+				i_Actor.SetAcceleration(Vector3(0.0f, singleAccelerationvalue, 0.0f));
+				i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), 0.0f));
+				CONSOLE_PRINT("Positive Y axis since 'W' is pressed");
+				break;
 			}
-			else
+
+			case 'a':
+			case 'A':
 			{
-				Friction.x(-singleFrictionvalue);
+				i_Actor.SetAcceleration(Vector3(-singleAccelerationvalue, 0.0f, 0.0f));
+				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f , 0.0f));
+				CONSOLE_PRINT("Negative X axis since 'A' is pressed");
+				break;
 			}
-		}
-		else if (i_Actor.GetVelocity().x() < 0)
-		{
-			if ((i_Actor.GetVelocity().x() - Friction.x()) > 0)
+
+			case 's':
+			case 'S':
 			{
-				i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), i_Actor.GetVelocity().z()));
-				Friction.x(0.0f);
+				i_Actor.SetAcceleration(Vector3(0.0f, -singleAccelerationvalue, 0.0f));
+				i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), 0.0f));
+				CONSOLE_PRINT("Negative Y axis since 'S' is pressed");
+				break;
 			}
-			else
+
+			case 'd':
+			case 'D':
 			{
-				Friction.x(singleFrictionvalue);
+				//Move the camera in Positive X axis since 'D' is pressed
+				i_Actor.SetAcceleration(Vector3(singleAccelerationvalue, 0.0f, 0.0f));
+				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f, 0.0f));
+				CONSOLE_PRINT("Postive X axis since 'D' is pressed");
+				break;
 			}
-		}
-		else
-		{
-			Friction.x(0.0f);
+
+			default:
+			{
+				//Set acceleration to zero
+				i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, 0.0f));
+				i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
+			}
 		}
 
-
-		if (i_Actor.GetVelocity().y() > 0)
-		{
-			if ((i_Actor.GetVelocity().y() - Friction.y()) < 0)
-			{
-				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f, i_Actor.GetVelocity().z()));
-				Friction.y(0.0f);
-			}
-			else
-			{
-				Friction.y(-singleFrictionvalue);
-			}
-		}
-		else if (i_Actor.GetVelocity().y() < 0)
-		{
-			if ((i_Actor.GetVelocity().y() - Friction.y()) > 0)
-			{
-				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f, i_Actor.GetVelocity().z()));
-				Friction.y(0.0f);
-			}
-			else
-			{
-				Friction.y(singleFrictionvalue);
-			}
-		}
-		else
-		{
-			Friction.y(0.0f);
-		}
-
-		if (i_Actor.GetVelocity().z() > 0)
-		{
-			if ((i_Actor.GetVelocity().z() - Friction.z()) < 0)
-			{
-				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), i_Actor.GetVelocity().y(), 0.0f));
-				Friction.z(0.0f);
-			}
-			else
-			{
-				Friction.z(-singleFrictionvalue);
-			}
-		}
-		else if (i_Actor.GetVelocity().z() < 0)
-		{
-			if ((i_Actor.GetVelocity().z() - Friction.z()) > 0)
-			{
-				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), i_Actor.GetVelocity().y(), 0.0f));
-				Friction.z(0.0f);
-			}
-			else
-			{
-				Friction.z(singleFrictionvalue);
-			}
-		}
-		else
-		{
-			Friction.z(0.0f);
-		}
-
-		CONSOLE_PRINT("Friction Set: %d, %d, %d", Friction.x(), Friction.y(), Friction.z());
-		i_Actor.SetFriction(Friction);
-#endif
 		return;
 	}
 

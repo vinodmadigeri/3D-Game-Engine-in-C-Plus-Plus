@@ -70,12 +70,12 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		return mInitilized;
 	}
 
-	Engine::Vector3 eyeLocation(0.0f, 0.0f, -12.0f);
+	Engine::Vector3 eyeLocation(0.0f, 0.0f, -11.0f);
 	Engine::Vector3 LookAtLocation(0.0f, 0.0f, 1.0f);
 	Engine::Vector3 Up(0.0f, 1.0f, 0.0f);
-	float FieldOfView = static_cast<float>(Engine::Get_PI_Value() / 4); //45 degrees
+	float FieldOfView = static_cast<float>(Engine::Get_PI_Value() / 3); //60 degrees
 	float NearPlane = 0.1f;
-	float FarPlane = 20.0f;
+	float FarPlane = 100.0f;
 	mInitilized = Engine::CameraSystem::CreateInstance(g_windowWidth, g_windowHeight, FieldOfView, NearPlane, FarPlane, eyeLocation, LookAtLocation, Up);
 
 	if (mInitilized == false)
@@ -103,64 +103,8 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 
 	using namespace Engine;
 	//------Input Actor Data and Create one-------------
-#if 1
-	{
-		Vector3 Position = Vector3(0.0f, -1.0f, 0.0f);
-		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
-		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
-		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
-		float Rotation = 0.0f;
 
-		DrawInfo DrawInfoData;
-		DrawInfoData.m_PrimitiveType = D3DPT_TRIANGLELIST;
-		DrawInfoData.m_PrimitiveCount = 2;
-		DrawInfoData.m_NumOfVertices = 4;
-		DrawInfoData.m_indexOfFirstVertexToRender = 0;
-		DrawInfoData.m_indexOfFirstIndexToUse = 0;
-
-		sVertexData vertexData[4]; //m_NumOfVertices
-
-		vertexData[0].x = -4.0f;
-		vertexData[0].y = 0.0f;
-		vertexData[0].z = -4.0f;
-		vertexData[0].color = D3DCOLOR_XRGB(255, 255, 255);
-
-		vertexData[1].x = -4.0f;
-		vertexData[1].y = 0.0f;
-		vertexData[1].z = 4.0f;
-		vertexData[1].color = D3DCOLOR_XRGB(255, 0, 255);
-
-
-		vertexData[2].x = 4.0f;
-		vertexData[2].y = 0.0f;
-		vertexData[2].z = 4.0f;
-		vertexData[2].color = D3DCOLOR_XRGB(255, 255, 0);
-
-		vertexData[3].x = 4.0f;
-		vertexData[3].y = 0.0f;
-		vertexData[3].z = -4.0f;
-		vertexData[3].color = D3DCOLOR_XRGB(0, 255, 255);
-
-		DrawInfoData.m_pVerticesData = vertexData;
-		DrawInfoData.m_VertexStride = sizeof(sVertexData);
-
-		const unsigned int verticesPerTriangle = 3;
-		const unsigned int trianglesPerRectangle = 2;
-		const unsigned int NumberOfRectangles = 1;
-		DrawInfoData.m_IndexCount = NumberOfRectangles * trianglesPerRectangle * verticesPerTriangle;
-		DWORD32 indices[6] =
-		{
-			0, 1, 3,
-			3, 1, 2
-		};
-
-		DrawInfoData.m_pIndices = indices;
-
-		const char * pMaterialPath = "data/Simple.mat.lua";
-
-		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "BaseQuad", "BaseQuad", Size, Rotation, pMaterialPath, DrawInfoData);
-	}
-#endif
+	//Create Cube
 	{
 		Vector3 Position = Vector3(0.0f, 0.0f, 0.0f);
 		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
@@ -178,39 +122,39 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		vertexData[0].x = -1.0f;
 		vertexData[0].y = -1.0f;
 		vertexData[0].z = -1.0f;
-		vertexData[0].color = D3DCOLOR_XRGB(20, 60, 92);
+		vertexData[0].color = D3DCOLOR_XRGB(255, 0, 0);
 
 		vertexData[4].x = -1.0f;
 		vertexData[4].y = -1.0f;
 		vertexData[4].z = 1.0f;
-		vertexData[4].color = D3DCOLOR_XRGB(90, 20, 55);
+		vertexData[4].color = D3DCOLOR_XRGB(255, 0, 0);
 
 		vertexData[1].x = -1.0f;
 		vertexData[1].y = 1.0f;
 		vertexData[1].z = -1.0f;
-		vertexData[1].color = D3DCOLOR_XRGB(15, 75, 220);
+		vertexData[1].color = D3DCOLOR_XRGB(0, 255, 0);
 
 		vertexData[5].x = -1.0f;
 		vertexData[5].y = 1.0f;
 		vertexData[5].z = 1.0f;
-		vertexData[5].color = D3DCOLOR_XRGB(155, 80, 20);
+		vertexData[5].color = D3DCOLOR_XRGB(0, 0, 255);
 
 
 		vertexData[2].x = 1.0f;
 		vertexData[2].y = 1.0f;
 		vertexData[2].z = -1.0f;
-		vertexData[2].color = D3DCOLOR_XRGB(92, 50, 38);
+		vertexData[2].color = D3DCOLOR_XRGB(0, 0, 255);
 
 
 		vertexData[6].x = 1.0f;
 		vertexData[6].y = 1.0f;
 		vertexData[6].z = 1.0f;
-		vertexData[6].color = D3DCOLOR_XRGB(5, 150, 60);
+		vertexData[6].color = D3DCOLOR_XRGB(90, 150, 60);
 
 		vertexData[3].x = 1.0f;
 		vertexData[3].y = -1.0f;
 		vertexData[3].z = -1.0f;
-		vertexData[3].color = D3DCOLOR_XRGB(20, 150, 80);
+		vertexData[3].color = D3DCOLOR_XRGB(200, 50, 80);
 		
 		vertexData[7].x = 1.0f;
 		vertexData[7].y = -1.0f;
@@ -247,7 +191,63 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "Rectangle", "Rectangle", Size, Rotation, pMaterialPath, DrawInfoData);
 	}
 
+	//Create Plane
+	{
+		Vector3 Position = Vector3(0.0f, -1.0f, 0.0f);
+		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
+		float Rotation = 0.0f;
 
+		DrawInfo DrawInfoData;
+		DrawInfoData.m_PrimitiveType = D3DPT_TRIANGLELIST;
+		DrawInfoData.m_PrimitiveCount = 2;
+		DrawInfoData.m_NumOfVertices = 4;
+		DrawInfoData.m_indexOfFirstVertexToRender = 0;
+		DrawInfoData.m_indexOfFirstIndexToUse = 0;
+
+		sVertexData vertexData[4]; //m_NumOfVertices
+
+		vertexData[0].x = -5.0f;
+		vertexData[0].y = 0.0f;
+		vertexData[0].z = -5.0f;
+		vertexData[0].color = D3DCOLOR_XRGB(100, 100, 100);
+
+		vertexData[1].x = -5.0f;
+		vertexData[1].y = 0.0f;
+		vertexData[1].z = 5.0f;
+		vertexData[1].color = D3DCOLOR_XRGB(150, 150, 150);
+
+
+		vertexData[2].x = 5.0f;
+		vertexData[2].y = 0.0f;
+		vertexData[2].z = 5.0f;
+		vertexData[2].color = D3DCOLOR_XRGB(200, 200, 200);
+
+		vertexData[3].x = 5.0f;
+		vertexData[3].y = 0.0f;
+		vertexData[3].z = -5.0f;
+		vertexData[3].color = D3DCOLOR_XRGB(50, 50, 50);
+
+		DrawInfoData.m_pVerticesData = vertexData;
+		DrawInfoData.m_VertexStride = sizeof(sVertexData);
+
+		const unsigned int verticesPerTriangle = 3;
+		const unsigned int trianglesPerRectangle = 2;
+		const unsigned int NumberOfRectangles = 1;
+		DrawInfoData.m_IndexCount = NumberOfRectangles * trianglesPerRectangle * verticesPerTriangle;
+		DWORD32 indices[6] =
+		{
+			0, 1, 3,
+			3, 1, 2
+		};
+
+		DrawInfoData.m_pIndices = indices;
+
+		const char * pMaterialPath = "data/Simple.mat.lua";
+
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "BaseQuad", "BaseQuad", Size, Rotation, pMaterialPath, DrawInfoData);
+	}
 
 	std::vector< SharedPointer<Actor>> ActorsList = WorldSystem::GetInstance()->FindActorsByType("Rectangle");
 

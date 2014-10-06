@@ -33,6 +33,11 @@ namespace Engine
 		m_LookAt = i_LookAt.GetAsD3DXVECTOR3();
 		m_Up = i_Up.GetAsD3DXVECTOR3();
 
+		if (!CreateViewToScreen(m_YFOV, m_ZNear, m_ZFar))
+		{
+			assert(false);
+		}
+
 		mInitilized = !WereThereErrors;
 	}
 
@@ -43,14 +48,7 @@ namespace Engine
 
 	void CameraSystem::Update(float i_deltaTime)
 	{
-		D3DXVECTOR3 CurrentPosition = D3DXVECTOR3(m_WorldObject->GetPosition().x(), m_WorldObject->GetPosition().y(), m_WorldObject->GetPosition().z());
-
-		if (!CreateWorldToView(CurrentPosition, m_LookAt, m_Up))
-		{
-			assert(false);
-		}
-
-		if (!CreateViewToScreen(m_YFOV, m_ZNear, m_ZFar))
+		if (!CreateWorldToView(m_WorldObject->GetPosition().GetAsD3DXVECTOR3(), m_LookAt, m_Up))
 		{
 			assert(false);
 		}
@@ -63,7 +61,7 @@ namespace Engine
 		assert(m_windowHeight > 0.0f);
 		assert(m_windowWidth > 0.0f);
 
-		float aspect = static_cast<float>(m_windowWidth / m_windowHeight);
+		float aspect = (static_cast<float>(m_windowWidth) / static_cast<float>(m_windowHeight));
 
 		D3DXMatrixPerspectiveFovLH(&s_viewToScreen, i_YFOV, aspect, i_ZNear, i_ZFar);
 		return true;
@@ -77,7 +75,7 @@ namespace Engine
 		{
 			D3DXMatrixTransformation(&transform_viewToWorld,
 				NULL, NULL, NULL, NULL,
-				NULL, &(m_WorldObject->GetPosition().GetAsD3DXVECTOR3()));
+				NULL, &(i_position));
 		}
 
 		// D3DX can calculate the inverse of any matrix:
@@ -127,7 +125,7 @@ namespace Engine
 			SharedPointer<Actor> NewActor = Actor::Create(i_Eye, InitialVelocity, InitialAccln, "Camera", "Camera", Size, Rotation);
 			assert(NewActor != NULL);
 
-			mInstance = new CameraSystem(NewActor, i_windowWidth, i_windowHeight, i_YFOV, i_ZFar, i_ZNear, i_LookAt, i_Up);
+			mInstance = new CameraSystem(NewActor, i_windowWidth, i_windowHeight, i_YFOV, i_ZNear, i_ZFar, i_LookAt, i_Up);
 
 			if (mInstance == NULL)
 			{
