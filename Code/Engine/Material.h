@@ -75,9 +75,6 @@ namespace Engine
 		IDirect3DPixelShader9* m_fragmentShader;
 		ID3DXConstantTable* m_pfragmentShaderConsts;
 
-		std::string mPathVertexShader;
-		std::string mPathFragmentShader;
-
 		std::vector<IMaterialConstant *> m_perMaterialConstantDatas; //optional
 		std::vector<IMaterialConstant *> m_perInstanceConstantDatas; //optional
 		std::vector<IMaterialConstant *> m_perViewConstantDatas; //optional

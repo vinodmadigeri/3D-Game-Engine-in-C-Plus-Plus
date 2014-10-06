@@ -149,7 +149,7 @@ namespace Engine
 				Vector3 CPosition = m_PhysicsObjectList.at(ulCount)->m_WorldObject->GetPosition();
 				//CONSOLE_PRINT("X=%f, Y=%f, Z=%f", CPosition.x(), CPosition.y(), CPosition.z());
 				//Apply Friction if present
-				m_PhysicsObjectList.at(ulCount)->m_WorldObject->SetVelocity(CurrentVelocity -  Vector3(CurrentFriction.x() * i_DeltaTime, CurrentFriction.y() * i_DeltaTime, CurrentFriction.z() * i_DeltaTime ));
+				m_PhysicsObjectList.at(ulCount)->m_WorldObject->SetVelocity(CurrentVelocity +  Vector3(CurrentFriction.x() * i_DeltaTime, CurrentFriction.y() * i_DeltaTime, CurrentFriction.z() * i_DeltaTime ));
 			}
 		}
 		return;

@@ -30,8 +30,8 @@ namespace Engine
 	{
 		bool WereThereErrors = false;
 
-		m_LookAt = D3DXVECTOR3(i_LookAt.x(), i_LookAt.y(), i_LookAt.z());
-		m_Up = D3DXVECTOR3(i_Up.x(), i_Up.y(), i_Up.z());
+		m_LookAt = i_LookAt.GetAsD3DXVECTOR3();
+		m_Up = i_Up.GetAsD3DXVECTOR3();
 
 		mInitilized = !WereThereErrors;
 	}
@@ -41,7 +41,7 @@ namespace Engine
 
 	}
 
-	void CameraSystem::Update()
+	void CameraSystem::Update(float i_deltaTime)
 	{
 		D3DXVECTOR3 CurrentPosition = D3DXVECTOR3(m_WorldObject->GetPosition().x(), m_WorldObject->GetPosition().y(), m_WorldObject->GetPosition().z());
 
@@ -54,6 +54,8 @@ namespace Engine
 		{
 			assert(false);
 		}
+
+		m_WorldObject->Update(i_deltaTime);
 	}
 
 	bool CameraSystem::CreateViewToScreen(const float i_YFOV, const float i_ZNear, const float i_ZFar)
@@ -71,8 +73,28 @@ namespace Engine
 		const D3DXVECTOR3 & i_LookAt,
 		const D3DXVECTOR3 & i_Up)
 	{
+		D3DXMATRIX transform_viewToWorld;
+		{
+			D3DXMatrixTransformation(&transform_viewToWorld,
+				NULL, NULL, NULL, NULL,
+				NULL, &(m_WorldObject->GetPosition().GetAsD3DXVECTOR3()));
+		}
 
-		D3DXMatrixLookAtLH(&s_worldToView, &i_position, &i_LookAt, &i_Up);
+		// D3DX can calculate the inverse of any matrix:
+		//D3DXMATRIX transform_worldToView;
+		//D3DXMatrixInverse( &transform_worldToView, NULL, &transform_viewToWorld );
+		// But it can be calculated more cheaply since we know a camera can only have
+		// rotation and translation:
+		s_worldToView = D3DXMATRIX(
+			transform_viewToWorld._11, transform_viewToWorld._21, transform_viewToWorld._31, 0.0f,
+			transform_viewToWorld._12, transform_viewToWorld._22, transform_viewToWorld._32, 0.0f,
+			transform_viewToWorld._13, transform_viewToWorld._23, transform_viewToWorld._33, 0.0f,
+			-(transform_viewToWorld._41 * transform_viewToWorld._11) - (transform_viewToWorld._42 * transform_viewToWorld._12) - (transform_viewToWorld._43 * transform_viewToWorld._13),
+			-(transform_viewToWorld._41 * transform_viewToWorld._21) - (transform_viewToWorld._42 * transform_viewToWorld._22) - (transform_viewToWorld._43 * transform_viewToWorld._23),
+			-(transform_viewToWorld._41 * transform_viewToWorld._31) - (transform_viewToWorld._42 * transform_viewToWorld._32) - (transform_viewToWorld._43 * transform_viewToWorld._33),
+			1.0f);
+
+		//D3DXMatrixLookAtLH(&s_worldToView, &i_position, &i_LookAt, &i_Up);
 
 		return true;
 	}
@@ -117,6 +139,10 @@ namespace Engine
 				delete mInstance;
 				return false;
 			}
+
+			assert(PhysicsSystem::GetInstance());
+
+			PhysicsSystem::GetInstance()->AddActorGameObject(NewActor);
 		}
 
 		return true;

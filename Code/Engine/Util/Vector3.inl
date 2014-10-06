@@ -33,7 +33,12 @@ namespace Engine
 		fZ = fZvalue;
 	}
 
-	void Vector3::GetAsFloatArray(float (&o_Array)[3], int &o_Count) const
+	inline D3DXVECTOR3 Vector3::GetAsD3DXVECTOR3() const
+	{
+		return D3DXVECTOR3(fX, fY, fZ);
+	}
+
+	inline void Vector3::GetAsFloatArray(float(&o_Array)[3], int &o_Count) const
 	{
 		o_Array[0] = fX;
 		o_Array[1] = fY;

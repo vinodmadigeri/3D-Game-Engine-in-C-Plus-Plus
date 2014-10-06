@@ -107,7 +107,9 @@ namespace Engine
 #endif
 		)
 	{
-		if (!LoadTableValues_Shaders(io_luaState, "VertexShader", mPathVertexShader
+		std::string PathVertexShader;
+		std::string PathFragmentShader;
+		if (!LoadTableValues_Shaders(io_luaState, "VertexShader", PathVertexShader
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
 #endif
@@ -117,7 +119,7 @@ namespace Engine
 		}
 
 		//Load the shader itself from the path
-		if (!LoadVertexShader(mPathVertexShader.c_str(), m_direct3dDevice
+		if (!LoadVertexShader(PathVertexShader.c_str(), m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
 #endif		
@@ -126,7 +128,7 @@ namespace Engine
 			return false;
 		}
 
-		if (!LoadTableValues_Shaders(io_luaState, "FragmentShader", mPathFragmentShader
+		if (!LoadTableValues_Shaders(io_luaState, "FragmentShader", PathFragmentShader
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
 #endif
@@ -136,7 +138,7 @@ namespace Engine
 		}
 
 		//Load the shader itself from the path
-		if (!LoadFragmentShader(mPathFragmentShader.c_str(), m_direct3dDevice
+		if (!LoadFragmentShader(PathFragmentShader.c_str(), m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
 #endif		

@@ -17,6 +17,7 @@
 #include "Win32Management.h"
 #include "MathUtil.h"
 #include "PlayerController.h"
+#include "CameraController.h"
 
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
@@ -59,13 +60,22 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		Engine::DebugPrint("Failed to Create Graphics Engine Instance");
 		return mInitilized;
 	}
+	
+	//Order of physics system and camera system is important
+	mInitilized = Engine::PhysicsSystem::CreateInstance();
 
-	Engine::Vector3 eyeLocation(0.0f, 0.0f, -15.0f);
+	if (mInitilized == false)
+	{
+		Engine::DebugPrint("Failed to Create PhysicsSystem Instance");
+		return mInitilized;
+	}
+
+	Engine::Vector3 eyeLocation(0.0f, 0.0f, -12.0f);
 	Engine::Vector3 LookAtLocation(0.0f, 0.0f, 1.0f);
 	Engine::Vector3 Up(0.0f, 1.0f, 0.0f);
 	float FieldOfView = static_cast<float>(Engine::Get_PI_Value() / 4); //45 degrees
 	float NearPlane = 0.1f;
-	float FarPlane = 15.0f;
+	float FarPlane = 50.0f;
 	mInitilized = Engine::CameraSystem::CreateInstance(g_windowWidth, g_windowHeight, FieldOfView, NearPlane, FarPlane, eyeLocation, LookAtLocation, Up);
 
 	if (mInitilized == false)
@@ -91,15 +101,66 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		return mInitilized;
 	}
 
-	mInitilized = Engine::PhysicsSystem::CreateInstance();
-
-	if (mInitilized == false)
-	{
-		Engine::DebugPrint("Failed to Create PhysicsSystem Instance");
-		return mInitilized;
-	}
 	using namespace Engine;
 	//------Input Actor Data and Create one-------------
+#if 1
+	{
+		Vector3 Position = Vector3(0.0f, -1.0f, 0.0f);
+		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
+		float Rotation = 0.0f;
+
+		DrawInfo DrawInfoData;
+		DrawInfoData.m_PrimitiveType = D3DPT_TRIANGLELIST;
+		DrawInfoData.m_PrimitiveCount = 2;
+		DrawInfoData.m_NumOfVertices = 4;
+		DrawInfoData.m_indexOfFirstVertexToRender = 0;
+		DrawInfoData.m_indexOfFirstIndexToUse = 0;
+
+		sVertexData vertexData[4]; //m_NumOfVertices
+
+		vertexData[0].x = -4.0f;
+		vertexData[0].y = -0.0f;
+		vertexData[0].z = -4.0f;
+		vertexData[0].color = D3DCOLOR_XRGB(255, 255, 255);
+
+		vertexData[1].x = -4.0f;
+		vertexData[1].y = -0.0f;
+		vertexData[1].z = 4.0f;
+		vertexData[1].color = D3DCOLOR_XRGB(255, 0, 255);
+
+
+		vertexData[2].x = 4.0f;
+		vertexData[2].y = -0.0f;
+		vertexData[2].z = 4.0f;
+		vertexData[2].color = D3DCOLOR_XRGB(255, 255, 0);
+
+		vertexData[3].x = 4.0f;
+		vertexData[3].y = -0.0f;
+		vertexData[3].z = -4.0f;
+		vertexData[3].color = D3DCOLOR_XRGB(0, 255, 255);
+
+		DrawInfoData.m_pVerticesData = vertexData;
+		DrawInfoData.m_VertexStride = sizeof(sVertexData);
+
+		const unsigned int verticesPerTriangle = 3;
+		const unsigned int trianglesPerRectangle = 2;
+		const unsigned int NumberOfRectangles = 1;
+		DrawInfoData.m_IndexCount = NumberOfRectangles * trianglesPerRectangle * verticesPerTriangle;
+		DWORD32 indices[6] =
+		{
+			0, 1, 3,
+			3, 1, 2
+		};
+
+		DrawInfoData.m_pIndices = indices;
+
+		const char * pMaterialPath = "data/Simple.mat.lua";
+
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "BaseQuad", "BaseQuad", Size, Rotation, pMaterialPath, DrawInfoData);
+	}
+#endif
 	{
 		Vector3 Position = Vector3(0.0f, 0.0f, 0.0f);
 		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
@@ -186,58 +247,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "Rectangle", "Rectangle", Size, Rotation, pMaterialPath, DrawInfoData);
 	}
 
-#if 0
-	{
-		Vector3 Position = Vector3(0.0f, 0.0f, 0.0f);
-		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
-		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
-		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
-		float Rotation = 0.0f;
 
-		DrawInfo DrawInfoDataSecondMesh;
-		DrawInfoDataSecondMesh.m_PrimitiveType = D3DPT_TRIANGLELIST;
-		DrawInfoDataSecondMesh.m_PrimitiveCount = 2;
-		DrawInfoDataSecondMesh.m_NumOfVertices = 4;
-		DrawInfoDataSecondMesh.m_indexOfFirstVertexToRender = 0;
-		DrawInfoDataSecondMesh.m_indexOfFirstIndexToUse = 0;
-		sVertexData vertexData[4]; //m_NumOfVertices
-		vertexData[0].x = -0.4f;
-		vertexData[0].y = -0.4f;
-		vertexData[0].color = D3DCOLOR_XRGB(20, 60, 92);
-
-		vertexData[1].x = -0.4f;
-		vertexData[1].y = 0.4f;
-		vertexData[1].color = D3DCOLOR_XRGB(15, 75, 220);
-
-		vertexData[2].x = 0.4f;
-		vertexData[2].y = 0.4f;
-		vertexData[2].color = D3DCOLOR_XRGB(44, 99, 150);
-
-		vertexData[3].x = 0.4f;
-		vertexData[3].y = -0.4f;
-		vertexData[3].color = D3DCOLOR_XRGB(52, 200, 20);
-
-		DrawInfoDataSecondMesh.m_pVerticesData = vertexData;
-		DrawInfoDataSecondMesh.m_VertexStride = sizeof(sVertexData);
-
-		const unsigned int verticesPerTriangle = 3;
-		const unsigned int trianglesPerRectangle = 2;
-		DWORD32 indices[6];
-		indices[0] = 0;
-		indices[1] = 1;
-		indices[2] = 3;
-
-		// A second triangle could be filled in like this:
-		indices[3] = 1;
-		indices[4] = 2;
-		indices[5] = 3;
-		DrawInfoDataSecondMesh.m_pIndices = indices;
-		DrawInfoDataSecondMesh.m_IndexCount = trianglesPerRectangle * verticesPerTriangle;
-
-		const char * pMaterialPath = "data/Simple.mat.lua";
-		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "Rectangle", "Rectangle", Size, Rotation, pMaterialPath, DrawInfoDataSecondMesh);
-	}
-#endif
 
 	std::vector< SharedPointer<Actor>> ActorsList = WorldSystem::GetInstance()->FindActorsByType("Rectangle");
 
@@ -246,8 +256,10 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	for (unsigned int i = 0; i < ActorsList.size(); i++)
 	{
 		ActorsList.at(i)->SetController(Player::GetController());
-		break;
 	}
+
+	Camera::CreateController();
+	CameraSystem::GetInstance()->m_WorldObject->SetController(Camera::GetController());
 
 	return mInitilized;
 }
@@ -268,7 +280,7 @@ int MainGame::Run(void)
 			GameTimer.CalculateFrameTime();
 			Engine::WorldSystem::GetInstance()->ActorsUpdate(static_cast<float>(GameTimer.GetLastFrameMS()));
 			Engine::PhysicsSystem::GetInstance()->ApplyEulerPhysics(static_cast<float>(GameTimer.GetLastFrameMS()));
-			Engine::CameraSystem::GetInstance()->Update();
+			Engine::CameraSystem::GetInstance()->Update(static_cast<float>(GameTimer.GetLastFrameMS()));
 			Engine::RenderableObjectSystem::GetInstance()->Render();
 			Win32Management::WindowsManager::GetInstance()->UpdateMainWindow(exitCode, QuitRequested);
 			
@@ -285,6 +297,8 @@ void MainGame::Shutdown(const HINSTANCE i_thisInstanceOfTheProgram)
 {
 	if (mInitilized)
 	{
+		Player::ShutDown();
+		Camera::ShutDown();
 		Engine::PhysicsSystem::Destroy();
 		Engine::UserInput::Destroy();
 		Engine::WorldSystem::Destroy();

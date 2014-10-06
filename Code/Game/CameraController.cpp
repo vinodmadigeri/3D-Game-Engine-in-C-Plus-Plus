@@ -2,7 +2,7 @@
 #include "PreCompiled.h"
 
 #include "Game.h"
-#include "PlayerController.h"
+#include "CameraController.h"
 #include "RandomNumber.h"
 #include "WorldSystem.h"
 #include "UserInput.h"
@@ -10,58 +10,58 @@
 using namespace std;
 using namespace Engine;
 
-namespace Player
+namespace Camera
 {
-	static PlayerController *mpPlayerController = NULL;
-	
+	static CameraController *mpCameraController = NULL;
+
 	/******************************************************************************
-	Function     : PlayerController
-	Description  : constructor, sets can shoot to true and lives to 5
-	Input        : 
-	Output       : 
-	Return Value : 
+	Function     : CameraController
+	Description  : constructor
+	Input        :
+	Output       :
+	Return Value :
 
 	History      :
 	Author       : Vinod VM
 	Modification : Created function
 	******************************************************************************/
-	PlayerController:: PlayerController()
+	CameraController::CameraController()
 	{
 
 	}
 
 	/******************************************************************************
-	Function     : ~PlayerController
+	Function     : ~CameraController
 	Description  : Destructor
-	Input        : 
-	Output       : 
-	Return Value : 
+	Input        :
+	Output       :
+	Return Value :
 
 	History      :
 	Author       : Vinod VM
 	Modification : Created function
 	******************************************************************************/
-	PlayerController:: ~PlayerController()
+	CameraController:: ~CameraController()
 	{
 
 	}
 
 	/******************************************************************************
-	 Function     : UpdateActor
-	 Description  : PlayerController: Defines how actor is controlled by update actor.
-	 Input        : Actor &i_Actor, const float i_DeltaTime
-	 Output       : 
-	 Return Value : void  
-	 Data Accessed: 
-	 Data Updated : 
- 
-	 History      :
-	 Author       : Vinod VM
-	 Modification : Created function
+	Function     : UpdateActor
+	Description  : CameraController: Defines how camera is controlled by update actor.
+	Input        : Actor &i_Actor, const float i_DeltaTime
+	Output       :
+	Return Value : void
+	Data Accessed:
+	Data Updated :
+
+	History      :
+	Author       : Vinod VM
+	Modification : Created function
 	******************************************************************************/
-	void PlayerController::UpdateActor(Actor &i_Actor, const float i_DeltaTime)
+	void CameraController::UpdateActor(Actor &i_Actor, const float i_DeltaTime)
 	{
-		unsigned char ucMove[4] = {'w', 'a', 's', 'd'};
+		unsigned char ucMove[4] = { 'w', 'a', 's', 'd' };
 
 		Vector3 cPlayerPosition;
 		Vector3 Friction = Vector3(0.0f, 0.0f, 0.0f);
@@ -70,22 +70,22 @@ namespace Player
 		i_Actor.SetDeltaTime(i_DeltaTime);
 
 		cPlayerPosition = i_Actor.GetPosition();
-		
+
 		char CharID = 0;
 
-		if (UserInput::GetInstance()->IsKeyPressed(VK_LEFT))
+		if (UserInput::GetInstance()->IsKeyPressed('A'))
 		{
 			CharID = 'A';
 		}
-		else if (UserInput::GetInstance()->IsKeyPressed(VK_RIGHT))
+		else if (UserInput::GetInstance()->IsKeyPressed('D'))
 		{
 			CharID = 'D';
 		}
-		else if (UserInput::GetInstance()->IsKeyPressed(VK_UP))
+		else if (UserInput::GetInstance()->IsKeyPressed('W'))
 		{
 			CharID = 'W';
 		}
-		else if (UserInput::GetInstance()->IsKeyPressed(VK_DOWN))
+		else if (UserInput::GetInstance()->IsKeyPressed('S'))
 		{
 			CharID = 'S';
 		}
@@ -94,46 +94,48 @@ namespace Player
 
 		switch (CharID)
 		{
-			case 'w':
-			case 'W':
-			{
-				//Set velocity of the Player in Positive Y axis since 'W' is pressed
-				i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, singleAccelerationvalue));
+		case 'w':
+		case 'W':
+		{
+			//Set velocity of the camera in Positive Y axis since 'W' is pressed
+			i_Actor.SetAcceleration(Vector3(0.0f, singleAccelerationvalue, 0.0f));
 
-				CONSOLE_PRINT("Positive Z axis since 'W' is pressed");
-				break;
-			}
+			CONSOLE_PRINT("Positive Y axis since 'W' is pressed");
+			break;
+		}
 
-			case 'a':
-			case 'A':
-			{
-				i_Actor.SetAcceleration(Vector3(-singleAccelerationvalue, 0.0f, 0.0f));
-				CONSOLE_PRINT("negative X axis since 'A' is pressed");
-				break;
-			}
+		case 37:
+		case 'a':
+		case 'A':
+		{
+			i_Actor.SetAcceleration(Vector3(-singleAccelerationvalue, 0.0f, 0.0f));
+			CONSOLE_PRINT("Negative X axis since 'A' is pressed");
+			break;
+		}
 
-			case 's':
-			case 'S':
-			{
-				i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, -singleAccelerationvalue));
-				CONSOLE_PRINT("Negative Z axis since 'S' is pressed");
-				break;
-			}
+		case 's':
+		case 'S':
+		{
+			i_Actor.SetAcceleration(Vector3(0.0f, -singleAccelerationvalue, 0.0f));
+			CONSOLE_PRINT("Negative Y axis since 'S' is pressed");
+			break;
+		}
 
-			case 'd':
-			case 'D':
-			{
-				//Move the Player in Positive X axis since 'D' is pressed
-				i_Actor.SetAcceleration(Vector3(singleAccelerationvalue, 0.0f, 0.0f));
-				CONSOLE_PRINT("Postive X axis since 'D' is pressed");
-				break;
-			}
+		case 39:
+		case 'd':
+		case 'D':
+		{
+			//Move the camera in Positive X axis since 'D' is pressed
+			i_Actor.SetAcceleration(Vector3(singleAccelerationvalue, 0.0f, 0.0f));
+			CONSOLE_PRINT("Postive X axis since 'D' is pressed");
+			break;
+		}
 
-			default: 
-			{
-				//Set acceleration to zero
-				i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, 0.0f));
-			}
+		default:
+		{
+			//Set acceleration to zero
+			i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, 0.0f));
+		}
 		}
 
 		float singleFrictionvalue = 0.00004f;
@@ -228,7 +230,6 @@ namespace Player
 			Friction.z(0.0f);
 		}
 
-		
 		CONSOLE_PRINT("Friction Set: %d, %d, %d", Friction.x(), Friction.y(), Friction.z());
 		i_Actor.SetFriction(Friction);
 
@@ -238,9 +239,9 @@ namespace Player
 	/******************************************************************************
 	Function     : CreateController
 	Description  : Function to create controller
-	Input        : 
-	Output       : 
-	Return Value : 
+	Input        :
+	Output       :
+	Return Value :
 
 	History      :
 	Author       : Vinod VM
@@ -248,42 +249,42 @@ namespace Player
 	******************************************************************************/
 	void CreateController(void)
 	{
-		if(mpPlayerController == NULL)
-			mpPlayerController = new PlayerController;
+		if (mpCameraController == NULL)
+			mpCameraController = new CameraController;
 	}
 
 	/******************************************************************************
 	Function     : GetController
 	Description  : Function to get controller
-	Input        : 
-	Output       : Player Controller pointer
-	Return Value : PlayerController *
+	Input        :
+	Output       : camera Controller pointer
+	Return Value : mpCameraController *
 
 	History      :
 	Author       : Vinod VM
 	Modification : Created function
 	******************************************************************************/
-	PlayerController * GetController(void)
+	CameraController * GetController(void)
 	{
-		assert(mpPlayerController);
+		assert(mpCameraController);
 
-		return mpPlayerController;
+		return mpCameraController;
 	}
 
 	/******************************************************************************
 	Function     : Shutdown
-	Description  : Function to free player controller
-	Input        : 
-	Output       : Player Controller pointer
-	Return Value : PlayerController *
+	Description  : Function to free controller
+	Input        :
+	Output       : camera Controller pointer
+	Return Value : mpCameraController *
 
 	History      :
 	Author       : Vinod VM
 	Modification : Created function
-	******************************************************************************/	
+	******************************************************************************/
 	void ShutDown(void)
 	{
-		if(mpPlayerController)
-			delete mpPlayerController;
+		if (mpCameraController)
+			delete mpCameraController;
 	}
 }

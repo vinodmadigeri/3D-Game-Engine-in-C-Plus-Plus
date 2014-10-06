@@ -48,7 +48,7 @@ namespace Engine
 		D3DXVECTOR3 m_Up;
 	public:
 		SharedPointer<Actor> m_WorldObject;
-		void Update();
+		void Update(float i_deltaTime);
 		const D3DXMATRIXA16 GetWorldToView() const;
 		const D3DXMATRIXA16 GetViewToScreen() const;
 
