@@ -38,6 +38,7 @@ namespace Engine
 		virtual unsigned int GetCount() const = 0;
 		virtual void SetValue(const void * i_defaultValues, unsigned int i_count) = 0;
 		virtual const void* GetValue() const = 0;
+		virtual const D3DXHANDLE GetHandle() const = 0;
 	};
 
 	template<class T>
@@ -67,6 +68,7 @@ namespace Engine
 		unsigned int GetCount() const;
 		void SetValue(const void * i_defaultValues, unsigned int i_count);
 		const void* GetValue() const;
+		const D3DXHANDLE GetHandle() const;
 	};
 }
 
@@ -147,6 +149,12 @@ namespace Engine
 		assert(mDefaultValues);
 
 		return mDefaultValues;
+	}
+
+	template<class T>
+	const D3DXHANDLE MaterialConstantData<T>::GetHandle() const
+	{
+		return mHandle;
 	}
 }
 #endif //__MATERIAL_CONSTANTDATA_H

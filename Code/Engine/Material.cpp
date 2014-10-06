@@ -373,10 +373,10 @@ namespace Engine
 
 			if (ConstHandle != NULL)
 			{
-				MaterialConstantData<float> *PerInstanceMaterialConstant = new MaterialConstantData<float>(i_ConstantName, pValue, dataCount, ConstHandle, iBelongsTo, iIsA);
-				assert(PerInstanceMaterialConstant);
+				MaterialConstantData<float> *PerMaterialConstant = new MaterialConstantData<float>(i_ConstantName, pValue, dataCount, ConstHandle, iBelongsTo, iIsA);
+				assert(PerMaterialConstant);
 
-				IMaterialConstant * BaseClassPointer = PerInstanceMaterialConstant;
+				IMaterialConstant * BaseClassPointer = PerMaterialConstant;
 
 				m_perMaterialConstantDatas.push_back(BaseClassPointer);
 			}
@@ -785,10 +785,7 @@ namespace Engine
 			}
 		}
 
-		D3DXHANDLE ThisShaderConstHandle;
-		{
-			ThisShaderConstHandle = ThisConstTable->GetConstantByName(NULL, io_materialContantData->GetName().c_str());
-		}
+		const D3DXHANDLE ThisShaderConstHandle = io_materialContantData->GetHandle();
 
 		HRESULT result;
 
@@ -1054,7 +1051,7 @@ namespace Engine
 				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
 				IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
 
-				MaterialConstantData<float> *PerInstanceMaterialConstant = new MaterialConstantData<float>(cConstantName, pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
+				MaterialConstantData<D3DXMATRIX> *PerInstanceMaterialConstant = new MaterialConstantData<D3DXMATRIX>(cConstantName, &pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
 				assert(PerInstanceMaterialConstant);
 
 				IMaterialConstant * BaseClassPointer = PerInstanceMaterialConstant;
@@ -1075,7 +1072,7 @@ namespace Engine
 				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
 				IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
 
-				MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cConstantName, pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
+				MaterialConstantData<D3DXMATRIX> *PerViewMaterialConstant = new MaterialConstantData<D3DXMATRIX>(cConstantName, &pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
 				assert(PerViewMaterialConstant);
 
 				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
@@ -1095,7 +1092,7 @@ namespace Engine
 				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
 				IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
 
-				MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cConstantName, pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
+				MaterialConstantData<D3DXMATRIX> *PerViewMaterialConstant = new MaterialConstantData<D3DXMATRIX>(cConstantName, &pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
 				assert(PerViewMaterialConstant);
 
 				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;

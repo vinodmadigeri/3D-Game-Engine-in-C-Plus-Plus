@@ -240,16 +240,17 @@ namespace Engine
 
 			assert(CameraSystem::GetInstance());
 			//Set per-view constants
-			if (!m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerViewConstantDataByName("g_transform_viewToScreen", &CameraSystem::GetInstance()->GetViewToScreen(), count))
+			if (!m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerViewConstantDataByName("g_transform_worldToView", &CameraSystem::GetInstance()->GetWorldToView(), count))
 			{
 				assert(false);
 			}
 
 			//Set per-view constants
-			if (!m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerViewConstantDataByName("g_transform_worldToView", &CameraSystem::GetInstance()->GetWorldToView(), count))
+			if (!m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerViewConstantDataByName("g_transform_viewToScreen", &CameraSystem::GetInstance()->GetViewToScreen(), count))
 			{
 				assert(false);
 			}
+
 
 			GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh());
 		}

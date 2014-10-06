@@ -133,24 +133,17 @@ namespace Player
 			{
 				//Set acceleration to zero
 				i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, 0.0f));
+				i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
 			}
 		}
-
-		float singleFrictionvalue = 0.00004f;
+#if 0
+		float singleFrictionvalue = 0.00003f;
 		// Add friction
 		Friction = Vector3(singleFrictionvalue, singleFrictionvalue, singleFrictionvalue);
 
-		if (i_Actor.GetVelocity().x() > 0)
+		if (Engine::AlmostEqualRelative(i_Actor.GetVelocity().x() -Friction.x(), 0))
 		{
-			if ((i_Actor.GetVelocity().x() - Friction.x()) < 0)
-			{
-				i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), i_Actor.GetVelocity().z()));
-				Friction.x(0.0f);
-			}
-			else
-			{
-				Friction.x(-singleFrictionvalue);
-			}
+			Friction.x(0.0f);
 		}
 		else if (i_Actor.GetVelocity().x() < 0)
 		{
@@ -164,9 +157,17 @@ namespace Player
 				Friction.x(singleFrictionvalue);
 			}
 		}
-		else
+		else if (i_Actor.GetVelocity().x() > 0)
 		{
-			Friction.x(0.0f);
+			if ((i_Actor.GetVelocity().x() - Friction.x()) < 0)
+			{
+				i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), i_Actor.GetVelocity().z()));
+				Friction.x(0.0f);
+			}
+			else
+			{
+				Friction.x(-singleFrictionvalue);
+			}
 		}
 
 
@@ -231,7 +232,7 @@ namespace Player
 		
 		CONSOLE_PRINT("Friction Set: %d, %d, %d", Friction.x(), Friction.y(), Friction.z());
 		i_Actor.SetFriction(Friction);
-
+#endif
 		return;
 	}
 

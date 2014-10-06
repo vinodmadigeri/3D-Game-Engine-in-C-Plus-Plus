@@ -75,7 +75,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	Engine::Vector3 Up(0.0f, 1.0f, 0.0f);
 	float FieldOfView = static_cast<float>(Engine::Get_PI_Value() / 4); //45 degrees
 	float NearPlane = 0.1f;
-	float FarPlane = 50.0f;
+	float FarPlane = 20.0f;
 	mInitilized = Engine::CameraSystem::CreateInstance(g_windowWidth, g_windowHeight, FieldOfView, NearPlane, FarPlane, eyeLocation, LookAtLocation, Up);
 
 	if (mInitilized == false)
@@ -121,23 +121,23 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		sVertexData vertexData[4]; //m_NumOfVertices
 
 		vertexData[0].x = -4.0f;
-		vertexData[0].y = -0.0f;
+		vertexData[0].y = 0.0f;
 		vertexData[0].z = -4.0f;
 		vertexData[0].color = D3DCOLOR_XRGB(255, 255, 255);
 
 		vertexData[1].x = -4.0f;
-		vertexData[1].y = -0.0f;
+		vertexData[1].y = 0.0f;
 		vertexData[1].z = 4.0f;
 		vertexData[1].color = D3DCOLOR_XRGB(255, 0, 255);
 
 
 		vertexData[2].x = 4.0f;
-		vertexData[2].y = -0.0f;
+		vertexData[2].y = 0.0f;
 		vertexData[2].z = 4.0f;
 		vertexData[2].color = D3DCOLOR_XRGB(255, 255, 0);
 
 		vertexData[3].x = 4.0f;
-		vertexData[3].y = -0.0f;
+		vertexData[3].y = 0.0f;
 		vertexData[3].z = -4.0f;
 		vertexData[3].color = D3DCOLOR_XRGB(0, 255, 255);
 

@@ -135,10 +135,11 @@ namespace Camera
 		{
 			//Set acceleration to zero
 			i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, 0.0f));
+			i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
 		}
 		}
-
-		float singleFrictionvalue = 0.00004f;
+#if 0
+		float singleFrictionvalue = 0.00003f;
 		// Add friction
 		Friction = Vector3(singleFrictionvalue, singleFrictionvalue, singleFrictionvalue);
 
@@ -232,7 +233,7 @@ namespace Camera
 
 		CONSOLE_PRINT("Friction Set: %d, %d, %d", Friction.x(), Friction.y(), Friction.z());
 		i_Actor.SetFriction(Friction);
-
+#endif
 		return;
 	}
 
