@@ -134,19 +134,20 @@ namespace Engine
 			// Every frame an entirely new image will be created.
 			// Before drawing anything, then, the previous image will be erased
 			// by "clearing" the image buffer (filling it with a solid color)
+			// and any other associated buffers (filling them with whatever values make sense)
 			{
 				const D3DRECT* subRectanglesToClear = NULL;
 				const DWORD subRectangleCount = 0;
-				const DWORD clearTheRenderTarget = D3DCLEAR_TARGET;
+				const DWORD clearTheRenderTarget = D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER;
 				D3DCOLOR clearColor;
 				{
 					// Black is usually used:
 					clearColor = D3DCOLOR_XRGB(i_ClearColor.r, i_ClearColor.g, i_ClearColor.b);
 				}
-				const float noZBuffer = 0.0f;
+				const float depthToClear = 1.0f; //Clear the depth buffer
 				const DWORD noStencilBuffer = 0;
 				HRESULT result = m_direct3dDevice->Clear(subRectangleCount, subRectanglesToClear,
-					clearTheRenderTarget, clearColor, noZBuffer, noStencilBuffer);
+					clearTheRenderTarget, clearColor, depthToClear, noStencilBuffer);
 				assert(SUCCEEDED(result));
 			}
 
@@ -298,8 +299,16 @@ namespace Engine
 			presentationParameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
 			presentationParameters.hDeviceWindow = i_mainWindow;
 			presentationParameters.Windowed = m_shouldRenderFullScreen ? FALSE : TRUE;
-			presentationParameters.EnableAutoDepthStencil = FALSE;
 			presentationParameters.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+
+			//This tells Direct3D to create a depth/stencil buffer automatically and manage its lifetime
+			presentationParameters.EnableAutoDepthStencil = TRUE;
+
+			//When the automatic depth/stencil buffer is enabled we need to tell Direct3D which format to use. 
+			//There are other formats available, but we are choosing to ask for 16 bits for depth in the hopes 
+			//that it will be the most compatible and will work on any graphics hardware out there
+			presentationParameters.AutoDepthStencilFormat = D3DFMT_D16;
+
 		}
 
 		HRESULT result = m_direct3dInterface->CreateDevice(useDefaultDevice, useHardwareRendering,

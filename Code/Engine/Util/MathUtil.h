@@ -5,6 +5,7 @@
 
 namespace Engine
 {
+	double Get_PI_Value();
 	bool IsNan(const float fvalue);
 	void SetEpsilonValue(const float fvalue);
 	bool AlmostEqualRelative( const float fA, const float fB);

@@ -30,6 +30,11 @@ namespace Engine
 			delete m_perInstanceConstantDatas[i];
 		}
 
+		for (unsigned int i = 0; i < m_perViewConstantDatas.size(); i++)
+		{
+			delete m_perViewConstantDatas[i];
+		}
+
 		if (m_vertexShader)
 		{
 			m_vertexShader->Release();
@@ -676,89 +681,22 @@ namespace Engine
 
 		for (unsigned int i = 0; i < m_perMaterialConstantDatas.size(); i++)
 		{
-			ID3DXConstantTable* ThisConstTable;
+			
+			if (!SetConstantDataByType(m_perMaterialConstantDatas.at(i)->GetName().c_str(), 
+										m_perMaterialConstantDatas.at(i)->GetValue(), 
+										m_perMaterialConstantDatas.at(i),
+										m_perMaterialConstantDatas.at(i)->GetCount()))
 			{
-				switch (m_perMaterialConstantDatas.at(i)->GetBelongsTo())
-				{
-				case BelongsToenum::FRAGMENT_SHADER:
-				{
-					ThisConstTable = m_pfragmentShaderConsts;
-					break;
-				}
-				case BelongsToenum::VERTEX_SHADER:
-				{
-					ThisConstTable = m_pvertexShaderConsts;
-					break;
-				}
-				default:
-				{
-					continue;
-				}
-				}
+				WereThereErrors = true;
 			}
 
-			D3DXHANDLE ThisShaderConstHandle;
-			{
-				ThisShaderConstHandle = ThisConstTable->GetConstantByName(NULL, m_perMaterialConstantDatas.at(i)->GetName().c_str());
-			}
-
-			//Set the value stored to constant table
-			HRESULT result;
-
-			switch (m_perMaterialConstantDatas.at(i)->GetIsA())
-			{
-				case IsAenum::IsA::FLOAT:
-				{
-					assert(m_perMaterialConstantDatas.at(i)->GetCount() == 1);
-
-					const float pValue = *(reinterpret_cast<const float *>(m_perMaterialConstantDatas.at(i)->GetValue()));
-
-					result = ThisConstTable->SetFloat(m_direct3dDevice, ThisShaderConstHandle, pValue);
-
-					break;
-				}
-				case IsAenum::IsA::FLOAT_ARRAY:
-				{
-					const float* pValue = (reinterpret_cast<const float *>(m_perMaterialConstantDatas.at(i)->GetValue()));
-
-					result = ThisConstTable->SetFloatArray(m_direct3dDevice, ThisShaderConstHandle, pValue, m_perMaterialConstantDatas.at(i)->GetCount());
-
-					break;
-				}
-
-				case IsAenum::IsA::VECTOR_4D:
-				{
-					assert(m_perMaterialConstantDatas.at(i)->GetCount() == 1);
-
-					const D3DXVECTOR4* p4DVectorValue = (reinterpret_cast<const D3DXVECTOR4 *>(m_perMaterialConstantDatas.at(i)->GetValue()));
-
-					result = ThisConstTable->SetVector(m_direct3dDevice, ThisShaderConstHandle, p4DVectorValue);
-
-					break;
-				}
-
-				case IsAenum::IsA::VECTOR_4D_ARRAY:
-				{
-					const D3DXVECTOR4* p4DVectorValue = (reinterpret_cast<const D3DXVECTOR4 *>(m_perMaterialConstantDatas.at(i)->GetValue()));
-
-					result = ThisConstTable->SetVectorArray(m_direct3dDevice, ThisShaderConstHandle, p4DVectorValue, m_perMaterialConstantDatas.at(i)->GetCount());
-
-					break;
-				}
-
-				default:
-				{
-					assert(false);
-				}
-			}
-
-			if (FAILED(result))
+			if (WereThereErrors)
 			{
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				if (o_errorMessage)
 				{
 					std::stringstream errorMessage;
-					errorMessage << "Setting Constant table value failed with error: " << HRESULT_CODE(result) << "\n";
+					errorMessage << "Setting Constant table value failed with error: " << "\n";
 
 					*o_errorMessage = errorMessage.str();
 				}
@@ -771,10 +709,34 @@ namespace Engine
 		return !WereThereErrors;
 	}
 
+	bool Material::SetPerViewConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count)
+	{
+		bool WereThereErrors = false;
+
+		assert(i_pValue && i_name);
+
+		for (unsigned int i = 0; i < m_perViewConstantDatas.size(); i++)
+		{
+
+			if (i_name != m_perViewConstantDatas.at(i)->GetName())
+			{
+				continue;
+			}
+
+			if (!SetConstantDataByType(i_name, i_pValue, m_perViewConstantDatas.at(i), i_count))
+			{
+				WereThereErrors = true;
+			}
+		}
+
+		return !WereThereErrors;
+	}
+
+
 	bool Material::SetPerInstanceConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count)
 	{
 		bool WereThereErrors = false;
-		
+
 		assert(i_pValue && i_name);
 
 		for (unsigned int i = 0; i < m_perInstanceConstantDatas.size(); i++)
@@ -784,91 +746,110 @@ namespace Engine
 			{
 				continue;
 			}
-	
-			ID3DXConstantTable* ThisConstTable;
-			{
-				switch (m_perInstanceConstantDatas.at(i)->GetBelongsTo())
-				{
-					case BelongsToenum::FRAGMENT_SHADER:
-					{
-						ThisConstTable = m_pfragmentShaderConsts;
-						break;
-					}
-					case BelongsToenum::VERTEX_SHADER:
-					{
-						ThisConstTable = m_pvertexShaderConsts;
-						break;
-					}
-					default:
-					{
-						continue;
-					}
-				}
-			}
 
-			D3DXHANDLE ThisShaderConstHandle;
-			{
-				ThisShaderConstHandle = ThisConstTable->GetConstantByName(NULL, m_perInstanceConstantDatas.at(i)->GetName().c_str());
-			}
-
-			HRESULT result;
-			
-			switch (m_perInstanceConstantDatas.at(i)->GetIsA())
-			{
-				case IsAenum::IsA::FLOAT:
-				{
-					assert(i_count == 1);
-
-					const float pValue = *(reinterpret_cast<const float *>(i_pValue));
-					
-					result = ThisConstTable->SetFloat(m_direct3dDevice, ThisShaderConstHandle, pValue);
-
-					break;
-				}
-				case IsAenum::IsA::FLOAT_ARRAY:
-				{
-					const float* pValue = (reinterpret_cast<const float *>(i_pValue));
-
-					result = ThisConstTable->SetFloatArray(m_direct3dDevice, ThisShaderConstHandle, pValue, i_count);
-
-					break;
-				}
-
-				case IsAenum::IsA::VECTOR_4D:
-				{
-					assert(i_count == 1);
-
-					const D3DXVECTOR4* p4DVectorValue = (reinterpret_cast<const D3DXVECTOR4 *>(i_pValue));
-
-					result = ThisConstTable->SetVector(m_direct3dDevice, ThisShaderConstHandle, p4DVectorValue);
-
-					break;
-				}
-
-				case IsAenum::IsA::VECTOR_4D_ARRAY:
-				{
-					const D3DXVECTOR4* p4DVectorValue = (reinterpret_cast<const D3DXVECTOR4 *>(i_pValue));
-
-					result = ThisConstTable->SetVectorArray(m_direct3dDevice, ThisShaderConstHandle, p4DVectorValue, i_count);
-
-					break;
-				}
-
-				default:
-				{
-					assert(false);
-				}
-			}
-
-			if (FAILED(result))
+			if (!SetConstantDataByType(i_name, i_pValue, m_perInstanceConstantDatas.at(i), i_count))
 			{
 				WereThereErrors = true;
-				assert(false);
 			}
 		}
 
 		return !WereThereErrors;
 	}
+
+	bool Material::SetConstantDataByType(const char * i_name, const void* i_pValue, IMaterialConstant *io_materialContantData, const unsigned int i_count)
+	{
+		assert(io_materialContantData);
+
+		bool WereThereErrors = false;
+
+		ID3DXConstantTable* ThisConstTable;
+		{
+			switch (io_materialContantData->GetBelongsTo())
+			{
+				case BelongsToenum::FRAGMENT_SHADER:
+				{
+					ThisConstTable = m_pfragmentShaderConsts;
+					break;
+				}
+				case BelongsToenum::VERTEX_SHADER:
+				{
+					ThisConstTable = m_pvertexShaderConsts;
+					break;
+				}
+				default:
+				{
+					assert(false);
+				}
+			}
+		}
+
+		D3DXHANDLE ThisShaderConstHandle;
+		{
+			ThisShaderConstHandle = ThisConstTable->GetConstantByName(NULL, io_materialContantData->GetName().c_str());
+		}
+
+		HRESULT result;
+
+		switch (io_materialContantData->GetIsA())
+		{
+		case IsAenum::IsA::FLOAT:
+		{
+			assert(i_count == 1);
+
+			const float pValue = *(reinterpret_cast<const float *>(i_pValue));
+
+			result = ThisConstTable->SetFloat(m_direct3dDevice, ThisShaderConstHandle, pValue);
+
+			break;
+		}
+		case IsAenum::IsA::FLOAT_ARRAY:
+		{
+			assert(i_count == io_materialContantData->GetCount());
+
+			const float* pValue = (reinterpret_cast<const float *>(i_pValue));
+
+			result = ThisConstTable->SetFloatArray(m_direct3dDevice, ThisShaderConstHandle, pValue, i_count);
+
+			break;
+		}
+
+		case IsAenum::IsA::VECTOR_4D:
+		{
+			assert(i_count == 1);
+
+			const D3DXVECTOR4* p4DVectorValue = (reinterpret_cast<const D3DXVECTOR4 *>(i_pValue));
+
+			result = ThisConstTable->SetVector(m_direct3dDevice, ThisShaderConstHandle, p4DVectorValue);
+
+			break;
+		}
+
+		case IsAenum::IsA::MATRIX_4X4:
+		{
+			assert(i_count == 1);
+
+			const D3DXMATRIX* p4DVectorValue = (reinterpret_cast<const D3DXMATRIX *>(i_pValue));
+
+			result = ThisConstTable->SetMatrix(m_direct3dDevice, ThisShaderConstHandle, p4DVectorValue);
+
+			break;
+		}
+
+		default:
+		{
+			assert(false);
+		}
+		}
+
+		if (FAILED(result))
+		{
+			WereThereErrors = true;
+			assert(false);
+		}
+
+		return !WereThereErrors;
+	}
+
 
 	bool Material::LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
@@ -954,6 +935,8 @@ namespace Engine
 		return !wereThereErrors;
 	}
 
+
+
 	bool Material::LoadVertexShader(const char* i_VertexShaderpath, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
@@ -1013,24 +996,15 @@ namespace Engine
 		//Get reference to per-instance constant
 		if (m_pvertexShaderConsts != NULL)
 		{
-			m_pvertexShaderConsts->SetDefaults(i_direct3dDevice); //Set constant default
-
-			const char * cConstantName = "g_meshPosition_screen";
-			const float initialPosition[3] = { 0.0f, 0.0f, 0.0f };
-			const unsigned int dataCount = 1;
-			BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
-			IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
-
-			D3DXHANDLE Handle = m_pvertexShaderConsts->GetConstantByName(NULL, cConstantName);
-			
-			if (Handle != NULL)
+			if (!LoadVertexShaderConstants(m_pvertexShaderConsts, i_direct3dDevice))
 			{
-				MaterialConstantData<float> *PerInstanceMaterialConstant = new MaterialConstantData<float>(cConstantName, initialPosition, dataCount, Handle, iBelongsTo, iIsA);
-				assert(PerInstanceMaterialConstant);
-				
-				IMaterialConstant * BaseClassPointer = PerInstanceMaterialConstant;
-
-				m_perInstanceConstantDatas.push_back(BaseClassPointer);
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					*o_errorMessage = "Failed to load the vertex shader constants";
+				}
+#endif
+				return false;
 			}
 		}
 
@@ -1057,4 +1031,76 @@ namespace Engine
 		return !wereThereErrors;
 	}
 
+	bool Material::LoadVertexShaderConstants(ID3DXConstantTable* i_pvertexShaderConsts, IDirect3DDevice9 * i_direct3dDevice)
+	{
+		assert(i_pvertexShaderConsts && i_direct3dDevice);
+
+		i_pvertexShaderConsts->SetDefaults(i_direct3dDevice); //Set constant default
+
+		D3DXMATRIX pMatrixValue;
+		D3DXMatrixIdentity(&pMatrixValue);
+
+		//-------------------g_transform_modelToWorld------------
+		{
+			const char * cConstantName = "g_transform_modelToWorld";
+
+			D3DXHANDLE Handle = i_pvertexShaderConsts->GetConstantByName(NULL, cConstantName);
+
+			if (Handle != NULL)
+			{
+				const unsigned int dataCount = 1;
+				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
+				IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
+
+				MaterialConstantData<float> *PerInstanceMaterialConstant = new MaterialConstantData<float>(cConstantName, pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
+				assert(PerInstanceMaterialConstant);
+
+				IMaterialConstant * BaseClassPointer = PerInstanceMaterialConstant;
+
+				m_perInstanceConstantDatas.push_back(BaseClassPointer);
+			}
+		}
+
+		//-----------------------g_transform_worldToView-------------
+		{
+			const char * cConstantName = "g_transform_worldToView";
+
+			D3DXHANDLE Handle = i_pvertexShaderConsts->GetConstantByName(NULL, cConstantName);
+
+			if (Handle != NULL)
+			{
+				const unsigned int dataCount = 1;
+				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
+				IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
+
+				MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cConstantName, pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
+				assert(PerViewMaterialConstant);
+
+				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+
+				m_perViewConstantDatas.push_back(BaseClassPointer);
+			}
+		}
+		//-----------------------g_transform_viewToScreen-------------
+		{
+			const char * cConstantName = "g_transform_viewToScreen";
+
+			D3DXHANDLE Handle = i_pvertexShaderConsts->GetConstantByName(NULL, cConstantName);
+
+			if (Handle != NULL)
+			{
+				const unsigned int dataCount = 1;
+				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
+				IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
+
+				MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cConstantName, pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
+				assert(PerViewMaterialConstant);
+
+				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+
+				m_perViewConstantDatas.push_back(BaseClassPointer);
+			}
+		}
+		return true;
+	}
 }

@@ -96,7 +96,7 @@ namespace Player
 			case 'W':
 			{
 				//Set velocity of the Player in Positive Y axis since 'W' is pressed
-				i_Actor.SetAcceleration(Vector3(0.0f, 0.00005f, 0.0f));
+				i_Actor.SetAcceleration(Vector3(0.0f, 0.0005f, 0.0f));
 
 				CONSOLE_PRINT("Positive Y axis since 'W' is pressed");
 				break;
@@ -106,7 +106,7 @@ namespace Player
 			case 'a':
 			case 'A':
 			{
-				i_Actor.SetAcceleration(Vector3(-0.00005f, 0.0f, 0.0f));
+				i_Actor.SetAcceleration(Vector3(-0.0005f, 0.0f, 0.0f));
 				CONSOLE_PRINT("Negative X axis since 'A' is pressed");
 				break;
 			}
@@ -114,7 +114,7 @@ namespace Player
 			case 's':
 			case 'S':
 			{
-				i_Actor.SetAcceleration(Vector3(0.0f, -0.00005f, 0.0f));
+				i_Actor.SetAcceleration(Vector3(0.0f, -0.0005f, 0.0f));
 				CONSOLE_PRINT("Negative Y axis since 'S' is pressed");
 				break;
 			}
@@ -124,7 +124,7 @@ namespace Player
 			case 'D':
 			{
 				//Move the Player in Positive X axis since 'D' is pressed
-				i_Actor.SetAcceleration(Vector3(0.00005f, 0.0f, 0.0f));
+				i_Actor.SetAcceleration(Vector3(0.0005f, 0.0f, 0.0f));
 				CONSOLE_PRINT("Postive X axis since 'D' is pressed");
 				break;
 			}

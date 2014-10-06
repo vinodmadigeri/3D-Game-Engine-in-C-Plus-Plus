@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "MeshData.h"
 #include "RenderableObjectSystem.h"
+#include "CameraSystem.h"
 #include "GraphicsSystem.h"
 #include "Vector3.h"
 #include "HashedString.h"
@@ -203,23 +204,56 @@ namespace Engine
 		
 		DeleteMarkedToDeathGameObjects();
 		GraphicsSystem::GetInstance()->BeingFrame();
+		
 		//Render Logic
 		for (unsigned long ulCount = 0; ulCount < m3DRenderableObjects.size(); ulCount++)
 		{
-			//Set position constant from VertexShader to update the position of the actor
-			//Vector3 PositionValues;
-			//PositionValues.push_back(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().x());
-			//PositionValues.push_back(m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().y());
-			
-			//m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerInstanceConstantDataByName("g_meshPosition_screen", PositionValues);
-			float iPosition[3] = { m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().x() ,
-									m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().y(),
-									m3DRenderableObjects.at(ulCount)->m_WorldObject->GetPosition().x() };
-			unsigned int floatcount = 3;
 
-			m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerInstanceConstantDataByName("g_meshPosition_screen", iPosition, 3);
+			//Create a D3DMATRIX
+			D3DXMATRIX LocalToWorld;
+
+			//Transpose the stored matrix
+			Matrix4x4 ObjectMatrix = m3DRenderableObjects[ulCount]->m_WorldObject->GetLocalToWorldMatrix().GetTranspose();
+			LocalToWorld._11 = ObjectMatrix.At(1, 1);
+			LocalToWorld._12 = ObjectMatrix.At(1, 2);
+			LocalToWorld._13 = ObjectMatrix.At(1, 3);
+			LocalToWorld._14 = ObjectMatrix.At(1, 4);
+			LocalToWorld._21 = ObjectMatrix.At(2, 1);
+			LocalToWorld._22 = ObjectMatrix.At(2, 2);
+			LocalToWorld._23 = ObjectMatrix.At(2, 3);
+			LocalToWorld._24 = ObjectMatrix.At(2, 4);
+			LocalToWorld._31 = ObjectMatrix.At(3, 1);
+			LocalToWorld._32 = ObjectMatrix.At(3, 2);
+			LocalToWorld._33 = ObjectMatrix.At(3, 3);
+			LocalToWorld._34 = ObjectMatrix.At(3, 4);
+			LocalToWorld._41 = ObjectMatrix.At(4, 1);
+			LocalToWorld._42 = ObjectMatrix.At(4, 2);
+			LocalToWorld._43 = ObjectMatrix.At(4, 3);
+			LocalToWorld._44 = ObjectMatrix.At(4, 4);
+
+			unsigned int count = 1;
+
+			if (!m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerInstanceConstantDataByName("g_transform_modelToWorld", &LocalToWorld, count))
+			{
+				assert(false);
+			}
+
+			assert(CameraSystem::GetInstance());
+			//Set per-view constants
+			if (!m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerViewConstantDataByName("g_transform_viewToScreen", &CameraSystem::GetInstance()->GetViewToScreen(), count))
+			{
+				assert(false);
+			}
+
+			//Set per-view constants
+			if (!m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerViewConstantDataByName("g_transform_worldToView", &CameraSystem::GetInstance()->GetWorldToView(), count))
+			{
+				assert(false);
+			}
+
 			GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh());
 		}
+
 		GraphicsSystem::GetInstance()->EndFrame();
 		return;
 	}

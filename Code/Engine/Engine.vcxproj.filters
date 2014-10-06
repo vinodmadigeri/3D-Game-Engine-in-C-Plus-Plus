@@ -50,6 +50,9 @@
     <ClCompile Include="Util\UserInput.cpp">
       <Filter>Util</Filter>
     </ClCompile>
+    <ClCompile Include="CameraSystem.cpp">
+      <Filter>GraphicsSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PreCompiled.h" />
@@ -117,6 +120,9 @@
       <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="MaterialConstantData.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSystem.h">
       <Filter>GraphicsSystem</Filter>
     </ClInclude>
   </ItemGroup>

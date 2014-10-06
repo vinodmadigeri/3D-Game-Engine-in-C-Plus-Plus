@@ -6,10 +6,17 @@
 
 
 
-float fEpsilon = 0.00001f;
+static float fEpsilon = 0.00001f;
 
 namespace Engine
 {
+	const double PI = 3.141592653589793238463;
+
+	double Get_PI_Value()
+	{
+		return PI;
+	}
+
 	/******************************************************************************
 	 Function     : IsNan
 	 Description  : Check if the input float is not a number

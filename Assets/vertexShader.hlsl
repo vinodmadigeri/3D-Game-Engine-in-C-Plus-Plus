@@ -5,19 +5,21 @@
 // Constants
 //==========
 
+// Per-View
+//---------
+
+uniform float4x4 g_transform_worldToView;
+uniform float4x4 g_transform_viewToScreen;
+
 // Per-Instance
 //-------------
 
-uniform float2 g_meshPosition_screen =
-	// Default values should never be relied upon
-	// for per-instance constants,
-	// but as a sanity check the position can be set to the origin
-	{ 0.0, 0.0 };
+uniform float4x4 g_transform_modelToWorld;
 
 // Entry Point
 //============
 
-void main( in const float2 i_position_model : POSITION, in const float3 i_color : COLOR0,
+void main( in const float3 i_position_model : POSITION, in const float3 i_color : COLOR0,
 	out float4 o_position_screen : POSITION, out float3 o_color : COLOR0 )
 {
 	// Calculate position
@@ -32,10 +34,13 @@ void main( in const float2 i_position_model : POSITION, in const float3 i_color 
 		// This position that we need to output, then,
 		// is the result of taking the original vertex in "model space"
 		// and transforming it into "screen space".
-		o_position_screen = float4(
-			g_meshPosition_screen + i_position_model,
-			// (We still won't worry about the Z or the W coordinate until a later assignment)
-			0.0, 1.0 );
+
+		// Any matrix transformations that include translation
+		// will operate on a float4 position,
+		// which _must_ have 1 for the w value
+		float4 position_world = mul( float4( i_position_model, 1.0 ), g_transform_modelToWorld );
+		float4 position_view = mul( position_world, g_transform_worldToView );
+		o_position_screen = mul( position_view, g_transform_viewToScreen );
 	}
 
 	// Calculate color

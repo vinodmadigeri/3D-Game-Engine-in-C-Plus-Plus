@@ -22,7 +22,7 @@ namespace Engine
 			FLOAT = 1,
 			FLOAT_ARRAY,
 			VECTOR_4D,
-			VECTOR_4D_ARRAY,
+			MATRIX_4X4,
 			NONE
 		};
 	};

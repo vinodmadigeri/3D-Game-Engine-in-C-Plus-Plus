@@ -13,10 +13,9 @@
 #include "WorldSystem.h"
 #include "UserInput.h"
 #include "PhysicsSystem.h"
-
+#include "CameraSystem.h"
 #include "Win32Management.h"
-
-
+#include "MathUtil.h"
 #include "PlayerController.h"
 
 #ifdef _DEBUG
@@ -61,6 +60,21 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		return mInitilized;
 	}
 
+	Engine::Vector3 eyeLocation(0.0f, 0.0f, -15.0f);
+	Engine::Vector3 LookAtLocation(0.0f, 0.0f, 1.0f);
+	Engine::Vector3 Up(0.0f, 1.0f, 0.0f);
+	float FieldOfView = static_cast<float>(Engine::Get_PI_Value() / 4); //45 degrees
+	float NearPlane = 0.1f;
+	float FarPlane = 15.0f;
+	mInitilized = Engine::CameraSystem::CreateInstance(g_windowWidth, g_windowHeight, FieldOfView, NearPlane, FarPlane, eyeLocation, LookAtLocation, Up);
+
+	if (mInitilized == false)
+	{
+		Engine::DebugPrint("Failed to Create WorldSystem Instance");
+		return mInitilized;
+	}
+
+
 	mInitilized = Engine::WorldSystem::CreateInstance();
 
 	if (mInitilized == false)
@@ -100,48 +114,47 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		DrawInfoData.m_indexOfFirstVertexToRender = 0;
 		DrawInfoData.m_indexOfFirstIndexToUse = 0;
 		sVertexData vertexData[8]; //m_NumOfVertices
-		vertexData[0].x = -0.2f;
-		vertexData[0].y = -0.2f;
-		vertexData[0].z = -0.2f;
+		vertexData[0].x = -1.0f;
+		vertexData[0].y = -1.0f;
+		vertexData[0].z = -1.0f;
 		vertexData[0].color = D3DCOLOR_XRGB(20, 60, 92);
 
-		vertexData[4].x = -0.2f;
-		vertexData[4].y = -0.2f;
-		vertexData[4].z = 0.2f;
-		vertexData[4].color = D3DCOLOR_XRGB(20, 60, 92);
+		vertexData[4].x = -1.0f;
+		vertexData[4].y = -1.0f;
+		vertexData[4].z = 1.0f;
+		vertexData[4].color = D3DCOLOR_XRGB(90, 20, 55);
 
-		vertexData[1].x = -0.2f;
-		vertexData[1].y = 0.2f;
-		vertexData[1].z = -0.2f;
+		vertexData[1].x = -1.0f;
+		vertexData[1].y = 1.0f;
+		vertexData[1].z = -1.0f;
 		vertexData[1].color = D3DCOLOR_XRGB(15, 75, 220);
 
+		vertexData[5].x = -1.0f;
+		vertexData[5].y = 1.0f;
+		vertexData[5].z = 1.0f;
+		vertexData[5].color = D3DCOLOR_XRGB(155, 80, 20);
 
-		vertexData[5].x = -0.2f;
-		vertexData[5].y = 0.2f;
-		vertexData[5].z = 0.2f;
-		vertexData[5].color = D3DCOLOR_XRGB(15, 75, 220);
 
-
-		vertexData[2].x = 0.2f;
-		vertexData[2].y = 0.2f;
-		vertexData[2].z = -0.2f;
+		vertexData[2].x = 1.0f;
+		vertexData[2].y = 1.0f;
+		vertexData[2].z = -1.0f;
 		vertexData[2].color = D3DCOLOR_XRGB(92, 50, 38);
 
 
-		vertexData[6].x = 0.2f;
-		vertexData[6].y = 0.2f;
-		vertexData[6].z = 0.2f;
-		vertexData[6].color = D3DCOLOR_XRGB(92, 50, 38);
+		vertexData[6].x = 1.0f;
+		vertexData[6].y = 1.0f;
+		vertexData[6].z = 1.0f;
+		vertexData[6].color = D3DCOLOR_XRGB(5, 150, 60);
 
-		vertexData[3].x = 0.2f;
-		vertexData[3].y = -0.2f;
-		vertexData[3].z = -0.2f;
+		vertexData[3].x = 1.0f;
+		vertexData[3].y = -1.0f;
+		vertexData[3].z = -1.0f;
 		vertexData[3].color = D3DCOLOR_XRGB(20, 150, 80);
 		
-		vertexData[7].x = 0.2f;
-		vertexData[7].y = -0.2f;
-		vertexData[7].z = 0.2f;
-		vertexData[7].color = D3DCOLOR_XRGB(20, 150, 80);
+		vertexData[7].x = 1.0f;
+		vertexData[7].y = -1.0f;
+		vertexData[7].z = 1.0f;
+		vertexData[7].color = D3DCOLOR_XRGB(80, 90, 20);
 
 		DrawInfoData.m_pVerticesData = vertexData;
 		DrawInfoData.m_VertexStride = sizeof(sVertexData);
@@ -255,6 +268,7 @@ int MainGame::Run(void)
 			GameTimer.CalculateFrameTime();
 			Engine::WorldSystem::GetInstance()->ActorsUpdate(static_cast<float>(GameTimer.GetLastFrameMS()));
 			Engine::PhysicsSystem::GetInstance()->ApplyEulerPhysics(static_cast<float>(GameTimer.GetLastFrameMS()));
+			Engine::CameraSystem::GetInstance()->Update();
 			Engine::RenderableObjectSystem::GetInstance()->Render();
 			Win32Management::WindowsManager::GetInstance()->UpdateMainWindow(exitCode, QuitRequested);
 			
@@ -274,6 +288,7 @@ void MainGame::Shutdown(const HINSTANCE i_thisInstanceOfTheProgram)
 		Engine::PhysicsSystem::Destroy();
 		Engine::UserInput::Destroy();
 		Engine::WorldSystem::Destroy();
+		Engine::CameraSystem::Destroy();
 		Engine::RenderableObjectSystem::Destroy();
 		Win32Management::WindowsManager::Destroy();
 	}

@@ -32,7 +32,7 @@ namespace Engine
 		bMarkForDeath(false),
 		mFriction(Vector3(0.0f, 0.0f, 0.0f)),
 		mDeltaTime(static_cast<float>(CONSTANT_TIME_FRAME)),
-		mLocalToWorld(),
+		mLocalToWorld(i_LocalToWorld),
 		m_pController(NULL),
 		mType(i_Type)
 	{
@@ -224,6 +224,16 @@ namespace Engine
 		{
 			m_pController->UpdateActor(*this, i_DeltaTime);
 		}
+		
+		Matrix4x4 Translation, Rotation;
+		Translation.CreateTranslation(mPosition);
+		Rotation.CreateZRotation(0.0f);
+
+		Matrix4x4 ObjToWorld = Rotation * Translation;
+
+		//Set Local to world matrix of actor for 3D rendering to use
+		SetLocalToWorldMatrix(ObjToWorld);
+
 	}
 
 	void Actor::CreateActorMemoryPool()

@@ -4,8 +4,6 @@
 #include "Matrix4x4.h"
 #include "MathUtil.h"
 
-const double PI  =3.141592653589793238463;
-
 namespace Engine
 {
 	/******************************************************************************
@@ -201,7 +199,7 @@ namespace Engine
 
 	void Matrix4x4::CreateXRotation(float i_RotationDegrees)
 	{
-		float rTheta = static_cast<float>(i_RotationDegrees * (PI / 180.0f)); //Convert in Radians
+		float rTheta = static_cast<float>(i_RotationDegrees * (Get_PI_Value() / 180.0f)); //Convert in Radians
 		
 		m11 = 1.0f;		m12 = 0.0f;			m13 = 0.0f;				m14 = 0.0f; 
 		m21 = 0.0f;		m22 = cos(rTheta);	m23 = -sin(rTheta);		m24 = 0.0f; 
@@ -211,7 +209,7 @@ namespace Engine
 
 	void Matrix4x4::CreateYRotation(float i_RotationDegrees)
 	{
-		float rTheta = static_cast<float>(i_RotationDegrees * (PI / 180.0f)); //Convert in Radians
+		float rTheta = static_cast<float>(i_RotationDegrees * (Get_PI_Value() / 180.0f)); //Convert in Radians
 		
 		m11 = cos(rTheta);	m12 = 0.0f;		m13 = sin(rTheta);	m14 = 0.0f; 
 		m21 = 0.0f;			m22 = 1.0f;		m23 = 0.0f;			m24 = 0.0f; 
@@ -221,7 +219,7 @@ namespace Engine
 
 	void Matrix4x4::CreateZRotation(float i_RotationDegrees)
 	{
-		float rTheta = static_cast<float>(i_RotationDegrees * (PI / 180.0f)); //Convert in Radians
+		float rTheta = static_cast<float>(i_RotationDegrees * (Get_PI_Value() / 180.0f)); //Convert in Radians
 		
 		m11 = cos(rTheta);	m12 = -sin(rTheta);	m13 = 0.0f;		m14 = 0.0f; 
 		m21 = sin(rTheta);	m22 = cos(rTheta);	m23 = 0.0f;		m24 = 0.0f; 
