@@ -875,12 +875,14 @@ namespace Engine
 				if (fileHandle == INVALID_HANDLE_VALUE)
 				{
 					wereThereErrors = true;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 					if (o_errorMessage)
 					{
 						std::stringstream errorMessage;
 						errorMessage << "Windows failed to open the shader file: " << GetLastWindowsError();
 						*o_errorMessage = errorMessage.str();
 					}
+#endif
 					goto OnExit;
 				}
 			}
@@ -896,12 +898,14 @@ namespace Engine
 				else
 				{
 					wereThereErrors = true;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 					if (o_errorMessage)
 					{
 						std::stringstream errorMessage;
 						errorMessage << "Windows failed to get the size of shader: " << GetLastWindowsError();
 						*o_errorMessage = errorMessage.str();
 					}
+#endif
 					goto OnExit;
 				}
 			}
@@ -915,24 +919,28 @@ namespace Engine
 					&bytesReadCount, readSynchronously) == FALSE)
 				{
 					wereThereErrors = true;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 					if (o_errorMessage)
 					{
 						std::stringstream errorMessage;
 						errorMessage << "Windows failed to read the contents of shader: " << GetLastWindowsError();
 						*o_errorMessage = errorMessage.str();
 					}
+#endif
 					goto OnExit;
 				}
 			}
 			else
 			{
 				wereThereErrors = true;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				if (o_errorMessage)
 				{
 					std::stringstream errorMessage;
 					errorMessage << "Failed to allocate " << fileSize << " bytes to read in the shader program " << i_path;
 					*o_errorMessage = errorMessage.str();
 				}
+#endif
 				goto OnExit;
 			}
 		}
@@ -949,12 +957,14 @@ namespace Engine
 		{
 			if (CloseHandle(fileHandle) == FALSE)
 			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				if (!wereThereErrors && o_errorMessage)
 				{
 					std::stringstream errorMessage;
 					errorMessage << "Windows failed to close the shader file handle: " << GetLastWindowsError();
 					*o_errorMessage = errorMessage.str();
 				}
+#endif
 				wereThereErrors = true;
 			}
 			fileHandle = INVALID_HANDLE_VALUE;
