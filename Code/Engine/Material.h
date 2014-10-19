@@ -121,6 +121,12 @@ namespace Engine
 #endif
 			);
 
+		static bool LoadAndAllocateShaderProgram(const char* i_path, void*& o_compiledShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
 		bool LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage = NULL

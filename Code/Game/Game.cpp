@@ -186,7 +186,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 
 		DrawInfoData.m_pIndices = indices;
 
-		const char * pMaterialPath = "data/Simple.mat.lua";
+		const char * pMaterialPath = "data/simpleMaterial.mat.lua";
 
 		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "Rectangle", "Rectangle", Size, Rotation, pMaterialPath, DrawInfoData);
 	}
@@ -244,7 +244,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 
 		DrawInfoData.m_pIndices = indices;
 
-		const char * pMaterialPath = "data/Simple.mat.lua";
+		const char * pMaterialPath = "data/simpleMaterial.mat.lua";
 
 		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "BaseQuad", "BaseQuad", Size, Rotation, pMaterialPath, DrawInfoData);
 	}

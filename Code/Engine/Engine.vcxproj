@@ -59,6 +59,7 @@
     <ClInclude Include="Util\SharedPointer.h" />
     <ClInclude Include="Util\Vector3.h" />
     <ClInclude Include="Util\Vector4.h" />
+    <ClInclude Include="Util\WindowsError.h" />
     <ClInclude Include="WorldSystem.h" />
   </ItemGroup>
   <ItemGroup>

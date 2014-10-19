@@ -570,9 +570,6 @@ namespace Engine
 			}
 			// Fill the buffer
 			{
-				// EAE6320_TODO: What should the indices be
-				// in order to draw the required number of triangles
-				// using a left-handed winding order?
 				memcpy(indices, i_DrawInfo.m_pIndices, i_DrawInfo.m_IndexCount * sizeof(DWORD32));
 				// And so on for all of the required triangles
 			}

@@ -125,6 +125,9 @@
     <ClInclude Include="CameraSystem.h">
       <Filter>GraphicsSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Util\WindowsError.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GraphicsSystem">

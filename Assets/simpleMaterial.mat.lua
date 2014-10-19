@@ -9,11 +9,11 @@ return
 	
 	VertexShader =
 	{
-		"data/vertexShader.hlsl"
+		"data/vertexShader.shd"
 	},
 
 	FragmentShader =
 	{
-		"data/fragmentShader.hlsl"
+		"data/fragmentShader.shd"
 	},
 }

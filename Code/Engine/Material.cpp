@@ -2,7 +2,7 @@
 #include "PreCompiled.h"
 #include <d3dx9shader.h>
 #include "Material.h"
-
+#include "WindowsError.h"
 
 namespace Engine
 {
@@ -850,6 +850,119 @@ namespace Engine
 		return !WereThereErrors;
 	}
 
+	bool Material::LoadAndAllocateShaderProgram(const char* i_path, void*& o_compiledShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		bool wereThereErrors = false;
+
+		// Load the compiled shader from disk
+		o_compiledShader = NULL;
+		HANDLE fileHandle = INVALID_HANDLE_VALUE;
+		{
+			// Open the file
+			{
+				const DWORD desiredAccess = FILE_GENERIC_READ;
+				const DWORD otherProgramsCanStillReadTheFile = FILE_SHARE_READ;
+				SECURITY_ATTRIBUTES* useDefaultSecurity = NULL;
+				const DWORD onlySucceedIfFileExists = OPEN_EXISTING;
+				const DWORD useDefaultAttributes = FILE_ATTRIBUTE_NORMAL;
+				const HANDLE dontUseTemplateFile = NULL;
+				fileHandle = CreateFile(i_path, desiredAccess, otherProgramsCanStillReadTheFile,
+					useDefaultSecurity, onlySucceedIfFileExists, useDefaultAttributes, dontUseTemplateFile);
+				if (fileHandle == INVALID_HANDLE_VALUE)
+				{
+					wereThereErrors = true;
+					if (o_errorMessage)
+					{
+						std::stringstream errorMessage;
+						errorMessage << "Windows failed to open the shader file: " << GetLastWindowsError();
+						*o_errorMessage = errorMessage.str();
+					}
+					goto OnExit;
+				}
+			}
+			// Get the file's size
+			size_t fileSize;
+			{
+				LARGE_INTEGER fileSize_integer;
+				if (GetFileSizeEx(fileHandle, &fileSize_integer) != FALSE)
+				{
+					// This is unsafe if the file's size is bigger than a size_t
+					fileSize = static_cast<size_t>(fileSize_integer.QuadPart);
+				}
+				else
+				{
+					wereThereErrors = true;
+					if (o_errorMessage)
+					{
+						std::stringstream errorMessage;
+						errorMessage << "Windows failed to get the size of shader: " << GetLastWindowsError();
+						*o_errorMessage = errorMessage.str();
+					}
+					goto OnExit;
+				}
+			}
+			// Read the file's contents into temporary memory
+			o_compiledShader = malloc(fileSize);
+			if (o_compiledShader)
+			{
+				DWORD bytesReadCount;
+				OVERLAPPED* readSynchronously = NULL;
+				if (ReadFile(fileHandle, o_compiledShader, fileSize,
+					&bytesReadCount, readSynchronously) == FALSE)
+				{
+					wereThereErrors = true;
+					if (o_errorMessage)
+					{
+						std::stringstream errorMessage;
+						errorMessage << "Windows failed to read the contents of shader: " << GetLastWindowsError();
+						*o_errorMessage = errorMessage.str();
+					}
+					goto OnExit;
+				}
+			}
+			else
+			{
+				wereThereErrors = true;
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Failed to allocate " << fileSize << " bytes to read in the shader program " << i_path;
+					*o_errorMessage = errorMessage.str();
+				}
+				goto OnExit;
+			}
+		}
+
+	OnExit:
+
+		if (wereThereErrors && o_compiledShader)
+		{
+			free(o_compiledShader);
+			o_compiledShader = NULL;
+		}
+
+		if (fileHandle != INVALID_HANDLE_VALUE)
+		{
+			if (CloseHandle(fileHandle) == FALSE)
+			{
+				if (!wereThereErrors && o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Windows failed to close the shader file handle: " << GetLastWindowsError();
+					*o_errorMessage = errorMessage.str();
+				}
+				wereThereErrors = true;
+			}
+			fileHandle = INVALID_HANDLE_VALUE;
+		}
+
+		return !wereThereErrors;
+	}
+
 
 	bool Material::LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
@@ -859,55 +972,21 @@ namespace Engine
 	{
 		assert(i_direct3dDevice && i_FragmentShaderpath);
 		
-		// Load the source code from file and compile it
-		ID3DXBuffer* compiledShader;
+		// Load the compiled source file it
+		void * compiledShader;
 		{
-			const char* sourceCodeFileName = i_FragmentShaderpath;
-			const D3DXMACRO* noMacros = NULL;
-			ID3DXInclude* noIncludes = NULL;
-			const char* entryPoint = "main";
-			const char* profile = "ps_3_0";
-			DWORD Flags = 0;
-			{
-#ifdef EAE2014_GRAPHICS_SHOULDDEBUGSHADERSBEUSED
-				Flags |=
-					// Include debug information in shaders
-					D3DXSHADER_DEBUG |
-					// Don't do any optimizations to make stepping through the code easier to follow
-					D3DXSHADER_SKIPOPTIMIZATION;
-#endif
-			}
-
-			ID3DXBuffer* errorMessages = NULL;
-			
-			HRESULT result = D3DXCompileShaderFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile, Flags,
-				&compiledShader, &errorMessages, &m_pfragmentShaderConsts);
-			if (SUCCEEDED(result))
-			{
-				if (errorMessages)
-				{
-					errorMessages->Release();
-				}
-			}
-			else
-			{
+			if (!LoadAndAllocateShaderProgram(i_FragmentShaderpath, compiledShader
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage && errorMessages)
-				{
-					*o_errorMessage = std::string("DirectX failed to compile the fragment shader from the file ") +
-						sourceCodeFileName + ":\n" +
-						reinterpret_cast<char*>(errorMessages->GetBufferPointer());
-					errorMessages->Release();
-				}
-				else if (o_errorMessage)
-				{
-					*o_errorMessage = "DirectX failed to compile the fragment shader from the file ";
-					*o_errorMessage += sourceCodeFileName;
-				}
+				, o_errorMessage
 #endif
+				))
+			{
+
 				return false;
 			}
 		}
+
+		D3DXGetShaderConstantTable(reinterpret_cast<DWORD*>(compiledShader), &m_pfragmentShaderConsts);
 
 		if (m_pfragmentShaderConsts != NULL)
 		{
@@ -916,7 +995,7 @@ namespace Engine
 
 		bool wereThereErrors = false;
 		{
-			HRESULT result = i_direct3dDevice->CreatePixelShader(reinterpret_cast<DWORD*>(compiledShader->GetBufferPointer()),
+			HRESULT result = i_direct3dDevice->CreatePixelShader(reinterpret_cast<DWORD*>(compiledShader),
 																&m_fragmentShader);
 			if (FAILED(result))
 			{
@@ -929,7 +1008,7 @@ namespace Engine
 				wereThereErrors = true;
 			}
 
-			compiledShader->Release();
+			if (compiledShader) free(compiledShader);
 		}
 
 		return !wereThereErrors;
@@ -945,6 +1024,7 @@ namespace Engine
 	{
 		assert(i_direct3dDevice && i_VertexShaderpath);
 
+#if 0
 		// Load the source code from file and compile it
 		ID3DXBuffer* compiledShader;
 		{
@@ -992,7 +1072,24 @@ namespace Engine
 				return false;
 			}
 		}
+#else
+		// Load the compiled source file it
+		void * compiledShader;
+		{
+			if (!LoadAndAllocateShaderProgram(i_VertexShaderpath, compiledShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif
+				))
+			{
 
+				return false;
+			}
+		}
+
+		D3DXGetShaderConstantTable(reinterpret_cast<DWORD*>(compiledShader), &m_pvertexShaderConsts);
+
+#endif
 		//Get reference to per-instance constant
 		if (m_pvertexShaderConsts != NULL)
 		{
@@ -1011,7 +1108,7 @@ namespace Engine
 		// Create the vertex shader object
 		bool wereThereErrors = false;
 		{
-			HRESULT result = i_direct3dDevice->CreateVertexShader(reinterpret_cast<DWORD*>(compiledShader->GetBufferPointer()),
+			HRESULT result = i_direct3dDevice->CreateVertexShader(reinterpret_cast<DWORD*>(compiledShader),//->GetBufferPointer()),
 																	&m_vertexShader);
 
 			if (FAILED(result))
@@ -1024,8 +1121,11 @@ namespace Engine
 #endif
 				wereThereErrors = true;
 			}
-
+#if 0
 			compiledShader->Release();
+#else
+			if (compiledShader) free(compiledShader);
+#endif
 		}
 
 		return !wereThereErrors;
