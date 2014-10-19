@@ -5,12 +5,12 @@
 // Header Files
 //=============
 
-#include "cGenericBuilder.h"
+#include "cFragmentShaderBuilder.h"
 
 // Entry Point
 //============
 
 int main( int i_argumentCount, char** i_arguments )
 {
-	return BuilderHelper::Build<Generic::cGenericBuilder>(i_arguments, i_argumentCount);
+	return BuilderHelper::Build<Shader::cFragmentShaderBuilder>(i_arguments, i_argumentCount);
 }

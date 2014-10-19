@@ -10,7 +10,7 @@
 // Interface
 //==========
 
-bool eae6320::CopyAssetFile(const char* i_path_source, const char* i_path_target,
+bool BuilderHelper::CopyAssetFile(const char* i_path_source, const char* i_path_target,
 	const bool i_shouldFunctionFailIfTargetAlreadyExists, std::string* o_errorMessage )
 {
 	if ( ::CopyFile( i_path_source, i_path_target, i_shouldFunctionFailIfTargetAlreadyExists ) != FALSE )
@@ -27,7 +27,7 @@ bool eae6320::CopyAssetFile(const char* i_path_source, const char* i_path_target
 	}
 }
 
-bool eae6320::CreateDirectoryIfNecessary( const std::string& i_path, std::string* o_errorMessage )
+bool BuilderHelper::CreateDirectoryIfNecessary(const std::string& i_path, std::string* o_errorMessage)
 {
 	// If the path is to a file (likely), remove it so that only the directory remains
 	std::string directory;
@@ -75,7 +75,7 @@ bool eae6320::CreateDirectoryIfNecessary( const std::string& i_path, std::string
 				{
 					if ( o_errorMessage )
 					{
-						*o_errorMessage = eae6320::GetFormattedWindowsError( result );
+						*o_errorMessage = BuilderHelper::GetFormattedWindowsError(result);
 					}
 					return false;
 				}
@@ -97,14 +97,14 @@ bool eae6320::CreateDirectoryIfNecessary( const std::string& i_path, std::string
 		{
 			if ( o_errorMessage )
 			{
-				*o_errorMessage = eae6320::GetLastWindowsError();
+				*o_errorMessage = BuilderHelper::GetLastWindowsError();
 			}
 			return false;
 		}
 	}
 }
 
-bool eae6320::DoesFileExist( const char* i_path, std::string* o_errorMessage, DWORD* o_errorCode )
+bool BuilderHelper::DoesFileExist( const char* i_path, std::string* o_errorMessage, DWORD* o_errorCode )
 {
 	// Try to get information about the file
 	WIN32_FIND_DATA fileData;
@@ -123,13 +123,13 @@ bool eae6320::DoesFileExist( const char* i_path, std::string* o_errorMessage, DW
 	{
 		if ( o_errorMessage )
 		{
-			*o_errorMessage = eae6320::GetLastWindowsError( o_errorCode );
+			*o_errorMessage = BuilderHelper::GetLastWindowsError( o_errorCode );
 		}
 		return false;
 	}
 }
 
-bool eae6320::GetEnvironmentVariable( const char* i_key, std::string& o_value, std::string* o_errorMessage )
+bool BuilderHelper::GetEnvironmentVariable( const char* i_key, std::string& o_value, std::string* o_errorMessage )
 {
 	// Windows requires a character buffer
 	// to copy the environment variable into.
@@ -187,7 +187,7 @@ bool eae6320::GetEnvironmentVariable( const char* i_key, std::string& o_value, s
 	}
 }
 
-std::string eae6320::GetFormattedWindowsError( const DWORD i_errorCode )
+std::string BuilderHelper::GetFormattedWindowsError( const DWORD i_errorCode )
 {
 	std::string errorMessage;
 	{
@@ -223,7 +223,7 @@ std::string eae6320::GetFormattedWindowsError( const DWORD i_errorCode )
 	return errorMessage;
 }
 
-std::string eae6320::GetLastWindowsError( DWORD* o_optionalErrorCode )
+std::string BuilderHelper::GetLastWindowsError( DWORD* o_optionalErrorCode )
 {
 	// Windows stores the error as a code
 	const DWORD errorCode = GetLastError();
@@ -234,7 +234,7 @@ std::string eae6320::GetLastWindowsError( DWORD* o_optionalErrorCode )
 	return GetFormattedWindowsError( errorCode );
 }
 
-bool eae6320::GetLastWriteTime( const char* i_path, uint64_t& o_lastWriteTime, std::string* o_errorMessage )
+bool BuilderHelper::GetLastWriteTime( const char* i_path, uint64_t& o_lastWriteTime, std::string* o_errorMessage )
 {
 	// Get the last time that the file was written to
 	ULARGE_INTEGER lastWriteTime;
@@ -270,8 +270,120 @@ bool eae6320::GetLastWriteTime( const char* i_path, uint64_t& o_lastWriteTime, s
 	return true;
 }
 
-void eae6320::OutputErrorMessage( const char* i_errorMessage, const char* i_optionalFileName )
+void BuilderHelper::OutputErrorMessage( const char* i_errorMessage, const char* i_optionalFileName )
 {
 	std::cerr << ( i_optionalFileName ? i_optionalFileName : "Asset Build" ) <<
 		": error: " << i_errorMessage << "\n";
+}
+
+bool BuilderHelper::ExecuteCommand(const char* i_command, DWORD* o_exitCode, std::string* o_errorMessage)
+{
+	return ExecuteCommand(NULL, i_command, o_exitCode, o_errorMessage);
+}
+
+
+bool BuilderHelper::ExecuteCommand(const char* i_command, const char* i_optionalArguments, DWORD* o_exitCode, std::string* o_errorMessage)
+{
+	bool wereThereErrors = false;
+
+	// Copy the const arguments into a non-const buffer
+	const DWORD bufferSize = 512;
+	char arguments[bufferSize] = { 0 };
+	if (i_optionalArguments)
+	{
+		size_t argumentLength = strlen(i_optionalArguments);
+		if (bufferSize > argumentLength)
+		{
+			strcpy_s(arguments, bufferSize, i_optionalArguments);
+		}
+		else
+		{
+			if (o_errorMessage)
+			{
+				std::ostringstream errorMessage;
+				errorMessage << "Couldn't copy the command (of length " << argumentLength
+					<< ") into a non-const buffer of size " << bufferSize;
+				*o_errorMessage = errorMessage.str();
+			}
+			return false;
+		}
+	}
+
+	// Start a new process
+	SECURITY_ATTRIBUTES* useDefaultAttributes = NULL;
+	const BOOL dontInheritHandles = FALSE;
+	const DWORD createDefaultProcess = 0;
+	void* useCallingProcessEnvironment = NULL;
+	const char* useCallingProcessCurrentDirectory = NULL;
+	STARTUPINFO startupInfo = { 0 };
+	{
+		startupInfo.cb = sizeof(startupInfo);
+	}
+
+	PROCESS_INFORMATION processInformation = { 0 };
+
+	if (CreateProcess(i_command, arguments, useDefaultAttributes, useDefaultAttributes,
+		dontInheritHandles, createDefaultProcess, useCallingProcessEnvironment, useCallingProcessCurrentDirectory,
+		&startupInfo, &processInformation) != FALSE)
+	{
+		// Wait for the process to finish
+		if (WaitForSingleObject(processInformation.hProcess, INFINITE) != WAIT_FAILED)
+		{
+			// Get the exit code
+			if (o_exitCode)
+			{
+				if (GetExitCodeProcess(processInformation.hProcess, o_exitCode) == FALSE)
+				{
+					wereThereErrors = true;
+					if (o_errorMessage)
+					{
+						std::stringstream errorMessage;
+						errorMessage << "Windows failed to get the exit code of the process \"" << i_command <<
+							"\": " << GetLastWindowsError();
+						*o_errorMessage = errorMessage.str();
+					}
+				}
+			}
+		}
+		else
+		{
+			wereThereErrors = true;
+			if (o_errorMessage)
+			{
+				std::stringstream errorMessage;
+				errorMessage << "Windows failed to wait for the process \"" << i_command <<
+					"\" to finish: " << GetLastWindowsError();
+				*o_errorMessage = errorMessage.str();
+			}
+		}
+
+		// Close the process handles
+		if (CloseHandle(processInformation.hProcess) == FALSE)
+		{
+			std::stringstream errorMessage;
+			errorMessage << "Windows failed to close the handle to the process \"" << i_command <<
+				"\": " << GetLastWindowsError();
+			MessageBox(NULL, errorMessage.str().c_str(), "Error Closing Process Handle", MB_OK | MB_ICONERROR);
+		}
+
+		if (CloseHandle(processInformation.hThread) == FALSE)
+		{
+			std::stringstream errorMessage;
+			errorMessage << "Windows failed to close the handle to the process \"" << i_command <<
+				"\" thread: " << GetLastWindowsError();
+			MessageBox(NULL, errorMessage.str().c_str(), "Error Closing Process Thread Handle", MB_OK | MB_ICONERROR);
+		}
+
+		return !wereThereErrors;
+	}
+	else
+	{
+		if (o_errorMessage)
+		{
+			std::stringstream errorMessage;
+			errorMessage << "Windows failed to start the process \"" << i_command << "\": " << GetLastWindowsError();
+			*o_errorMessage = errorMessage.str();
+		}
+		return false;
+	}
 }

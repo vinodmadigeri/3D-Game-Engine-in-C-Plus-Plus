@@ -77,7 +77,7 @@ namespace Engine
 
 		std::vector<IMaterialConstant *> m_perMaterialConstantDatas; //optional
 		std::vector<IMaterialConstant *> m_perInstanceConstantDatas; //optional
-		std::vector<IMaterialConstant *> m_perViewConstantDatas; //optional
+		std::vector<IMaterialConstant *> m_perViewConstantDatas; 
 		
 		//==========
 		// Lua Logic

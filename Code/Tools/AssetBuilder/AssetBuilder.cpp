@@ -73,44 +73,74 @@ AssetBuilder * AssetBuilder::Create(const std::string & i_RelativeScriptPath)
 // Function Definitions
 //=====================
 
-bool AssetBuilder::BuildAsset(const char* i_relativePath)
+bool AssetBuilder::BuildAsset(const char* i_path_assetsToBuild)
 {
-	// The only thing that this C/C++ function does
-	// is call the corresponding Lua BuildAsset() function
+	//-------------------------------
+	bool wereThereErrors = false;
 
-	// To call a function it must be pushed onto the stack
-	lua_getglobal(mluaState, "BuildAsset");
-	// This function has a single argument
-	const int argumentCount = 1;
+	// Load and execute the build script
 	{
-		lua_pushstring(mluaState, i_relativePath);
-	}
-	// This function can potentially return two values:
-	//	* A boolean indicating success or failure
-	//	* An optional error message if building the asset failed
-	const int returnValueCount = 2;
-	const int noMessageHandler = 0;
-	int result = lua_pcall(mluaState, argumentCount, returnValueCount, noMessageHandler);
-	if (result == LUA_OK)
-	{
-		result = lua_toboolean(mluaState, -2);
-		if (!result)
+		std::string path;
 		{
-			OutputErrorMessage(lua_tostring(mluaState, -1), i_relativePath);
+			std::string scriptDir;
+			std::string errorMessage;
+			if (GetAssetBuilderEnvironmentVariable("ScriptDir", scriptDir))
+			{
+				path = scriptDir + "BuildAssets.lua";
+			}
+			else
+			{
+				wereThereErrors = true;
+				OutputErrorMessage(errorMessage.c_str());
+				goto OnExit;
+			}
 		}
-		lua_pop(mluaState, returnValueCount);
-		return result != 0;
-	}
-	else
-	{
-		const char* errorMessage = lua_tostring(mluaState, -1);
-		std::cerr << errorMessage << "\n";
-		lua_pop(mluaState, 1);
+		// Load the script
+		const int result = luaL_loadfile(mluaState, path.c_str());
+		if (result == LUA_OK)
+		{
+			// Execute it with the asset list path as an argument
+			const int argumentCount = 1;
+			{
+				lua_pushstring(mluaState, i_path_assetsToBuild);
+			}
+			// The return value should be true (on success) or false (on failure)
+			const int returnValueCount = 1;
+			const int noMessageHandler = 0;
+			if (lua_pcall(mluaState, argumentCount, returnValueCount, noMessageHandler) == LUA_OK)
+			{
+				// Note that lua_toboolean() follows the same rules as if something then statements in Lua:
+				// false or nil will evaluate to false, and anything else will evaluate to true
+				// (this means that if the script doesn't return anything it will result in a build failure)
+				wereThereErrors = !lua_toboolean(mluaState, -1);
+				lua_pop(mluaState, returnValueCount);
+			}
+			else
+			{
+				wereThereErrors = true;
 
-		return false;
+				const char* errorMessage = lua_tostring(mluaState, -1);
+				std::cerr << errorMessage << "\n";
+				lua_pop(mluaState, 1);
+
+				goto OnExit;
+			}
+		}
+		else
+		{
+			wereThereErrors = true;
+
+			const char* errorMessage = lua_tostring(mluaState, -1);
+			std::cerr << errorMessage << "\n";
+			lua_pop(mluaState, 1);
+
+			goto OnExit;
+		}
 	}
 
-	return true;
+OnExit:
+
+	return !wereThereErrors;
 }
 
 int AssetBuilder::OutputErrorMessage(lua_State* io_luaState)
@@ -506,23 +536,6 @@ bool AssetBuilder::InitializeLua(const std::string & i_ScriptDir, const std::str
 		lua_register(mluaState, "OutputErrorMessage", OutputErrorMessage);
 	}
 
-	// Load and execute the build script
-	{
-		std::string path;
-		{
-			path = i_ScriptDir + i_RelativeScriptPath;
-		}
-		const int result = luaL_dofile(mluaState, path.c_str());
-		if (result != LUA_OK)
-		{
-			const char* errorMessage = lua_tostring(mluaState, -1);
-			std::cerr << errorMessage << "\n";
-			lua_pop(mluaState, 1);
-
-			return false;
-		}
-	}
-
 	return true;
 }
 
@@ -530,6 +543,7 @@ bool AssetBuilder::ShutDownLua()
 {
 	if (mluaState)
 	{
+		assert(lua_gettop(mluaState) == 0);
 		lua_close(mluaState);
 		mluaState = NULL;
 	}

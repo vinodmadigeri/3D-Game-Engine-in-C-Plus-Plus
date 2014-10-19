@@ -14,7 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{3CA002B2
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BuildAssets", "Code\Tools\BuildAssets\BuildAssets.vcxproj", "{45D1188E-7602-4EF5-A320-AC10104B5BE6}"
 	ProjectSection(ProjectDependencies) = postProject
+		{03D23A2A-505F-469A-9658-C7664D498C00} = {03D23A2A-505F-469A-9658-C7664D498C00}
 		{A238D12D-CB17-4281-BC1C-0B96357DC45D} = {A238D12D-CB17-4281-BC1C-0B96357DC45D}
+		{6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48} = {6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48}
 		{9C3272B7-E4A4-426B-940D-B491980A9478} = {9C3272B7-E4A4-426B-940D-B491980A9478}
 	EndProjectSection
 EndProject
@@ -27,6 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{D3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{8ED2DEF1-3E30-4BAB-A15D-7727929C8B1E}"
 	ProjectSection(SolutionItems) = preProject
+		Scripts\AssetsToBuild.lua = Scripts\AssetsToBuild.lua
 		Scripts\BuildAssets.lua = Scripts\BuildAssets.lua
 	EndProjectSection
 EndProject
@@ -55,6 +58,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenericBuilder", "Code\Tool
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BuilderHelper", "Code\Tools\BuilderHelper\BuilderHelper.vcxproj", "{3E2C6493-E9A2-4510-8E92-58B24B33DBE1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FragmentShaderBuilder", "Code\Tools\FragmentShaderBuilder\FragmentShaderBuilder.vcxproj", "{6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3E2C6493-E9A2-4510-8E92-58B24B33DBE1} = {3E2C6493-E9A2-4510-8E92-58B24B33DBE1}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VertexShaderBuilder", "Code\Tools\VertexShaderBuilder\VertexShaderBuilder.vcxproj", "{03D23A2A-505F-469A-9658-C7664D498C00}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3E2C6493-E9A2-4510-8E92-58B24B33DBE1} = {3E2C6493-E9A2-4510-8E92-58B24B33DBE1}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -138,6 +151,22 @@ Global
 		{3E2C6493-E9A2-4510-8E92-58B24B33DBE1}.Release|Win32.ActiveCfg = Release|Win32
 		{3E2C6493-E9A2-4510-8E92-58B24B33DBE1}.Release|Win32.Build.0 = Release|Win32
 		{3E2C6493-E9A2-4510-8E92-58B24B33DBE1}.Release|x64.ActiveCfg = Release|Win32
+		{6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48}.Debug|ARM.ActiveCfg = Debug|Win32
+		{6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48}.Debug|Win32.Build.0 = Debug|Win32
+		{6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48}.Debug|x64.ActiveCfg = Debug|Win32
+		{6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48}.Release|ARM.ActiveCfg = Release|Win32
+		{6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48}.Release|Win32.ActiveCfg = Release|Win32
+		{6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48}.Release|Win32.Build.0 = Release|Win32
+		{6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48}.Release|x64.ActiveCfg = Release|Win32
+		{03D23A2A-505F-469A-9658-C7664D498C00}.Debug|ARM.ActiveCfg = Debug|Win32
+		{03D23A2A-505F-469A-9658-C7664D498C00}.Debug|Win32.ActiveCfg = Debug|Win32
+		{03D23A2A-505F-469A-9658-C7664D498C00}.Debug|Win32.Build.0 = Debug|Win32
+		{03D23A2A-505F-469A-9658-C7664D498C00}.Debug|x64.ActiveCfg = Debug|Win32
+		{03D23A2A-505F-469A-9658-C7664D498C00}.Release|ARM.ActiveCfg = Release|Win32
+		{03D23A2A-505F-469A-9658-C7664D498C00}.Release|Win32.ActiveCfg = Release|Win32
+		{03D23A2A-505F-469A-9658-C7664D498C00}.Release|Win32.Build.0 = Release|Win32
+		{03D23A2A-505F-469A-9658-C7664D498C00}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,5 +181,7 @@ Global
 		{8A456F4F-DAB4-4C14-A9F8-87E4ECB9B50F} = {AD9CE35F-659D-4BBE-B9AE-9BEBC1A72538}
 		{9C3272B7-E4A4-426B-940D-B491980A9478} = {3CA002B2-8978-45BD-AB03-DA408F9276E5}
 		{3E2C6493-E9A2-4510-8E92-58B24B33DBE1} = {3CA002B2-8978-45BD-AB03-DA408F9276E5}
+		{6AFDDF67-EAB3-4FEB-9109-9EBD6AD5DF48} = {3CA002B2-8978-45BD-AB03-DA408F9276E5}
+		{03D23A2A-505F-469A-9658-C7664D498C00} = {3CA002B2-8978-45BD-AB03-DA408F9276E5}
 	EndGlobalSection
 EndGlobal

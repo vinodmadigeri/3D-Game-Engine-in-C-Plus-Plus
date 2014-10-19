@@ -1,3 +1,7 @@
+
+#ifndef __BUILDER_UTILITY_FUNCTIONS_H
+#define __BUILDER_UTILITY_FUNCTIONS_H
+
 /*
 	This file contains useful utility functions for other build processes
 */
@@ -11,7 +15,7 @@
 #include <cstdint>
 #include <string>
 
-namespace eae6320
+namespace BuilderHelper
 {
 	// Interface
 	//==========
@@ -25,4 +29,9 @@ namespace eae6320
 	std::string GetLastWindowsError( DWORD* o_optionalErrorCode = NULL );
 	bool GetLastWriteTime( const char* i_path, uint64_t& o_lastWriteTime, std::string* o_errorMessage = NULL );
 	void OutputErrorMessage( const char* i_errorMessage, const char* i_optionalFileName = NULL );
+	bool ExecuteCommand(const char* i_command, DWORD* o_exitCode, std::string* o_errorMessage = NULL);
+	bool ExecuteCommand(const char* i_command, const char* i_optionalArguments, DWORD* o_exitCode, std::string* o_errorMessage = NULL);
 }
+
+
+#endif //__BUILDER_UTILITY_FUNCTIONS_H

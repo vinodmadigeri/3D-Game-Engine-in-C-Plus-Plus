@@ -791,53 +791,54 @@ namespace Engine
 
 		switch (io_materialContantData->GetIsA())
 		{
-		case IsAenum::IsA::FLOAT:
-		{
-			assert(i_count == 1);
+			case IsAenum::IsA::FLOAT:
+			{
+				assert(i_count == 1);
 
-			const float pValue = *(reinterpret_cast<const float *>(i_pValue));
+				const float pValue = *(reinterpret_cast<const float *>(i_pValue));
 
-			result = ThisConstTable->SetFloat(m_direct3dDevice, ThisShaderConstHandle, pValue);
+				result = ThisConstTable->SetFloat(m_direct3dDevice, ThisShaderConstHandle, pValue);
 
-			break;
-		}
-		case IsAenum::IsA::FLOAT_ARRAY:
-		{
-			assert(i_count == io_materialContantData->GetCount());
+				break;
+			}
+			case IsAenum::IsA::FLOAT_ARRAY:
+			{
+				assert(i_count == io_materialContantData->GetCount());
 
-			const float* pValue = (reinterpret_cast<const float *>(i_pValue));
+				const float* pValue = (reinterpret_cast<const float *>(i_pValue));
 
-			result = ThisConstTable->SetFloatArray(m_direct3dDevice, ThisShaderConstHandle, pValue, i_count);
+				result = ThisConstTable->SetFloatArray(m_direct3dDevice, ThisShaderConstHandle, pValue, i_count);
 
-			break;
-		}
+				break;
+			}
 
-		case IsAenum::IsA::VECTOR_4D:
-		{
-			assert(i_count == 1);
+			case IsAenum::IsA::VECTOR_4D:
+			{
+				assert(i_count == 1);
 
-			const D3DXVECTOR4* p4DVectorValue = (reinterpret_cast<const D3DXVECTOR4 *>(i_pValue));
+				const D3DXVECTOR4* p4DVectorValue = (reinterpret_cast<const D3DXVECTOR4 *>(i_pValue));
 
-			result = ThisConstTable->SetVector(m_direct3dDevice, ThisShaderConstHandle, p4DVectorValue);
+				result = ThisConstTable->SetVector(m_direct3dDevice, ThisShaderConstHandle, p4DVectorValue);
 
-			break;
-		}
+				break;
+			}
 
-		case IsAenum::IsA::MATRIX_4X4:
-		{
-			assert(i_count == 1);
+			case IsAenum::IsA::MATRIX_4X4:
+			{
+				assert(i_count == 1);
 
-			const D3DXMATRIX* p4DVectorValue = (reinterpret_cast<const D3DXMATRIX *>(i_pValue));
+				const D3DXMATRIX* p4DVectorValue = (reinterpret_cast<const D3DXMATRIX *>(i_pValue));
 
-			result = ThisConstTable->SetMatrix(m_direct3dDevice, ThisShaderConstHandle, p4DVectorValue);
+				result = ThisConstTable->SetMatrix(m_direct3dDevice, ThisShaderConstHandle, p4DVectorValue);
 
-			break;
-		}
+				break;
+			}
 
-		default:
-		{
-			assert(false);
-		}
+			default:
+			{
+				result = -1; //failure
+				assert(false);
+			}
 		}
 
 		if (FAILED(result))

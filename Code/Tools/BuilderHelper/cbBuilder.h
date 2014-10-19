@@ -4,8 +4,8 @@
 	should all derive from this base class)
 */
 
-#ifndef EAE6320_CBBUILDER_H
-#define EAE6320_CBBUILDER_H
+#ifndef __CBBUILDER_H
+#define __CBBUILDER_H
 
 // Header Files
 //=============
@@ -22,7 +22,7 @@
 // Class Declaration
 //==================
 
-namespace eae6320
+namespace BuilderHelper
 {
 	// The only thing a specific builder project's main() entry point should do
 	// is to call the following function with the derived builder class
@@ -67,4 +67,4 @@ namespace eae6320
 	};
 }
 
-#endif	// EAE6320_CBBUILDER_H
+#endif	// __CBBUILDER_H

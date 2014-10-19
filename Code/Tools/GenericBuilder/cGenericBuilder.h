@@ -3,8 +3,8 @@
 	(as opposed to actually "building" it in some way so that the target is different than the source)
 */
 
-#ifndef EAE6320_CGENERICBUILDER_H
-#define EAE6320_CGENERICBUILDER_H
+#ifndef __CGENERICBUILDER_H
+#define __CGENERICBUILDER_H
 
 // Header Files
 //=============
@@ -14,9 +14,9 @@
 // Class Declaration
 //==================
 
-namespace eae6320
+namespace Generic
 {
-	class cGenericBuilder : public cbBuilder
+	class cGenericBuilder : public BuilderHelper::cbBuilder
 	{
 		// Interface
 		//==========
@@ -30,4 +30,4 @@ namespace eae6320
 	};
 }
 
-#endif	// EAE6320_CGENERICBUILDER_H
+#endif	// __CGENERICBUILDER_H

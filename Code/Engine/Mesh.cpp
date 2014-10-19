@@ -23,9 +23,12 @@ namespace Engine
 		mDrawInfo.m_IndexCount = i_DrawInfo.m_IndexCount;
 		
 		assert(i_DrawInfo.m_pVerticesData && i_DrawInfo.m_pIndices);
+		assert(i_DrawInfo.m_NumOfVertices > 0 && i_DrawInfo.m_VertexStride > 0);
 
 		mDrawInfo.m_pVerticesData = (sVertexData *)malloc(i_DrawInfo.m_VertexStride * i_DrawInfo.m_NumOfVertices);
 		mDrawInfo.m_pIndices = (DWORD32 *)malloc(i_DrawInfo.m_IndexCount * sizeof(DWORD32));
+
+		assert(mDrawInfo.m_pVerticesData && mDrawInfo.m_pIndices);
 
 		memcpy(mDrawInfo.m_pVerticesData, i_DrawInfo.m_pVerticesData, i_DrawInfo.m_VertexStride * i_DrawInfo.m_NumOfVertices);
 		memcpy(mDrawInfo.m_pIndices, i_DrawInfo.m_pIndices, i_DrawInfo.m_IndexCount * sizeof(DWORD32));

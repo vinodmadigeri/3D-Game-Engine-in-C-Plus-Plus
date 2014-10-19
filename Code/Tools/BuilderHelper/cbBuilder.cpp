@@ -11,7 +11,7 @@
 // Build
 //------
 
-bool eae6320::cbBuilder::ParseCommandArgumentsAndBuild( char** i_arguments, const unsigned int i_argumentCount )
+bool BuilderHelper::cbBuilder::ParseCommandArgumentsAndBuild(char** i_arguments, const unsigned int i_argumentCount)
 {
 	const unsigned int commandCount = 1;
 	const unsigned int actualArgumentCount = i_argumentCount - commandCount;
@@ -45,7 +45,7 @@ bool eae6320::cbBuilder::ParseCommandArgumentsAndBuild( char** i_arguments, cons
 		{
 			errorMessage << "only " << actualArgumentCount << " were provided\n";
 		}
-		eae6320::OutputErrorMessage( errorMessage.str().c_str() );
+		BuilderHelper::OutputErrorMessage( errorMessage.str().c_str() );
 		return false;
 	}
 }
@@ -53,7 +53,7 @@ bool eae6320::cbBuilder::ParseCommandArgumentsAndBuild( char** i_arguments, cons
 // Initialization / Shut Down
 //---------------------------
 
-eae6320::cbBuilder::cbBuilder()
+BuilderHelper::cbBuilder::cbBuilder()
 	:
 	m_path_source( NULL ), m_path_target( NULL )
 {

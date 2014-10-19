@@ -3,8 +3,8 @@
 	to make it easier for you to keep track of program flow
 */
 
-#ifndef __EAE2014_ASSETBUILDER_H
-#define __EAE2014_ASSETBUILDER_H
+#ifndef __ASSETBUILDER_H
+#define __ASSETBUILDER_H
 
 // Header Files
 //=============
@@ -47,7 +47,7 @@
 		static int CopyAssetFile(lua_State* io_luaState);
 		static int CreateDirectoryIfNecessary(lua_State* io_luaState);
 		static int DoesFileExist(lua_State* io_luaState);
-		static int AssetBuilder::OutputErrorMessage(lua_State* io_luaState);
+		static int OutputErrorMessage(lua_State* io_luaState);
 
 	public:
 		~AssetBuilder();
@@ -58,4 +58,4 @@
 	};
 
 
-#endif	// __EAE2014_ASSETBUILDER_H
+#endif	// __ASSETBUILDER_H

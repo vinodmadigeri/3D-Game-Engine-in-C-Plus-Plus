@@ -2,8 +2,8 @@
 This file will be #included before anything else in the project
 */
 
-#ifndef __EAE2014_ASSET_PRECOMPILED_H
-#define __EAE2014_ASSET_PRECOMPILED_H
+#ifndef __ASSET_PRECOMPILED_H
+#define __ASSET_PRECOMPILED_H
 
 // Exclude extraneous Windows stuff
 #define WIN32_LEAN_AND_MEAN
@@ -21,4 +21,4 @@ This file will be #included before anything else in the project
 #include <iostream>
 #include <ShlObj.h>
 #include <sstream>
-#endif	// __EAE2014_ASSET_PRECOMPILED_H
+#endif	// __ASSET_PRECOMPILED_H
