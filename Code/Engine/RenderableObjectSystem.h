@@ -69,7 +69,7 @@ namespace Engine
 		void Add3DActorGameObject(
 			SharedPointer<Actor> &i_Object,
 			const char *pcMaterialPath,
-			const DrawInfo &i_DrawInfo);
+			const char *pcMeshPath);
 
 		void Render();
 

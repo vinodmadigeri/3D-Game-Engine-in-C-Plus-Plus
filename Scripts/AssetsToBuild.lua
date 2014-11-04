@@ -34,6 +34,22 @@ return
 		},
 	},
 	
+	-- Mesh Assets
+	-- (Gets converted into binary data file)
+	{
+		builder = "MeshBuilder.exe",
+		extensions =
+		{
+			source = "mesh.lua",
+			target = "dat",
+		},
+		assets =
+		{
+			"plane",
+			"cube"
+		},
+	},
+	
 	-- Generic Assets
 	-- (That just get copied as-is rather than built)
 	{

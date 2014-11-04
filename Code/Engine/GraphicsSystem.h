@@ -73,7 +73,7 @@ namespace Engine
 		bool BeingFrame(const ColorRGBA & i_ClearColor = ColorRGBA(0, 0, 0, 0));
 		void Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh);
 		bool EndFrame(void);
-		SharedPointer<Mesh> CreateMesh(const DrawInfo &i_DrawInfo);
+		SharedPointer<Mesh> CreateMesh(const char* i_MeshPath);
 		SharedPointer<Material> CreateMaterial(const char *i_MaterialPath);
 
 		static void Destroy();

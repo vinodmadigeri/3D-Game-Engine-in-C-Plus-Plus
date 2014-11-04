@@ -7,7 +7,7 @@ namespace Engine
 {
 	struct ColorRGBA
 	{
-		unsigned char				r, g, b, a;
+		unsigned char r, g, b, a;
 
 		ColorRGBA()
 		{}
@@ -27,7 +27,7 @@ namespace Engine
 		D3DCOLOR color; // D3DCOLOR = 4 bytes, or 8 bits [0,255] per RGBA channel
 	}sVertexData;
 
-	typedef struct _DrawInfo
+	struct DrawInfo
 	{
 		D3DPRIMITIVETYPE	m_PrimitiveType;
 		UINT				m_indexOfFirstVertexToRender;
@@ -39,7 +39,39 @@ namespace Engine
 		//IndexBufferInfo
 		DWORD32 *			m_pIndices;
 		UINT				m_IndexCount;
-	}DrawInfo;
+
+
+		DrawInfo()
+		{
+			m_pVerticesData = NULL;
+			m_pIndices = NULL;
+		}
+	};
+
+
+	//Read from binary file structures
+	//--------------------------------
+
+	struct VertexData
+	{
+		float Position[3];
+		unsigned char Color[3];
+	};
+
+	struct MeshData
+	{
+		unsigned int VertexCount;
+		unsigned int IndexCount;
+		VertexData *mVertices;
+		unsigned int  *mIndices;
+
+		MeshData()
+		{
+			mVertices = NULL;
+			mIndices = NULL;
+		}
+	};
+
 }
 
 #endif // __MESH_DATA_H

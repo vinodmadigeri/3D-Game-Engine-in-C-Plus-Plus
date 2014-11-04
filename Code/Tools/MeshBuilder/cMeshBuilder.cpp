@@ -43,17 +43,17 @@ bool Mesh::cMeshBuilder::Build(const std::vector<const std::string>&)
 	
 	//First Write, Vertex Count and Index Count
 	char * DataOffsetToWriteToFile = reinterpret_cast<char *>(&mMeshData);
-	unsigned int Datasize = sizeof(unsigned int) * 2;
+	unsigned int Datasize = sizeof(unsigned int) + sizeof(unsigned int); //Vertices and Indices count
 	TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
 
 	//Second Write, Vertices
 	DataOffsetToWriteToFile = reinterpret_cast<char *>(mMeshData.mVertices);
-	Datasize = sizeof(VertexData) * mMeshData.VertexCount;
+	Datasize = sizeof(Engine::VertexData) * mMeshData.VertexCount;
 	TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
 
 	//Third Write, Indices
 	DataOffsetToWriteToFile = reinterpret_cast<char *>(mMeshData.mIndices);
-	Datasize = sizeof(float) * mMeshData.IndexCount;
+	Datasize = sizeof(unsigned int) * mMeshData.IndexCount;
 	TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
 
 	TargetMeshFile.close();
@@ -404,7 +404,7 @@ OnExit:
 bool Mesh::cMeshBuilder::LoadEachVertexDataTable(lua_State& io_luaState, std::string* o_errorMessage)
 {
 	unsigned int VertexIndex = 0;
-	mMeshData.mVertices = new VertexData[mMeshData.VertexCount];
+	mMeshData.mVertices = new Engine::VertexData[mMeshData.VertexCount];
 
 	bool wereThereErrors = false;
 
@@ -458,7 +458,7 @@ OnExit:
 }
 
 
-bool Mesh::cMeshBuilder::LoadEachVertexData(lua_State& io_luaState, VertexData& o_VertexData, std::string* o_errorMessage)
+bool Mesh::cMeshBuilder::LoadEachVertexData(lua_State& io_luaState, Engine::VertexData& o_VertexData, std::string* o_errorMessage)
 {
 
 	bool wereThereErrors = false;
@@ -524,7 +524,7 @@ bool Mesh::cMeshBuilder::LoadEachVertexData(lua_State& io_luaState, VertexData& 
 		else if (strcmp(VertexDataTableName, "Color") == 0)
 		{
 			unsigned int PositionCountPerVertex = 3;
-			if (!LoadEachFloatDataValues(io_luaState, (o_VertexData.Color), PositionCountPerVertex, o_errorMessage))
+			if (!LoadEachUCHARDataValues(io_luaState, (o_VertexData.Color), PositionCountPerVertex, o_errorMessage))
 			{
 				wereThereErrors = true;
 				// Pop the returned key value pair on error
@@ -583,6 +583,87 @@ bool Mesh::cMeshBuilder::LoadEachFloatDataValues(lua_State& io_luaState, float *
 	return true;
 }
 
+
+bool Mesh::cMeshBuilder::LoadEachUCHARDataValues(lua_State& io_luaState, unsigned char * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage)
+{
+	assert(o_DataVariable);
+	//Iterating through every value table
+	const int DataCount = luaL_len(&io_luaState, -1);
+	assert(DataCount == i_DataCount);
+
+	for (int i = 1; i <= DataCount; ++i)
+	{
+		lua_pushinteger(&io_luaState, i);
+		const int currentIndexOfConstantDataTable = -2;
+		lua_gettable(&io_luaState, currentIndexOfConstantDataTable);
+
+		if (lua_type(&io_luaState, -1) != LUA_TNUMBER)
+		{
+			if (o_errorMessage)
+			{
+				std::stringstream errorMessage;
+				errorMessage << "value must be a number (instead of a " <<
+					luaL_typename(&io_luaState, -1) << ")\n";
+				*o_errorMessage = errorMessage.str();
+			}
+
+			//Pop the invalid data value from stack and return false on error
+			lua_pop(&io_luaState, 1);
+
+			return false;
+		}
+
+		o_DataVariable[i - 1] = static_cast<unsigned char>(lua_tointeger(&io_luaState, -1));
+		float Val = static_cast<float>(lua_tonumber(&io_luaState, -1));
+		//Pop the value from the stack since it is stored
+		lua_pop(&io_luaState, 1);
+	}
+	//At this point all the values are stored in o_DataVariable
+
+	return true;
+}
+
+
+bool Mesh::cMeshBuilder::LoadEachUINTDataValues(lua_State& io_luaState, unsigned int * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage)
+{
+	assert(o_DataVariable);
+	//Iterating through every value table
+	const int DataCount = luaL_len(&io_luaState, -1);
+	assert(DataCount == i_DataCount);
+
+	for (int i = 1; i <= DataCount; ++i)
+	{
+		lua_pushinteger(&io_luaState, i);
+		const int currentIndexOfConstantDataTable = -2;
+		lua_gettable(&io_luaState, currentIndexOfConstantDataTable);
+
+		if (lua_type(&io_luaState, -1) != LUA_TNUMBER)
+		{
+			if (o_errorMessage)
+			{
+				std::stringstream errorMessage;
+				errorMessage << "value must be a number (instead of a " <<
+					luaL_typename(&io_luaState, -1) << ")\n";
+				*o_errorMessage = errorMessage.str();
+			}
+
+			//Pop the invalid data value from stack and return false on error
+			lua_pop(&io_luaState, 1);
+
+			return false;
+		}
+
+		o_DataVariable[i - 1] = static_cast<unsigned int>(lua_tointeger(&io_luaState, -1));
+		float Val = static_cast<float>(lua_tonumber(&io_luaState, -1));
+		//Pop the value from the stack since it is stored
+		lua_pop(&io_luaState, 1);
+	}
+	//At this point all the values are stored in o_DataVariable
+
+	return true;
+}
+
+
 bool Mesh::cMeshBuilder::LoadIndexDataTable(lua_State& io_luaState, const char* RootConstantTableName, std::string* o_errorMessage)
 {
 	assert(RootConstantTableName);
@@ -610,9 +691,9 @@ bool Mesh::cMeshBuilder::LoadIndexDataTable(lua_State& io_luaState, const char* 
 	// (look at the "OnExit" label):
 	if (lua_istable(&io_luaState, -1))
 	{
-		mMeshData.mIndices = new float[mMeshData.IndexCount];
+		mMeshData.mIndices = new unsigned int[mMeshData.IndexCount];
 
-		if (!LoadEachFloatDataValues(io_luaState, (mMeshData.mIndices), mMeshData.IndexCount, o_errorMessage))
+		if (!LoadEachUINTDataValues(io_luaState, mMeshData.mIndices, mMeshData.IndexCount, o_errorMessage))
 		{
 			wereThereErrors = true;
 			goto OnExit;

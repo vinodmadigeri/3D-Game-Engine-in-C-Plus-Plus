@@ -105,7 +105,7 @@ namespace Engine
 	void RenderableObjectSystem::Add3DActorGameObject(
 		SharedPointer<Actor> &i_Object,
 		const char *pcMaterialPath,
-		const DrawInfo &i_DrawInfo)
+		const char *pcMeshPath)
 	{
 		assert(pcMaterialPath);
 
@@ -123,7 +123,7 @@ namespace Engine
 		SharedPointer<Mesh> NewMesh;
 		{
 			//create new mesh and insert into mesh cache eventually
-			NewMesh = GraphicsSystem::GetInstance()->CreateMesh(i_DrawInfo);
+			NewMesh = GraphicsSystem::GetInstance()->CreateMesh(pcMeshPath);
 		}
 
 		assert( NewMesh != NULL);

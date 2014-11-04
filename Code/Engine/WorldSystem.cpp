@@ -67,7 +67,7 @@ namespace Engine
 			const Vector3 & i_Size,
 			const float i_Rotation,
 			const char *pcMaterialPath,
-			const DrawInfo &i_DrawInfo)
+			const char *pcMeshPath)
 		{
 			assert(pcMaterialPath && i_GameObjectName && i_ActorType);
 
@@ -77,7 +77,7 @@ namespace Engine
 			AddActorGameObject(NewActor);
 
 			//add Graphics Object 
-			RenderableObjectSystem::GetInstance()->Add3DActorGameObject(NewActor, pcMaterialPath, i_DrawInfo);
+			RenderableObjectSystem::GetInstance()->Add3DActorGameObject(NewActor, pcMaterialPath, pcMeshPath);
 
 			//Add Actor to Physics object
 			PhysicsSystem::GetInstance()->AddActorGameObject(NewActor);

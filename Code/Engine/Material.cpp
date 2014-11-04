@@ -1034,55 +1034,6 @@ namespace Engine
 	{
 		assert(i_direct3dDevice && i_VertexShaderpath);
 
-#if 0
-		// Load the source code from file and compile it
-		ID3DXBuffer* compiledShader;
-		{
-			const char* sourceCodeFileName = i_VertexShaderpath;
-			const D3DXMACRO* noMacros = NULL;
-			ID3DXInclude* noIncludes = NULL;
-			const char* entryPoint = "main";
-			const char* profile = "vs_3_0";
-			DWORD Flags = 0;
-			{
-#ifdef EAE2014_GRAPHICS_SHOULDDEBUGSHADERSBEUSED
-				Flags |=
-					// Include debug information in shaders
-					D3DXSHADER_DEBUG |
-					// Don't do any optimizations to make stepping through the code easier to follow
-					D3DXSHADER_SKIPOPTIMIZATION;
-#endif
-			}
-			ID3DXBuffer* errorMessages = NULL;
-			HRESULT result = D3DXCompileShaderFromFile(sourceCodeFileName, noMacros, noIncludes, entryPoint, profile, Flags,
-														&compiledShader, &errorMessages, &m_pvertexShaderConsts);
-			if (SUCCEEDED(result))
-			{
-				if (errorMessages)
-				{
-					errorMessages->Release();
-				}
-			}
-			else
-			{
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage && errorMessages)
-				{
-					*o_errorMessage = std::string("DirectX failed to compile the vertex shader from the file ") +
-						sourceCodeFileName + ":\n" + reinterpret_cast<char*>(errorMessages->GetBufferPointer());
-					
-					errorMessages->Release();
-				}
-				else if (o_errorMessage)
-				{
-					*o_errorMessage = "DirectX failed to compile the vertex shader from the file ";
-					*o_errorMessage += sourceCodeFileName;
-				}
-#endif
-				return false;
-			}
-		}
-#else
 		// Load the compiled source file it
 		void * compiledShader;
 		{
@@ -1099,7 +1050,6 @@ namespace Engine
 
 		D3DXGetShaderConstantTable(reinterpret_cast<DWORD*>(compiledShader), &m_pvertexShaderConsts);
 
-#endif
 		//Get reference to per-instance constant
 		if (m_pvertexShaderConsts != NULL)
 		{

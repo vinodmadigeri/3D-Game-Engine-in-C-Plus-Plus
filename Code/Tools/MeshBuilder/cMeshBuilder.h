@@ -13,36 +13,18 @@
 
 #include "../../External/Lua/Includes.h"
 
+#include "../../Engine/MeshData.h"
+
 // Class Declaration
 //==================
 
 namespace Mesh
 {
-	struct VertexData
-	{
-		float Position[3];
-		float Color[3];
-	};
-
-	struct MeshData
-	{
-		unsigned int VertexCount;
-		unsigned int IndexCount;
-		VertexData *mVertices;
-		float  *mIndices;
-
-		MeshData()
-		{
-			mVertices = NULL;
-			mIndices = NULL;
-		}
-	};
-
 	class cMeshBuilder : public BuilderHelper::cbBuilder
 	{
 		// Interface
 		//==========
-		MeshData mMeshData;
+		Engine::MeshData mMeshData;
 	public:
 		~cMeshBuilder();
 		// Build
@@ -57,8 +39,10 @@ namespace Mesh
 		bool LoadDataCount(lua_State& io_luaState, const char* DataCountKey, unsigned int & o_DataCount, std::string* o_errorMessage);
 		bool LoadVertexDataTable(lua_State& io_luaState, const char* RootConstantTableName, std::string* o_errorMessage);
 		bool LoadEachVertexDataTable(lua_State& io_luaState, std::string* o_errorMessage);
-		bool LoadEachVertexData(lua_State& io_luaState, VertexData& o_VertexData, std::string* o_errorMessage);
+		bool LoadEachVertexData(lua_State& io_luaState, Engine::VertexData& o_VertexData, std::string* o_errorMessage);
 		bool LoadEachFloatDataValues(lua_State& io_luaState, float * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage);
+		bool LoadEachUCHARDataValues(lua_State& io_luaState, unsigned char * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage);
+		bool LoadEachUINTDataValues(lua_State& io_luaState, unsigned int * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage);
 		bool LoadIndexDataTable(lua_State& io_luaState, const char* RootConstantTableName, std::string* o_errorMessage);
 
 	};

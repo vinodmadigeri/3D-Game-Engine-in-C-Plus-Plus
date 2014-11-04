@@ -238,7 +238,7 @@ namespace Engine
 				const unsigned int indexOfFirstIndexToUse = i_Mesh->mDrawInfo.m_indexOfFirstIndexToUse;
 				// We are drawing a single triangle
 				const unsigned int primitiveCountToRender = i_Mesh->mDrawInfo.m_PrimitiveCount;
-				const unsigned int vertexCountToRender = i_Mesh->mDrawInfo.m_NumOfVertices; //Rectangle contains 4 vertices
+				const unsigned int vertexCountToRender = i_Mesh->mDrawInfo.m_NumOfVertices; 
 
 				HRESULT result = m_direct3dDevice->DrawIndexedPrimitive(primitiveType, indexOfFirstVertexToRender, indexOfFirstVertexToRender, vertexCountToRender, indexOfFirstIndexToUse, primitiveCountToRender);
 				assert(SUCCEEDED(result));
@@ -401,7 +401,7 @@ namespace Engine
 	}
 
 
-	SharedPointer<Mesh> GraphicsSystem::CreateMesh(const DrawInfo &i_DrawInfo)
+	SharedPointer<Mesh> GraphicsSystem::CreateMesh(const char* i_MeshPath)
 	{
 		std::string errorMessage;
 
@@ -409,10 +409,17 @@ namespace Engine
 		{
 			if (true == ComputeUsage(usage))
 			{
+				DrawInfo iO_DrawInfo;
+
+				if (!Mesh::GetDrawInfoFromMeshFile(i_MeshPath, iO_DrawInfo))
+				{
+					goto OnError;
+				}
+
 				IDirect3DVertexDeclaration9* vertexDeclaration = NULL;
 				IDirect3DVertexBuffer9* vertexBuffer = NULL;
 				{
-					if (!CreateVertexBuffer(usage, &vertexDeclaration, &vertexBuffer, i_DrawInfo))
+					if (!CreateVertexBuffer(usage, &vertexDeclaration, &vertexBuffer, iO_DrawInfo))
 					{
 						errorMessage = "DirectX Failed to create Vertex Buffer";
 						goto OnError;
@@ -421,7 +428,7 @@ namespace Engine
 
 				IDirect3DIndexBuffer9* indexBuffer = NULL;
 				{
-					if (!CreateIndexBuffer(usage, &indexBuffer, i_DrawInfo))
+					if (!CreateIndexBuffer(usage, &indexBuffer, iO_DrawInfo))
 					{
 						errorMessage = "DirectX Failed to create Index Buffer";
 						goto OnError;
@@ -430,7 +437,7 @@ namespace Engine
 
 				SharedPointer<Mesh> pMesh = NULL;
 				{
-					pMesh = new Mesh(i_DrawInfo, vertexDeclaration, vertexBuffer, indexBuffer);
+					pMesh = new Mesh(iO_DrawInfo, vertexDeclaration, vertexBuffer, indexBuffer);
 
 					if (pMesh == NULL)
 					{
@@ -478,7 +485,7 @@ namespace Engine
 
 		// Create a vertex buffer
 		{
-			// We are drawing a rectangle
+			// We are drawing a mesh
 			const unsigned int vertexCount = i_DrawInfo.m_NumOfVertices;
 			const unsigned int bufferSize = vertexCount * i_DrawInfo.m_VertexStride;
 
@@ -497,7 +504,7 @@ namespace Engine
 			}
 		}
 
-		// Fill the vertex buffer with the rectangle's vertices
+		// Fill the vertex buffer with the Mesh's vertices
 		{
 			// Before the vertex buffer can be changed it must be "locked"
 			sVertexData* vertexData;
@@ -553,7 +560,7 @@ namespace Engine
 				return false;
 			}
 		}
-		// Fill the index buffer with the rectangle's triangles' indices
+		// Fill the index buffer with the Mesh's triangles' indices
 		{
 			// Before the index buffer can be changed it must be "locked"
 			DWORD32* indices;
