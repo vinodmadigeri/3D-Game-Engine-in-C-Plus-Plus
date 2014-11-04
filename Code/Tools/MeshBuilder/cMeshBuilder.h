@@ -36,13 +36,13 @@ namespace Mesh
 		//-----------------------------
 		bool LoadMeshFile(const char* i_MeshFilepath, std::string* o_errorMessage);
 		bool LoadTableValues(lua_State& io_luaState, std::string* o_errorMessage);
-		bool LoadDataCount(lua_State& io_luaState, const char* DataCountKey, unsigned int & o_DataCount, std::string* o_errorMessage);
+		bool LoadDataCount(lua_State& io_luaState, const char* DataCountKey, DWORD32 & o_DataCount, std::string* o_errorMessage);
 		bool LoadVertexDataTable(lua_State& io_luaState, const char* RootConstantTableName, std::string* o_errorMessage);
 		bool LoadEachVertexDataTable(lua_State& io_luaState, std::string* o_errorMessage);
-		bool LoadEachVertexData(lua_State& io_luaState, Engine::VertexData& o_VertexData, std::string* o_errorMessage);
+		bool LoadEachVertexData(lua_State& io_luaState, Engine::sVertexData& o_VertexData, std::string* o_errorMessage);
 		bool LoadEachFloatDataValues(lua_State& io_luaState, float * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage);
 		bool LoadEachUCHARDataValues(lua_State& io_luaState, unsigned char * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage);
-		bool LoadEachUINTDataValues(lua_State& io_luaState, unsigned int * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage);
+		bool LoadEachUINTDataValues(lua_State& io_luaState, DWORD32 * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage);
 		bool LoadIndexDataTable(lua_State& io_luaState, const char* RootConstantTableName, std::string* o_errorMessage);
 
 	};

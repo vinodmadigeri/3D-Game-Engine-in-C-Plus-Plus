@@ -43,17 +43,17 @@ bool Mesh::cMeshBuilder::Build(const std::vector<const std::string>&)
 	
 	//First Write, Vertex Count and Index Count
 	char * DataOffsetToWriteToFile = reinterpret_cast<char *>(&mMeshData);
-	unsigned int Datasize = sizeof(unsigned int) + sizeof(unsigned int); //Vertices and Indices count
+	unsigned int Datasize = sizeof(DWORD32) + sizeof(DWORD32); //Vertices and Indices count
 	TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
 
 	//Second Write, Vertices
 	DataOffsetToWriteToFile = reinterpret_cast<char *>(mMeshData.mVertices);
-	Datasize = sizeof(Engine::VertexData) * mMeshData.VertexCount;
+	Datasize = sizeof(Engine::sVertexData) * mMeshData.VertexCount;
 	TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
 
 	//Third Write, Indices
 	DataOffsetToWriteToFile = reinterpret_cast<char *>(mMeshData.mIndices);
-	Datasize = sizeof(unsigned int) * mMeshData.IndexCount;
+	Datasize = sizeof(DWORD32) * mMeshData.IndexCount;
 	TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
 
 	TargetMeshFile.close();
@@ -218,7 +218,7 @@ bool Mesh::cMeshBuilder::LoadTableValues(lua_State& io_luaState, std::string* o_
 	return true;
 }
 
-bool Mesh::cMeshBuilder::LoadDataCount(lua_State& io_luaState, const char* DataCountKey, unsigned int & o_DataCount, std::string* o_errorMessage)
+bool Mesh::cMeshBuilder::LoadDataCount(lua_State& io_luaState, const char* DataCountKey, DWORD32 & o_DataCount, std::string* o_errorMessage)
 {
 	// Get the value of "name"
 	{
@@ -325,7 +325,7 @@ bool Mesh::cMeshBuilder::LoadDataCount(lua_State& io_luaState, const char* DataC
 
 		// Now we know that the value stored in the table at the key is valid:
 			{
-				unsigned int value = static_cast<unsigned int>(lua_tonumber(&io_luaState, -1));
+				DWORD32 value = static_cast<DWORD32>(lua_tonumber(&io_luaState, -1));
 				// You can now do whatever you want with the value.
 				// NOTE!
 				// which means that Lua owns the memory.
@@ -404,7 +404,7 @@ OnExit:
 bool Mesh::cMeshBuilder::LoadEachVertexDataTable(lua_State& io_luaState, std::string* o_errorMessage)
 {
 	unsigned int VertexIndex = 0;
-	mMeshData.mVertices = new Engine::VertexData[mMeshData.VertexCount];
+	mMeshData.mVertices = new Engine::sVertexData[mMeshData.VertexCount];
 
 	bool wereThereErrors = false;
 
@@ -413,6 +413,7 @@ bool Mesh::cMeshBuilder::LoadEachVertexDataTable(lua_State& io_luaState, std::st
 	int CurrentIndexOfVertexTable = -2;
 	while (lua_next(&io_luaState, CurrentIndexOfVertexTable))
 	{
+		assert(VertexIndex < mMeshData.VertexCount);
 		//Current Table is at -3 inside the while loop, -2 is the number of empty table name
 		int IndexOfValue = -1;	//Is the value inside which is a table
 
@@ -458,7 +459,7 @@ OnExit:
 }
 
 
-bool Mesh::cMeshBuilder::LoadEachVertexData(lua_State& io_luaState, Engine::VertexData& o_VertexData, std::string* o_errorMessage)
+bool Mesh::cMeshBuilder::LoadEachVertexData(lua_State& io_luaState, Engine::sVertexData& o_VertexData, std::string* o_errorMessage)
 {
 
 	bool wereThereErrors = false;
@@ -512,25 +513,33 @@ bool Mesh::cMeshBuilder::LoadEachVertexData(lua_State& io_luaState, Engine::Vert
 
 		if (strcmp(VertexDataTableName, "Position") == 0)
 		{
-			unsigned int PositionCountPerVertex = 3;
-			if (!LoadEachFloatDataValues(io_luaState, (o_VertexData.Position), PositionCountPerVertex, o_errorMessage))
+			const unsigned int PositionCountPerVertex = 3;
+			float Position[PositionCountPerVertex];
+			if (!LoadEachFloatDataValues(io_luaState, Position, PositionCountPerVertex, o_errorMessage))
 			{
 				wereThereErrors = true;
 				// Pop the returned key value pair on error
 				lua_pop(&io_luaState, 2);
 				goto OnExit;
 			}
+
+			o_VertexData.x = Position[0];
+			o_VertexData.y = Position[1];
+			o_VertexData.z = Position[2];
 		}
 		else if (strcmp(VertexDataTableName, "Color") == 0)
 		{
-			unsigned int PositionCountPerVertex = 3;
-			if (!LoadEachUCHARDataValues(io_luaState, (o_VertexData.Color), PositionCountPerVertex, o_errorMessage))
+			const unsigned int PositionCountPerVertex = 3;
+			unsigned char Color[PositionCountPerVertex];
+			if (!LoadEachUCHARDataValues(io_luaState, Color, PositionCountPerVertex, o_errorMessage))
 			{
 				wereThereErrors = true;
 				// Pop the returned key value pair on error
 				lua_pop(&io_luaState, 2);
 				goto OnExit;
 			}
+
+			o_VertexData.color = D3DCOLOR_XRGB(Color[0], Color[1], Color[2]);
 		}
 
 		//Pop the value, but leave the key
@@ -624,7 +633,7 @@ bool Mesh::cMeshBuilder::LoadEachUCHARDataValues(lua_State& io_luaState, unsigne
 }
 
 
-bool Mesh::cMeshBuilder::LoadEachUINTDataValues(lua_State& io_luaState, unsigned int * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage)
+bool Mesh::cMeshBuilder::LoadEachUINTDataValues(lua_State& io_luaState, DWORD32 * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage)
 {
 	assert(o_DataVariable);
 	//Iterating through every value table
@@ -653,7 +662,7 @@ bool Mesh::cMeshBuilder::LoadEachUINTDataValues(lua_State& io_luaState, unsigned
 			return false;
 		}
 
-		o_DataVariable[i - 1] = static_cast<unsigned int>(lua_tointeger(&io_luaState, -1));
+		o_DataVariable[i - 1] = static_cast<DWORD32>(lua_tointeger(&io_luaState, -1));
 		float Val = static_cast<float>(lua_tonumber(&io_luaState, -1));
 		//Pop the value from the stack since it is stored
 		lua_pop(&io_luaState, 1);

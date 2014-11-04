@@ -6,7 +6,8 @@
 
 namespace Engine
 {
-	Material::Material(IDirect3DDevice9 * i_direct3dDevice) :
+	Material::Material(const char *iName, IDirect3DDevice9 * i_direct3dDevice) :
+		mHashedName(iName),
 		m_direct3dDevice(i_direct3dDevice),
 		m_vertexShader(NULL),
 		m_fragmentShader(NULL),

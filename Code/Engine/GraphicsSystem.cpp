@@ -26,7 +26,8 @@ namespace Engine
 
 	bool GraphicsSystem::s_bInFrame = false;
 	GraphicsSystem *GraphicsSystem::m_pInstance = NULL;
-
+	std::map<unsigned int, SharedPointer<Mesh>> GraphicsSystem::mMeshCache;
+	std::map<unsigned int, SharedPointer<Material>> GraphicsSystem::mMaterialCache;
 	// Interface
 	//==========
 
@@ -254,14 +255,14 @@ namespace Engine
 		{
 			if (m_direct3dDevice)
 			{
-				if (m_Materials.size() > 0)
+				if (mMaterialCache.size() > 0)
 				{
-					m_Materials.clear();
+					mMaterialCache.clear();
 				}
 
-				if (m_Meshes.size() > 0)
+				if (mMeshCache.size() > 0)
 				{
-					m_Meshes.clear();
+					mMeshCache.clear();
 				}
 
 				m_direct3dDevice->SetVertexDeclaration(NULL);
@@ -344,34 +345,46 @@ namespace Engine
 	{
 		assert(m_direct3dDevice);
 
-		SharedPointer<Material> OutMaterial = NULL;
+		std::map<unsigned int, SharedPointer<Material>>::iterator it;
 		{
-			OutMaterial = new Material(m_direct3dDevice);
-			assert(OutMaterial != NULL);
 
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			std::string o_errorMessage;
-#endif
-			bool result = OutMaterial->Load(i_MaterialPath, m_direct3dDevice
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				, &o_errorMessage
-#endif
-				);
+			it = mMaterialCache.find(HashedString::Hash(i_MaterialPath));
 
-			if (!result)
+			if (it == mMaterialCache.end())
 			{
+				SharedPointer<Material> pMaterial = NULL;
+				{
+					pMaterial = new Material(i_MaterialPath, m_direct3dDevice);
+					assert(pMaterial != NULL);
+
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				MessageBox(m_mainWindow, o_errorMessage.c_str(), "No Shader File", MB_OK | MB_ICONERROR);
+					std::string o_errorMessage;
 #endif
-				return NULL;
+					bool result = pMaterial->Load(i_MaterialPath, m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, &o_errorMessage
+#endif
+						);
+
+					if (!result)
+					{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						MessageBox(m_mainWindow, o_errorMessage.c_str(), "No Shader File", MB_OK | MB_ICONERROR);
+#endif
+						return NULL;
+					}
+				}
+				std::pair<unsigned int, SharedPointer<Material>> thisPair = std::pair<unsigned int, SharedPointer<Material>>(HashedString::Hash(i_MaterialPath), pMaterial);
+				mMaterialCache.insert(thisPair);
+
+				return pMaterial;
+			}
+			else
+			{
+				return it->second;
 			}
 		}
-
-		m_Materials.push_back(OutMaterial);
-
-		return OutMaterial;
 	}
-
 
 	bool GraphicsSystem::ComputeUsage(DWORD &o_usage)
 	{
@@ -409,45 +422,61 @@ namespace Engine
 		{
 			if (true == ComputeUsage(usage))
 			{
-				DrawInfo iO_DrawInfo;
-
-				if (!Mesh::GetDrawInfoFromMeshFile(i_MeshPath, iO_DrawInfo))
+				std::map<unsigned int, SharedPointer<Mesh>>::iterator it;
 				{
-					goto OnError;
-				}
+					it = mMeshCache.find(HashedString::Hash(i_MeshPath));
 
-				IDirect3DVertexDeclaration9* vertexDeclaration = NULL;
-				IDirect3DVertexBuffer9* vertexBuffer = NULL;
-				{
-					if (!CreateVertexBuffer(usage, &vertexDeclaration, &vertexBuffer, iO_DrawInfo))
+					if (it != mMeshCache.end())
 					{
-						errorMessage = "DirectX Failed to create Vertex Buffer";
-						goto OnError;
+						return it->second;
 					}
-				}
-
-				IDirect3DIndexBuffer9* indexBuffer = NULL;
-				{
-					if (!CreateIndexBuffer(usage, &indexBuffer, iO_DrawInfo))
+					else
 					{
-						errorMessage = "DirectX Failed to create Index Buffer";
-						goto OnError;
+						DrawInfo iO_DrawInfo;
+
+						if (!Mesh::GetDrawInfoFromMeshFile(i_MeshPath, iO_DrawInfo))
+						{
+							goto OnError;
+						}
+
+						IDirect3DVertexDeclaration9* vertexDeclaration = NULL;
+						IDirect3DVertexBuffer9* vertexBuffer = NULL;
+						{
+							if (!CreateVertexBuffer(usage, &vertexDeclaration, &vertexBuffer, iO_DrawInfo))
+							{
+								errorMessage = "DirectX Failed to create Vertex Buffer";
+								goto OnError;
+							}
+						}
+
+						IDirect3DIndexBuffer9* indexBuffer = NULL;
+						{
+							if (!CreateIndexBuffer(usage, &indexBuffer, iO_DrawInfo))
+							{
+								errorMessage = "DirectX Failed to create Index Buffer";
+								goto OnError;
+							}
+						}
+
+						SharedPointer<Mesh> pMesh = NULL;
+						{
+							pMesh = new Mesh(i_MeshPath, iO_DrawInfo, vertexDeclaration, vertexBuffer, indexBuffer);
+
+							if (pMesh == NULL)
+							{
+								errorMessage = "Mesh Creation failed";
+								goto OnError;
+							}
+
+							std::pair<unsigned int, SharedPointer<Mesh>> thisPair = std::pair<unsigned int, SharedPointer<Mesh>>(HashedString::Hash(i_MeshPath), pMesh);
+							mMeshCache.insert(thisPair);
+
+							delete iO_DrawInfo.m_pVerticesData;
+							delete iO_DrawInfo.m_pIndices;
+
+							return pMesh;
+						}
 					}
-				}
-
-				SharedPointer<Mesh> pMesh = NULL;
-				{
-					pMesh = new Mesh(iO_DrawInfo, vertexDeclaration, vertexBuffer, indexBuffer);
-
-					if (pMesh == NULL)
-					{
-						errorMessage = "Mesh Creation failed";
-						goto OnError;
-					}
-
-					m_Meshes.push_back(pMesh);
-
-					return pMesh;
 				}
 			}
 			else
@@ -461,7 +490,6 @@ namespace Engine
 		MessageBox(m_mainWindow, errorMessage.c_str(), "Can not create Mesh", MB_OK | MB_ICONERROR);
 
 		return NULL;
-
 	}
 
 	bool GraphicsSystem::CreateVertexBuffer(DWORD i_usage, IDirect3DVertexDeclaration9** i_ppvertexDeclaration, IDirect3DVertexBuffer9** i_ppvertexBuffer, const DrawInfo &i_DrawInfo)

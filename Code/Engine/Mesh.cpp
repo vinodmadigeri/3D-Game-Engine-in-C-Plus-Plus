@@ -7,10 +7,12 @@
 
 namespace Engine
 {
-	Mesh::Mesh(const DrawInfo &i_DrawInfo,
+	Mesh::Mesh(const char * iName, 
+		const DrawInfo &i_DrawInfo,
 		IDirect3DVertexDeclaration9* i_vertexDeclaration,
 		IDirect3DVertexBuffer9* i_vertexBuffer,
 		IDirect3DIndexBuffer9* i_indexBuffer) :
+		mHashedName(iName),
 		m_vertexDeclaration(i_vertexDeclaration),
 		m_vertexBuffer(i_vertexBuffer),
 		m_indexBuffer(i_indexBuffer)
@@ -22,12 +24,8 @@ namespace Engine
 		mDrawInfo.m_NumOfVertices = i_DrawInfo.m_NumOfVertices;
 		mDrawInfo.m_VertexStride = i_DrawInfo.m_VertexStride;
 		mDrawInfo.m_IndexCount = i_DrawInfo.m_IndexCount;
-		
-		assert(i_DrawInfo.m_pVerticesData && i_DrawInfo.m_pIndices);
-		assert(i_DrawInfo.m_NumOfVertices > 0 && i_DrawInfo.m_IndexCount > 0);
 
-		mDrawInfo.m_pVerticesData = i_DrawInfo.m_pVerticesData;
-		mDrawInfo.m_pIndices = i_DrawInfo.m_pIndices;
+		assert(i_DrawInfo.m_NumOfVertices > 0 && i_DrawInfo.m_IndexCount > 0);
 	}
 
 	Mesh::~Mesh()
@@ -48,16 +46,6 @@ namespace Engine
 		{
 			m_indexBuffer->Release();
 			m_indexBuffer = NULL;
-		}
-
-		if (mDrawInfo.m_pVerticesData)
-		{
-			delete (mDrawInfo.m_pVerticesData);
-		}
-
-		if (mDrawInfo.m_pIndices)
-		{
-			delete (mDrawInfo.m_pIndices);
 		}
 	}
 
@@ -97,39 +85,24 @@ namespace Engine
 
 		char* pBinData = RawBinaryData;
 
-		MeshData binaryMeshData;
-		binaryMeshData.VertexCount = *(reinterpret_cast<unsigned int *>(pBinData));
-		pBinData += sizeof(unsigned int); //Vertices Count
+		iDrawInfo.m_NumOfVertices = *(reinterpret_cast<DWORD32 *>(pBinData));
+		pBinData += sizeof(DWORD32); //Vertices Count
 
-		binaryMeshData.IndexCount = *(reinterpret_cast<unsigned int *>(pBinData));
-		pBinData += sizeof(unsigned int); //Indices Count;
-
-		binaryMeshData.mVertices = reinterpret_cast<VertexData *>(pBinData);
-		pBinData += sizeof(VertexData) * binaryMeshData.VertexCount;
-
-		binaryMeshData.mIndices = reinterpret_cast<unsigned int *>(pBinData);
-		pBinData += sizeof(unsigned int) * binaryMeshData.IndexCount;
+		iDrawInfo.m_IndexCount = *(reinterpret_cast<DWORD32 *>(pBinData));
+		pBinData += sizeof(DWORD32); //Indices Count;
 
 		//Fill the read data to structure
-		iDrawInfo.m_NumOfVertices = binaryMeshData.VertexCount;
-		iDrawInfo.m_IndexCount = binaryMeshData.IndexCount;
 		iDrawInfo.m_pVerticesData = new sVertexData[iDrawInfo.m_NumOfVertices]; //deleted in the destructor of mesh
 		iDrawInfo.m_pIndices = new DWORD32[iDrawInfo.m_IndexCount]; //deleted in the destructor of mesh
 
 		assert(iDrawInfo.m_pVerticesData && iDrawInfo.m_pIndices);
 
-		for (unsigned int i = 0; i < iDrawInfo.m_NumOfVertices; i++)
-		{
-			iDrawInfo.m_pVerticesData[i].x = binaryMeshData.mVertices[i].Position[0];
-			iDrawInfo.m_pVerticesData[i].y = binaryMeshData.mVertices[i].Position[1];
-			iDrawInfo.m_pVerticesData[i].z = binaryMeshData.mVertices[i].Position[2];
-			iDrawInfo.m_pVerticesData[i].color = D3DCOLOR_XRGB(binaryMeshData.mVertices[i].Color[0], binaryMeshData.mVertices[i].Color[1], binaryMeshData.mVertices[i].Color[2]);
-		}
+		memcpy(iDrawInfo.m_pVerticesData, reinterpret_cast<sVertexData *>(pBinData), sizeof(sVertexData) * iDrawInfo.m_NumOfVertices);
+		pBinData += sizeof(sVertexData) * iDrawInfo.m_NumOfVertices;
 
-		for (unsigned int i = 0; i < iDrawInfo.m_IndexCount; i++)
-		{
-			iDrawInfo.m_pIndices[i] = static_cast<DWORD32>(binaryMeshData.mIndices[i]);
-		}
+		memcpy(iDrawInfo.m_pIndices, reinterpret_cast<unsigned int *>(pBinData), sizeof(DWORD32) * iDrawInfo.m_IndexCount);
+		pBinData += sizeof(DWORD32) * iDrawInfo.m_IndexCount;
+
 
 		iDrawInfo.m_PrimitiveType = D3DPT_TRIANGLELIST;
 		unsigned int numberOfVerticesPerTriangle = 3;
@@ -138,7 +111,7 @@ namespace Engine
 		iDrawInfo.m_indexOfFirstIndexToUse = 0;
 		iDrawInfo.m_VertexStride = sizeof(sVertexData);
 
-		delete RawBinaryData;
+		delete[] RawBinaryData;
 		ReadMeshFile.close();
 
 		return true;

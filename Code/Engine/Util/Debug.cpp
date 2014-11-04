@@ -26,9 +26,10 @@ namespace Engine
 		char aDebugString[MAX_DEBUG_STRING + 2] = {'\0'};
 		unsigned long ulOutLength;
 
-		if (!pFormat)
+		if (pFormat == NULL)
 		{
 			printf("\nNull Pointer Received\n");
+			return;
 		}
 
 		va_start(Args, pFormat);

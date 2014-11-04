@@ -4,6 +4,7 @@
 #include "PreCompiled.h"
 #include <d3d9.h>
 #include "MeshData.h"
+#include "HashedString.h"
 
 namespace Engine
 {
@@ -16,9 +17,11 @@ namespace Engine
 		IDirect3DIndexBuffer9* m_indexBuffer;
 		
 	public:
-		DrawInfo mDrawInfo;
+		const HashedString mHashedName;
+		PrimitiveDrawInfo mDrawInfo;
 
-		Mesh(const DrawInfo &i_DrawInfo,
+		Mesh(const char * iName,
+			const DrawInfo &i_DrawInfo,
 			IDirect3DVertexDeclaration9* i_vertexDeclaration,
 			IDirect3DVertexBuffer9* i_vertexBuffer,
 			IDirect3DIndexBuffer9* i_indexBuffer);

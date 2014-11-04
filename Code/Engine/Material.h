@@ -17,6 +17,7 @@ as well as the data that those shader program use
 
 #include "MaterialConstantData.h"
 #include "Vector3.h"
+#include "HashedString.h"
 
 // Class Declaration
 //==================
@@ -29,7 +30,8 @@ namespace Engine
 		//==========
 
 	public:
-		Material(IDirect3DDevice9 * i_direct3dDevice);
+		const HashedString mHashedName;
+		Material(const char *iName, IDirect3DDevice9 * i_direct3dDevice);
 		~Material();
 
 		// Render

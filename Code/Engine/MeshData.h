@@ -36,6 +36,7 @@ namespace Engine
 		UINT				m_NumOfVertices;
 		sVertexData*		m_pVerticesData;
 		unsigned int		m_VertexStride;
+		
 		//IndexBufferInfo
 		DWORD32 *			m_pIndices;
 		UINT				m_IndexCount;
@@ -48,22 +49,28 @@ namespace Engine
 		}
 	};
 
+	struct PrimitiveDrawInfo
+	{
+		D3DPRIMITIVETYPE	m_PrimitiveType;
+		UINT				m_indexOfFirstVertexToRender;
+		UINT				m_indexOfFirstIndexToUse;
+		UINT				m_PrimitiveCount;
+		UINT				m_NumOfVertices;
+		unsigned int		m_VertexStride;
+
+		//IndexBufferInfo
+		UINT				m_IndexCount;
+	};
 
 	//Read from binary file structures
 	//--------------------------------
 
-	struct VertexData
-	{
-		float Position[3];
-		unsigned char Color[3];
-	};
-
 	struct MeshData
 	{
-		unsigned int VertexCount;
-		unsigned int IndexCount;
-		VertexData *mVertices;
-		unsigned int  *mIndices;
+		DWORD32 VertexCount;
+		DWORD32 IndexCount;
+		sVertexData *mVertices;
+		DWORD32  *mIndices;
 
 		MeshData()
 		{
@@ -71,7 +78,6 @@ namespace Engine
 			mIndices = NULL;
 		}
 	};
-
 }
 
 #endif // __MESH_DATA_H

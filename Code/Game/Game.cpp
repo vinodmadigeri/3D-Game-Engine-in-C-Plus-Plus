@@ -219,6 +219,7 @@ int WINAPI WinMain(
 
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF);
+	//_CrtSetBreakAlloc(148);
 #endif
 
 	MainGame Game;
@@ -231,7 +232,7 @@ int WINAPI WinMain(
 	}
 
 #ifdef _DEBUG
-	_CrtDumpMemoryLeaks();
+	//_CrtDumpMemoryLeaks();
 #endif
 
 	// A Windows program doesn't actually need any windows at all

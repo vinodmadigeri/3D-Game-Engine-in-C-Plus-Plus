@@ -14,6 +14,7 @@
 #endif
 
 #include <d3d9.h>
+#include <map>
 #include <vector>
 #include "MeshData.h"
 #include "SharedPointer.h"
@@ -32,8 +33,9 @@ namespace Engine
 		HWND m_mainWindow;
 		IDirect3D9* m_direct3dInterface;
 		IDirect3DDevice9* m_direct3dDevice;
-		std::vector<SharedPointer<Material>> m_Materials; //Shared materials
-		std::vector<SharedPointer<Mesh>> m_Meshes; //Shared meshes
+		
+		static std::map<unsigned int, SharedPointer<Material>> mMaterialCache; //Shared materials
+		static std::map<unsigned int, SharedPointer<Mesh>> mMeshCache; //Shared meshes
 
 		static GraphicsSystem *m_pInstance;
 		bool mInitilized;
