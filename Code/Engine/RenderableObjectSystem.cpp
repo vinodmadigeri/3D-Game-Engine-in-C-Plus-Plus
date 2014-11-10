@@ -118,7 +118,10 @@ namespace Engine
 			//NewMaterial->SetFragmentShaderConstantValue(Vector3(3.0f, 6.0f, 2.0f));
 		}
 
-		assert(NewMaterial != NULL);
+		if (NewMaterial == NULL)
+		{
+			return;
+		}
 
 		SharedPointer<Mesh> NewMesh;
 		{
@@ -126,7 +129,10 @@ namespace Engine
 			NewMesh = GraphicsSystem::GetInstance()->CreateMesh(pcMeshPath);
 		}
 
-		assert( NewMesh != NULL);
+		if (NewMesh == NULL)
+		{
+			return;
+		}
 
 		m3DRenderableObjects.push_back(new Renderable3DObject(i_Object, NewMaterial, NewMesh));
 	}

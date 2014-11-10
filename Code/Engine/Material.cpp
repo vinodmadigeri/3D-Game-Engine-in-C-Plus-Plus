@@ -682,7 +682,7 @@ namespace Engine
 			if (lua_type(&io_luaState, IndexOfKey) != LUA_TSTRING)
 			{
 				wereThereErrors = true;
-
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				if (o_errorMessage)
 				{
 					std::stringstream errorMessage;
@@ -691,7 +691,7 @@ namespace Engine
 
 					*o_errorMessage = errorMessage.str();
 				}
-
+#endif
 				// Pop the returned key value pair on error
 				lua_pop(&io_luaState, 2);
 				goto OnExit;
@@ -728,7 +728,7 @@ namespace Engine
 			else
 			{
 				wereThereErrors = true;
-
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				if (o_errorMessage)
 				{
 					std::stringstream errorMessage;
@@ -736,7 +736,7 @@ namespace Engine
 
 					*o_errorMessage = errorMessage.str();
 				}
-
+#endif
 				// Pop the returned key value pair on error
 				lua_pop(&io_luaState, 2);
 				goto OnExit;
@@ -854,7 +854,7 @@ namespace Engine
 			if (lua_type(&io_luaState, IndexOfKey) != LUA_TSTRING)
 			{
 				wereThereErrors = true;
-
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				if (o_errorMessage)
 				{
 					std::stringstream errorMessage;
@@ -863,7 +863,7 @@ namespace Engine
 
 					*o_errorMessage = errorMessage.str();
 				}
-
+#endif
 				// Pop the returned key value pair on error
 				lua_pop(&io_luaState, 2);
 				goto OnExit;
@@ -925,7 +925,7 @@ namespace Engine
 			else
 			{
 				wereThereErrors = true;
-
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				if (o_errorMessage)
 				{
 					std::stringstream errorMessage;
@@ -933,7 +933,7 @@ namespace Engine
 
 					*o_errorMessage = errorMessage.str();
 				}
-
+#endif
 				// Pop the returned key value pair on error
 				lua_pop(&io_luaState, 2);
 				goto OnExit;
