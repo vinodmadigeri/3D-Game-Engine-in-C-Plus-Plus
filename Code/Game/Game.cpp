@@ -112,7 +112,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
 		float Rotation = 0.0f;
 
-		const char * pMaterialPath = "data/simpleMaterial.mat.lua";
+		const char * pMaterialPath = "data/cubeMaterial.mat.lua";
 		const char * pMeshPath = "data/cube.dat";
 
 		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "Cube", "Cube", Size, Rotation, pMaterialPath, pMeshPath);
@@ -126,7 +126,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
 		float Rotation = 0.0f;
 
-		const char * pMaterialPath = "data/simpleMaterial.mat.lua";
+		const char * pMaterialPath = "data/planeMaterial.mat.lua";
 		const char * pMeshPath = "data/plane.dat";
 
 		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "BaseQuad", "BaseQuad", Size, Rotation, pMaterialPath, pMeshPath);

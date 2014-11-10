@@ -470,7 +470,6 @@ bool Mesh::cMeshBuilder::LoadEachVertexData(lua_State& io_luaState, Engine::sVer
 	while (lua_next(&io_luaState, CurrentIndexOfConstantTable))
 	{
 		//Current Table is at -3 inside the while loop
-		//Current Table is at -3 inside the while loop
 		int IndexOfKey = -2; int IndexOfValue = -1;
 		if (lua_type(&io_luaState, IndexOfKey) != LUA_TSTRING)
 		{
@@ -540,6 +539,21 @@ bool Mesh::cMeshBuilder::LoadEachVertexData(lua_State& io_luaState, Engine::sVer
 			}
 
 			o_VertexData.color = D3DCOLOR_XRGB(Color[0], Color[1], Color[2]);
+		}
+		else if (strcmp(VertexDataTableName, "UV") == 0)
+		{
+			const unsigned int PositionCountPerVertex = 2;
+			unsigned char UV[PositionCountPerVertex];
+			if (!LoadEachUCHARDataValues(io_luaState, UV, PositionCountPerVertex, o_errorMessage))
+			{
+				wereThereErrors = true;
+				// Pop the returned key value pair on error
+				lua_pop(&io_luaState, 2);
+				goto OnExit;
+			}
+
+			o_VertexData.U = UV[0];
+			o_VertexData.V = UV[1];
 		}
 
 		//Pop the value, but leave the key

@@ -77,6 +77,8 @@ namespace Engine
 		IDirect3DPixelShader9* m_fragmentShader;
 		ID3DXConstantTable* m_pfragmentShaderConsts;
 
+		IDirect3DTexture9* m_texture;
+		DWORD m_samplerRegister;
 		std::vector<IMaterialConstant *> m_perMaterialConstantDatas; //optional
 		std::vector<IMaterialConstant *> m_perInstanceConstantDatas; //optional
 		std::vector<IMaterialConstant *> m_perViewConstantDatas; 
@@ -118,6 +120,23 @@ namespace Engine
 			);
 
 		bool LoadTableValues_Shader_paths(lua_State& io_luaState, std::string& o_PathShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+		bool LoadTableValues_Texture(lua_State& io_luaState, const char* key, std::string& o_PathTexture, std::string& o_NameSampler
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+		bool LoadTableValues_TexturePathAndSampler(lua_State& io_luaState, std::string& o_PathTexture, std::string& o_NameSampler
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+		bool LoadTextureAndSamplerRegister(const char* iTexturePath, const char* iSamplerName, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif

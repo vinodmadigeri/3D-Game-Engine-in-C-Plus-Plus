@@ -76,7 +76,8 @@ return
 		},
 		assets =
 		{
-			"simpleMaterial",
+			"planeMaterial",
+			"cubeMaterial",
 		},
 	},
 }
