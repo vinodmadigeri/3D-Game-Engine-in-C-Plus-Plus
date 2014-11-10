@@ -19,7 +19,7 @@ return
 	
 	Texture =
 	{
-		Path = "data/imageWithText.dds",
+		Path = "data/microsoftWindows.dds",
 		Sampler = "g_color_sampler"
 	},
 }

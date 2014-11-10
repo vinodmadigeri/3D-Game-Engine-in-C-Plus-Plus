@@ -61,7 +61,8 @@ return
 		},
 		assets =
 		{
-			"imageWithText",
+			"microsoftWindows",
+			"directX",
 		},
 	},
 	
