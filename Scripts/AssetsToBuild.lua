@@ -50,6 +50,21 @@ return
 		},
 	},
 	
+	-- Texture Assets
+	-- (Converts .png to .dds format)
+	{
+		builder = "TextureBuilder.exe",
+		extensions =
+		{
+			source = "png",
+			target = "dds",
+		},
+		assets =
+		{
+			"imageWithText",
+		},
+	},
+	
 	-- Generic Assets
 	-- (That just get copied as-is rather than built)
 	{

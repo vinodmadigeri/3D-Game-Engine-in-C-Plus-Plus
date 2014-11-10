@@ -1,0 +1,8 @@
+﻿  cTextureBuilder.cpp
+cTextureBuilder.cpp(42): error C2664: 'HRESULT D3DXGetImageInfoFromFileW(LPCWSTR,D3DXIMAGE_INFO *)' : cannot convert argument 1 from 'const char *' to 'LPCWSTR'
+          Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+cTextureBuilder.cpp(68): error C2664: 'HRESULT D3DXCreateTextureFromFileExW(LPDIRECT3DDEVICE9,LPCWSTR,UINT,UINT,UINT,DWORD,D3DFORMAT,D3DPOOL,DWORD,DWORD,D3DCOLOR,D3DXIMAGE_INFO *,PALETTEENTRY *,LPDIRECT3DTEXTURE9 *)' : cannot convert argument 2 from 'const char *' to 'LPCWSTR'
+          Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+cTextureBuilder.cpp(119): error C2664: 'HRESULT D3DXSaveTextureToFileW(LPCWSTR,D3DXIMAGE_FILEFORMAT,LPDIRECT3DBASETEXTURE9,const PALETTEENTRY *)' : cannot convert argument 1 from 'const char *' to 'LPCWSTR'
+          Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+  EntryPoint.cpp

@@ -1,8 +1,3 @@
-/*
-	This is an example builder program that just copies the source file to the target path
-	(as opposed to actually "building" it in some way so that the target is different than the source)
-*/
-
 #ifndef __CMESHBUILDER_H
 #define __CMESHBUILDER_H
 
