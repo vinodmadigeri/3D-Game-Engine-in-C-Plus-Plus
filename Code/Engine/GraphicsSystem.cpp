@@ -292,6 +292,7 @@ namespace Engine
 		const UINT useDefaultDevice = D3DADAPTER_DEFAULT;
 		const D3DDEVTYPE useHardwareRendering = D3DDEVTYPE_HAL;
 		const DWORD useHardwareVertexProcessing = D3DCREATE_HARDWARE_VERTEXPROCESSING;
+		bool AntiAliasingEnabled = false;
 		D3DPRESENT_PARAMETERS presentationParameters = { 0 };
 		{
 			presentationParameters.BackBufferWidth = m_windowWidth;
@@ -299,6 +300,17 @@ namespace Engine
 			presentationParameters.BackBufferFormat = D3DFMT_X8R8G8B8;
 			presentationParameters.BackBufferCount = 1;
 			presentationParameters.MultiSampleType = D3DMULTISAMPLE_NONE;
+			
+			if (SUCCEEDED(m_direct3dInterface->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT,
+				D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, FALSE,
+				D3DMULTISAMPLE_16_SAMPLES, NULL)))
+			{
+
+				// Full-scene antialiasing is supported. Enable it here.
+				AntiAliasingEnabled = true;
+				presentationParameters.MultiSampleType = D3DMULTISAMPLE_16_SAMPLES;
+			}
+
 			presentationParameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
 			presentationParameters.hDeviceWindow = i_mainWindow;
 			presentationParameters.Windowed = m_shouldRenderFullScreen ? FALSE : TRUE;
@@ -316,8 +328,12 @@ namespace Engine
 
 		HRESULT result = m_direct3dInterface->CreateDevice(useDefaultDevice, useHardwareRendering,
 			i_mainWindow, useHardwareVertexProcessing, &presentationParameters, &m_direct3dDevice);
+		
 		if (SUCCEEDED(result))
 		{
+			if (AntiAliasingEnabled)
+				m_direct3dDevice->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
+
 			return true;
 		}
 		else

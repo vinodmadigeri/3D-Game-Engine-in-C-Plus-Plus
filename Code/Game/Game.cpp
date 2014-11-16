@@ -104,18 +104,46 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	using namespace Engine;
 	//------Input Actor Data and Create one-------------
 
-	//Create Cube
+	//Create DirectX Cube
 	{
-		Vector3 Position = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Position = Vector3(-3.0f, 0.0f, -2.0f);
 		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
 		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
 		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
 		float Rotation = 0.0f;
 
-		const char * pMaterialPath = "data/cubeMaterial.mat.lua";
+		const char * pMaterialPath = "data/cubeAMDMaterial.mat";
 		const char * pMeshPath = "data/cube.dat";
 
-		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "Cube", "Cube", Size, Rotation, pMaterialPath, pMeshPath);
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "CubeDirectX", "Cube", Size, Rotation, pMaterialPath, pMeshPath);
+	}
+
+	//Create Nvidia Cube
+	{
+		Vector3 Position = Vector3(3.0f, 0.0f, -2.0f);
+		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
+		float Rotation = 0.0f;
+
+		const char * pMaterialPath = "data/cubeNvidiaMaterial.mat";
+		const char * pMeshPath = "data/cube.dat";
+
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "CubeNvidia1", "Cube", Size, Rotation, pMaterialPath, pMeshPath);
+	}
+
+	//Create Nvidia Cube
+	{
+		Vector3 Position = Vector3(0.0f, 0.0f, 2.0f);
+		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
+		float Rotation = 0.0f;
+
+		const char * pMaterialPath = "data/cubeNvidiaMaterial.mat";
+		const char * pMeshPath = "data/cube.dat";
+
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "CubeNvidia2", "Cube", Size, Rotation, pMaterialPath, pMeshPath);
 	}
 
 	//Create Plane
@@ -126,7 +154,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
 		float Rotation = 0.0f;
 
-		const char * pMaterialPath = "data/planeMaterial.mat.lua";
+		const char * pMaterialPath = "data/planeMaterial.mat";
 		const char * pMeshPath = "data/plane.dat";
 
 		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "BaseQuad", "BaseQuad", Size, Rotation, pMaterialPath, pMeshPath);

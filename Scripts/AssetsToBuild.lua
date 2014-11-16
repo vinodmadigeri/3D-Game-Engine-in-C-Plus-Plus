@@ -63,6 +63,8 @@ return
 		{
 			"microsoftWindows",
 			"directX",
+			"nvidia",
+			"amd",
 		},
 	},
 	
@@ -73,12 +75,14 @@ return
 		extensions =
 		{
 			source = "mat.lua",
-			target = "mat.lua",
+			target = "mat",
 		},
 		assets =
 		{
 			"planeMaterial",
-			"cubeMaterial",
+			"cubeDirectXMaterial",
+			"cubeNvidiaMaterial",
+			"cubeAMDMaterial",
 		},
 	},
 }
