@@ -4,7 +4,7 @@ return
 {
 	Constants =
 	{
-		g_color_perMaterial = { 1.0, 0.0, 0.0 },
+		g_color_perMaterial = { 1.0, 1.0, 1.0 },
 	},
 	
 	VertexShader =
@@ -19,7 +19,7 @@ return
 	
 	Texture =
 	{
-		Path = "data/nvidia.dds",
+		Path = "data/stripes.dds",
 		Sampler = "g_color_sampler"
 	},
 }

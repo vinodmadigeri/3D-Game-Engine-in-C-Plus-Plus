@@ -400,7 +400,7 @@ namespace MayaExporter
 		if ( fout.is_open() )
 		{
 			// Open table
-			fout << "-- " << i_fileName.asChar()<<" mesh in Lua\n\n";
+			fout << "-- mesh in Lua\n\n";
 
 			fout << "return\n{\n";
 			{

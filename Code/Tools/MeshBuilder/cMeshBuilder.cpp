@@ -571,8 +571,8 @@ bool Mesh::cMeshBuilder::LoadEachVertexData(lua_State& io_luaState, Engine::sVer
 		else if (strcmp(VertexDataTableName, "UV") == 0)
 		{
 			const unsigned int PositionCountPerVertex = 2;
-			unsigned char UV[PositionCountPerVertex];
-			if (!LoadEachUCHARDataValues(io_luaState, UV, PositionCountPerVertex, o_errorMessage))
+			float UV[PositionCountPerVertex];
+			if (!LoadEachFloatDataValues(io_luaState, UV, PositionCountPerVertex, o_errorMessage))
 			{
 				wereThereErrors = true;
 				// Pop the returned key value pair on error

@@ -47,7 +47,8 @@ return
 		{
 			"plane",
 			"cube",
-			"cubeNvidia",
+			"torus",
+			"helix",
 		},
 	},
 	
@@ -67,6 +68,7 @@ return
 			"directX",
 			"nvidia",
 			"amd",
+			"stripes",
 		},
 	},
 	
@@ -81,10 +83,11 @@ return
 		},
 		assets =
 		{
-			"planeMaterial",
-			"cubeDirectXMaterial",
-			"cubeNvidiaMaterial",
-			"cubeAMDMaterial",
+			"genericMaterial",
+			"DirectXMaterial",
+			"NvidiaMaterial",
+			"AMDMaterial",
+			"StripesMaterial",
 		},
 	},
 }

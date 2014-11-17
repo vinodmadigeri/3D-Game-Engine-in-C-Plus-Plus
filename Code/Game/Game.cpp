@@ -105,7 +105,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	using namespace Engine;
 	//------Input Actor Data and Create one-------------
 
-	//Create DirectX Cube
+	//Create AMD Cube
 	{
 		Vector3 Position = Vector3(-3.0f, 0.0f, -2.0f);
 		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
@@ -113,10 +113,10 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
 		float Rotation = 0.0f;
 
-		const char * pMaterialPath = "data/cubeAMDMaterial.mat";
+		const char * pMaterialPath = "data/AMDMaterial.mat";
 		const char * pMeshPath = "data/cube.dat";
 
-		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "CubeDirectX", "Cube", Size, Rotation, pMaterialPath, pMeshPath);
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "CubeAmd", "Cube", Size, Rotation, pMaterialPath, pMeshPath);
 	}
 
 	//Create Nvidia Cube
@@ -127,12 +127,39 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
 		float Rotation = 0.0f;
 
-		const char * pMaterialPath = "data/cubeNvidiaMaterial.mat";
-		const char * pMeshPath = "data/cubeNvidia.dat";
+		const char * pMaterialPath = "data/NvidiaMaterial.mat";
+		const char * pMeshPath = "data/cube.dat";
 
-		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "CubeNvidia1", "Cube", Size, Rotation, pMaterialPath, pMeshPath);
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "CubeNvidia", "Cube", Size, Rotation, pMaterialPath, pMeshPath);
 	}
 
+	//Create striped Torus
+	{
+		Vector3 Position = Vector3(-3.0f, 0.0f, 2.0f);
+		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
+		float Rotation = 0.0f;
+
+		const char * pMaterialPath = "data/StripesMaterial.mat";
+		const char * pMeshPath = "data/torus.dat";
+
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "TorusStripes", "Torus", Size, Rotation, pMaterialPath, pMeshPath);
+	}
+
+	//Create striped Helix
+	{
+		Vector3 Position = Vector3(3.0f, 0.0f, 2.0f);
+		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
+		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
+		float Rotation = 0.0f;
+
+		const char * pMaterialPath = "data/StripesMaterial.mat";
+		const char * pMeshPath = "data/helix.dat";
+
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "TorusHelix", "Helix", Size, Rotation, pMaterialPath, pMeshPath);
+	}
 
 	//Create Plane
 	{
@@ -142,19 +169,19 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
 		float Rotation = 0.0f;
 
-		const char * pMaterialPath = "data/planeMaterial.mat";
+		const char * pMaterialPath = "data/genericMaterial.mat";
 		const char * pMeshPath = "data/plane.dat";
 
 		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "BaseQuad", "BaseQuad", Size, Rotation, pMaterialPath, pMeshPath);
 	}
 
-	std::vector< SharedPointer<Actor>> ActorsList = WorldSystem::GetInstance()->FindActorsByType("Cube");
-
+	std::vector< SharedPointer<Actor>> CubeActorsList = WorldSystem::GetInstance()->FindActorsByType("Cube");
+	
 	Player::CreateController();
 
-	for (unsigned int i = 0; i < ActorsList.size(); i++)
+	for (unsigned int i = 0; i < CubeActorsList.size(); i++)
 	{
-		ActorsList.at(i)->SetController(Player::GetController());
+		CubeActorsList.at(i)->SetController(Player::GetController());
 	}
 
 	Camera::CreateController();

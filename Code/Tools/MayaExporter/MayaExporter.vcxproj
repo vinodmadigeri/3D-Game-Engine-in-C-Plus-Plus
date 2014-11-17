@@ -166,6 +166,12 @@
       <AdditionalLibraryDirectories>$(MAYA_LOCATION)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>Foundation.lib;OpenMaya.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>copy "$(TargetPath)" "$(MAYA_PLUG_IN_PATH)/$(TargetFileName)" /y</Command>
+      <Message>Copying Maya Exporter</Message>
+      <Outputs>$(MAYA_PLUG_IN_PATH)/$(TargetFileName)</Outputs>
+      <Inputs>$(TargetPath)</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cMayaExporter.cpp" />

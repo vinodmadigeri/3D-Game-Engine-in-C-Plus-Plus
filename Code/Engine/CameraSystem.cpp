@@ -83,6 +83,7 @@ namespace Engine
 		//D3DXMatrixInverse( &transform_worldToView, NULL, &transform_viewToWorld );
 		// But it can be calculated more cheaply since we know a camera can only have
 		// rotation and translation:
+#if 1
 		s_worldToView = D3DXMATRIX(
 			transform_viewToWorld._11, transform_viewToWorld._21, transform_viewToWorld._31, 0.0f,
 			transform_viewToWorld._12, transform_viewToWorld._22, transform_viewToWorld._32, 0.0f,
@@ -91,9 +92,9 @@ namespace Engine
 			-(transform_viewToWorld._41 * transform_viewToWorld._21) - (transform_viewToWorld._42 * transform_viewToWorld._22) - (transform_viewToWorld._43 * transform_viewToWorld._23),
 			-(transform_viewToWorld._41 * transform_viewToWorld._31) - (transform_viewToWorld._42 * transform_viewToWorld._32) - (transform_viewToWorld._43 * transform_viewToWorld._33),
 			1.0f);
-
-		//D3DXMatrixLookAtLH(&s_worldToView, &i_position, &i_LookAt, &i_Up);
-
+#else
+		D3DXMatrixLookAtLH(&s_worldToView, &i_position, &i_LookAt, &i_Up);
+#endif
 		return true;
 	}
 
