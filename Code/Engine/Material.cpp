@@ -7,6 +7,7 @@
 namespace Engine
 {
 	Material::Material(const char *iName, IDirect3DDevice9 * i_direct3dDevice) :
+		mName(iName),
 		mHashedName(iName),
 		m_direct3dDevice(i_direct3dDevice),
 		m_vertexShader(NULL),
@@ -76,48 +77,64 @@ namespace Engine
 		assert(i_direct3dDevice && m_vertexShader && m_fragmentShader && m_texture);
 
 		HRESULT result = D3D_OK;
-
-		// Set the shaders
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_BeginEvent(0, L"Set Material (Per-Material)");
+#endif
+		if (!SetPerMaterialConstantDataFromMaterialFile(
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			o_errorMessage
+#endif
+			))
 		{
-			result = i_direct3dDevice->SetVertexShader(m_vertexShader);
-			assert(SUCCEEDED(result));
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			if (FAILED(result))
-			{
-				if (o_errorMessage)
-				{
-					*o_errorMessage = "Direct3D failed to set the vertex shader";
-				}
-				return result;
-			}
-#endif
-			result = i_direct3dDevice->SetPixelShader(m_fragmentShader);
-			assert(SUCCEEDED(result));
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			if (FAILED(result))
-			{
-				if (o_errorMessage)
-				{
-					*o_errorMessage = "Direct3D failed to set the fragment shader";
-				}
-				return result;
-			}
-#endif
+			assert(false);
 
-			result = i_direct3dDevice->SetTexture(m_samplerRegister, m_texture);
-			assert(SUCCEEDED(result));
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			if (FAILED(result))
-			{
-				if (o_errorMessage)
-				{
-					*o_errorMessage = "Direct3D failed to set the texture";
-				}
-				return result;
-			}
-#endif
+			return false;
 		}
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_EndEvent();
+#endif
+		// Set the shaders
+		result = i_direct3dDevice->SetVertexShader(m_vertexShader);
+		assert(SUCCEEDED(result));
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		if (FAILED(result))
+		{
+			if (o_errorMessage)
+			{
+				*o_errorMessage = "Direct3D failed to set the vertex shader";
+			}
+			return result;
+		}
+#endif
+		result = i_direct3dDevice->SetPixelShader(m_fragmentShader);
+		assert(SUCCEEDED(result));
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		if (FAILED(result))
+		{
+			if (o_errorMessage)
+			{
+				*o_errorMessage = "Direct3D failed to set the fragment shader";
+			}
+			return result;
+		}
+#endif
 
+		result = i_direct3dDevice->SetTexture(m_samplerRegister, m_texture);
+		assert(SUCCEEDED(result));
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		if (FAILED(result))
+		{
+			if (o_errorMessage)
+			{
+				*o_errorMessage = "Direct3D failed to set the texture";
+			}
+			return result;
+		}
+#endif
+
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_EndEvent();
+#endif
 		return result;
 	}
 
@@ -278,8 +295,8 @@ namespace Engine
 	{
 		std::string PathVertexShader;
 		std::string PathFragmentShader;
-		std::string PathTexture;
-		std::string SamplerName;
+		std::string PathTexture = "data/missingTexture.dds";
+		std::string SamplerName = "g_color_sampler";
 		if (!LoadTableValues_Shaders(io_luaState, "VertexShader", PathVertexShader
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
@@ -318,14 +335,11 @@ namespace Engine
 			return false;
 		}
 
-		if (!LoadTableValues_Texture(io_luaState, "Texture", PathTexture, SamplerName
+		LoadTableValues_Texture(io_luaState, "Texture", PathTexture, SamplerName
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, o_errorMessage
+		, o_errorMessage
 #endif
-			))
-		{
-			return false;
-		}
+		);
 
 		if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
@@ -342,18 +356,6 @@ namespace Engine
 #endif
 			))
 		{
-			return false;
-		}
-
-
-		if (!SetPerMaterialConstantDataFromMaterialFile(
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			o_errorMessage
-#endif
-			))
-		{
-			assert(false);
-
 			return false;
 		}
 
@@ -502,9 +504,10 @@ namespace Engine
 		)
 	{
 		assert(m_pvertexShaderConsts && m_pfragmentShaderConsts);
-		
+		bool wereThereErrors = false;
+
 		//Iterating through every value table
-		if (strcmp(i_ConstantName, "g_colorModifier") == 0)
+		if (strcmp(i_ConstantName, "g_color_perMaterial") == 0)
 		{
 			const int DataCount = luaL_len(&io_luaState, -1);
 			float *pValue = new float[DataCount];
@@ -554,6 +557,15 @@ namespace Engine
 
 			if (ConstHandle == NULL)
 			{
+				wereThereErrors = true;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "ConstHandle for " << i_ConstantName <<" is NULL";
+					*o_errorMessage = errorMessage.str();
+				}
+#endif
 				iBelongsTo = BelongsToenum::NONE;
 			}
 
@@ -578,9 +590,8 @@ namespace Engine
 			//handle case for new constants
 		}
 		
-		return true;
+		return !wereThereErrors;
 	}
-
 
 	//==================================================================
 	//Shader load logic
@@ -945,7 +956,12 @@ namespace Engine
 			lua_pop(&io_luaState, 1);
 		}
 
-	OnExit:
+OnExit:
+		if (CountOfValues == 0)
+		{
+			wereThereErrors = true;
+		}
+
 		return !wereThereErrors;
 	}
 
@@ -960,7 +976,7 @@ namespace Engine
 		bool WereThereErrors = false;
 
 		HRESULT result = D3DXCreateTextureFromFile(i_direct3dDevice, iTexturePath, &m_texture);
-		assert(SUCCEEDED(result));
+		
 		if (FAILED(result))
 		{
 			WereThereErrors = true;

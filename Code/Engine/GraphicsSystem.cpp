@@ -36,10 +36,12 @@ namespace Engine
 	GraphicsSystem::GraphicsSystem(const HWND i_mainWindow,
 		const unsigned int i_windowWidth,
 		const unsigned int i_windowHeight,
-		const bool i_shouldRenderFullScreen) :
+		const bool i_shouldRenderFullScreen,
+		const bool i_shouldEnableAntiAliasing) :
 		m_windowWidth(i_windowWidth),
 		m_windowHeight(i_windowHeight),
 		m_shouldRenderFullScreen(i_shouldRenderFullScreen),
+		m_shouldEnableAntiAliasing(i_shouldEnableAntiAliasing),
 		m_mainWindow(i_mainWindow),
 		m_direct3dInterface(NULL),
 		m_direct3dDevice(NULL),
@@ -64,11 +66,12 @@ namespace Engine
 	bool GraphicsSystem::CreateInstance(const HWND i_mainWindow,
 		const unsigned int i_windowWidth,
 		const unsigned int i_windowHeight,
-		const bool i_shouldRenderFullScreen)
+		const bool i_shouldRenderFullScreen,
+		const bool i_shouldEnableAntiAliasing)
 	{
 		if (m_pInstance == NULL)
 		{
-			m_pInstance = new GraphicsSystem(i_mainWindow, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen);
+			m_pInstance = new GraphicsSystem(i_mainWindow, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen, i_shouldEnableAntiAliasing);
 
 			//Handle crash
 			if (m_pInstance == NULL)
@@ -211,7 +214,11 @@ namespace Engine
 				}
 #endif
 			}
-
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+			std::wstringstream EventMessage;
+			EventMessage << "Draw Mesh" << (i_Mesh->GetName().c_str());
+			D3DPERF_BeginEvent(0, EventMessage.str().c_str());
+#endif
 			// Bind a specific vertex buffer to the device as a data source
 			{
 				// There can be multiple streams of data feeding the display adaptor at the same time
@@ -246,6 +253,9 @@ namespace Engine
 				HRESULT result = m_direct3dDevice->DrawIndexedPrimitive(primitiveType, indexOfFirstVertexToRender, indexOfFirstVertexToRender, vertexCountToRender, indexOfFirstIndexToUse, primitiveCountToRender);
 				assert(SUCCEEDED(result));
 			}
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+			D3DPERF_EndEvent();
+#endif
 		}
 	}
 
@@ -301,7 +311,7 @@ namespace Engine
 			presentationParameters.BackBufferCount = 1;
 			presentationParameters.MultiSampleType = D3DMULTISAMPLE_NONE;
 			
-			if (SUCCEEDED(m_direct3dInterface->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT,
+			if (m_shouldEnableAntiAliasing && SUCCEEDED(m_direct3dInterface->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT,
 				D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, FALSE,
 				D3DMULTISAMPLE_16_SAMPLES, NULL)))
 			{
@@ -387,7 +397,9 @@ namespace Engine
 					if (!result)
 					{
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-						MessageBox(m_mainWindow, o_errorMessage.c_str(), "No Shader File", MB_OK | MB_ICONERROR);
+						std::stringstream errorMessage;
+						errorMessage << "Couldn't load Material File : " << i_MaterialPath;
+						MessageBox(m_mainWindow, o_errorMessage.c_str(), errorMessage.str().c_str(), MB_OK | MB_ICONERROR);
 #endif
 						return NULL;
 					}

@@ -16,6 +16,7 @@ namespace
 {
 	unsigned int s_height = 480;
 	bool s_isFullScreenModeEnabled = false;
+	bool s_isAntiAliasingEnabled = false;
 	unsigned int s_width = 640;
 
 	const char* s_userSettingsfileName = "settings.ini";
@@ -52,6 +53,12 @@ bool UserSettings::IsFullScreenModeEnabled()
 {
 	InitializeIfNecessary();
 	return s_isFullScreenModeEnabled;
+}
+
+bool UserSettings::IsAntiAliasingEnabled()
+{
+	InitializeIfNecessary();
+	return s_isAntiAliasingEnabled;
 }
 
 // Helper Function Definitions
@@ -294,16 +301,14 @@ namespace UserSettings
 					goto OnExit;
 				}
 
-				int tempWidth = lua_tointeger(&io_luaState, IndexOfValue);
-
-				if (IsThisWidthSupported(tempWidth))
+				if (IsNumberAnInteger(lua_tonumber(&io_luaState, IndexOfValue)) && IsThisWidthSupported(lua_tointeger(&io_luaState, IndexOfValue)))
 				{
-					s_width = tempWidth;
+					s_width = lua_tointeger(&io_luaState, IndexOfValue);
 				}
 				else
 				{
 					std::stringstream errorMessage;
-					errorMessage << "Screen Width not supported :" << tempWidth;
+					errorMessage << "Screen Width not supported :" << lua_tonumber(&io_luaState, IndexOfValue);
 					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
 				}
 			}
@@ -321,16 +326,15 @@ namespace UserSettings
 					goto OnExit;
 				}
 
-				int tempHeight = lua_tointeger(&io_luaState, IndexOfValue);
-
-				if (IsThisHeightSupported(tempHeight))
+				if (IsNumberAnInteger(lua_tonumber(&io_luaState, IndexOfValue)) && IsThisHeightSupported(lua_tointeger(&io_luaState, IndexOfValue)))
 				{
-					s_height = tempHeight;
+					s_height = lua_tointeger(&io_luaState, IndexOfValue);
+					
 				}
 				else
 				{
 					std::stringstream errorMessage;
-					errorMessage << "Screen Height not supported: " << tempHeight;
+					errorMessage << "Screen Height not supported: " << lua_tonumber(&io_luaState, IndexOfValue);
 					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
 				}
 			}
@@ -349,6 +353,22 @@ namespace UserSettings
 				}
 
 				s_isFullScreenModeEnabled = lua_toboolean(&io_luaState, IndexOfValue) == 1 ? true : false;
+			}
+
+			if (strcmp(OptionName, "antialiasing") == 0)
+			{
+				if (lua_type(&io_luaState, IndexOfValue) != LUA_TBOOLEAN)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Ignoring the invalid entry for antialiasing: " << s_userSettingsfileName;
+					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+
+					// Pop the returned key value pair on error
+					lua_pop(&io_luaState, 2);
+					goto OnExit;
+				}
+
+				s_isAntiAliasingEnabled = lua_toboolean(&io_luaState, IndexOfValue) == 1 ? true : false;
 			}
 
 			//Pop the value, but leave the key

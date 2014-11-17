@@ -17,6 +17,7 @@ namespace Engine
 		IDirect3DIndexBuffer9* m_indexBuffer;
 		
 	public:
+		const std::string mName;
 		const HashedString mHashedName;
 		PrimitiveDrawInfo mDrawInfo;
 
@@ -31,6 +32,7 @@ namespace Engine
 		IDirect3DVertexDeclaration9* GetVertexDeclaration() const;
 		IDirect3DVertexBuffer9* GetVertexBuffer() const;
 		IDirect3DIndexBuffer9* GetIndexBuffer() const;
+		inline std::string GetName() const{ return mName; }
 
 		static bool GetDrawInfoFromMeshFile(const char * iMeshPath, DrawInfo & iDrawInfo);
 	};

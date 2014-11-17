@@ -17,6 +17,7 @@ namespace UserSettings
 	unsigned int GetHeight();
 	unsigned int GetWidth();
 	bool IsFullScreenModeEnabled();
+	bool IsAntiAliasingEnabled();
 }
 
 #endif	// _USERSETTINGS_H

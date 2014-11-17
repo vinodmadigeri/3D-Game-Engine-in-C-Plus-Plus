@@ -51,7 +51,8 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	HWND mainWindowHandle = Win32Management::WindowsManager::GetInstance()->GetReferenceToMainWindowHandle();
 
 	mInitilized = Engine::RenderableObjectSystem::CreateInstance(mainWindowHandle, UserSettings::GetWidth(),
-													UserSettings::GetHeight(), UserSettings::IsFullScreenModeEnabled());
+																UserSettings::GetHeight(), UserSettings::IsFullScreenModeEnabled(), 
+																UserSettings::IsAntiAliasingEnabled());
 
 	if (mInitilized == false)
 	{

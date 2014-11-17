@@ -4,7 +4,7 @@ return
 {
 	Constants =
 	{
-		g_colorModifier = { 1.0, 1.0, 1.0 },
+		g_color_perMaterial = { 1.0, 1.0, 1.0 },
 	},
 	
 	VertexShader =

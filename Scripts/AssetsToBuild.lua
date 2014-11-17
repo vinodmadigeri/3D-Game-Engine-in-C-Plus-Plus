@@ -62,6 +62,7 @@ return
 		},
 		assets =
 		{
+			"missingTexture",
 			"microsoftWindows",
 			"directX",
 			"nvidia",

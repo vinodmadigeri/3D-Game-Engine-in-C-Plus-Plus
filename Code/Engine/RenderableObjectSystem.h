@@ -76,7 +76,8 @@ namespace Engine
 		static bool CreateInstance(const HWND i_mainWindow,
 			const unsigned int i_windowWidth,
 			const unsigned int i_windowHeight,
-			const bool i_shouldRenderFullScreen);
+			const bool i_shouldRenderFullScreen,
+			const bool i_shouldEnableAntiAliasing);
 
 		static RenderableObjectSystem * GetInstance();
 		static void Destroy();

@@ -30,6 +30,7 @@ namespace Engine
 		const unsigned int m_windowWidth;
 		const unsigned int m_windowHeight;
 		const bool m_shouldRenderFullScreen;
+		const bool m_shouldEnableAntiAliasing;
 		HWND m_mainWindow;
 		IDirect3D9* m_direct3dInterface;
 		IDirect3DDevice9* m_direct3dDevice;
@@ -43,7 +44,9 @@ namespace Engine
 		GraphicsSystem(const HWND i_mainWindow,
 			const unsigned int i_windowWidth,
 			const unsigned int i_windowHeight,
-			const bool i_shouldRenderFullScreen); //Constructor
+			const bool i_shouldRenderFullScreen,
+			const bool i_shouldEnableAntiAliasing); //Constructor
+
 		GraphicsSystem(const GraphicsSystem & i_Other); //Copy Constructor
 		GraphicsSystem & operator=(const GraphicsSystem & i_rhs); //Assignment Operators
 
@@ -69,7 +72,8 @@ namespace Engine
 		static bool CreateInstance(const HWND i_mainWindow,
 			const unsigned int i_windowWidth = 800,
 			const unsigned int i_windowHeight = 600,
-			const bool i_shouldRenderFullScreen = false);
+			const bool i_shouldRenderFullScreen = false,
+			const bool i_shouldEnableAntiAliasing = false);
 
 		static GraphicsSystem * GetInstance();
 		bool BeingFrame(const ColorRGBA & i_ClearColor = ColorRGBA(0, 0, 0, 0));

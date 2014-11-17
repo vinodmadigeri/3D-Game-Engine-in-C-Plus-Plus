@@ -12,6 +12,7 @@ namespace Engine
 		IDirect3DVertexDeclaration9* i_vertexDeclaration,
 		IDirect3DVertexBuffer9* i_vertexBuffer,
 		IDirect3DIndexBuffer9* i_indexBuffer) :
+		mName(iName),
 		mHashedName(iName),
 		m_vertexDeclaration(i_vertexDeclaration),
 		m_vertexBuffer(i_vertexBuffer),

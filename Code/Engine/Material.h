@@ -30,6 +30,7 @@ namespace Engine
 		//==========
 
 	public:
+		const std::string mName;
 		const HashedString mHashedName;
 		Material(const char *iName, IDirect3DDevice9 * i_direct3dDevice);
 		~Material();
@@ -53,7 +54,7 @@ namespace Engine
 
 		bool SetPerInstanceConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count);
 		bool SetPerViewConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count);
-
+		inline std::string GetName() const { return mName; }
 	private:
 		IDirect3DDevice9 * m_direct3dDevice;
 		// The vertex shader is a program that operates on vertices.

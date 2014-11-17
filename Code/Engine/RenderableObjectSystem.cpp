@@ -237,14 +237,29 @@ namespace Engine
 			LocalToWorld._43 = ObjectMatrix.At(4, 3);
 			LocalToWorld._44 = ObjectMatrix.At(4, 4);
 
-			unsigned int count = 1;
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+			std::wstringstream EventMessage;
+			EventMessage << "Set Material " << (m3DRenderableObjects.at(ulCount)->GetMaterial()->GetName().c_str());
+			D3DPERF_BeginEvent(0, EventMessage.str().c_str());
+#endif
 
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+			D3DPERF_BeginEvent(0, L"Set Material (Per-Instance \"g_transform_modelToWorld\")");
+#endif
+			unsigned int count = 1;
+			//Set per-Instance constants
 			if (!m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerInstanceConstantDataByName("g_transform_modelToWorld", &LocalToWorld, count))
 			{
 				assert(false);
 			}
-
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+			D3DPERF_EndEvent();
+#endif
 			assert(CameraSystem::GetInstance());
+
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+			D3DPERF_BeginEvent(0, L"Set Material (Per-View \"g_transform_worldToView, g_transform_viewToScreen\")");
+#endif
 			//Set per-view constants
 			if (!m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerViewConstantDataByName("g_transform_worldToView", &CameraSystem::GetInstance()->GetWorldToView(), count))
 			{
@@ -256,7 +271,9 @@ namespace Engine
 			{
 				assert(false);
 			}
-
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+			D3DPERF_EndEvent();
+#endif
 
 			GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh());
 		}
@@ -297,11 +314,12 @@ namespace Engine
 	bool RenderableObjectSystem::CreateInstance(const HWND i_mainWindow,
 							const unsigned int i_windowWidth,
 							const unsigned int i_windowHeight,
-							const bool i_shouldRenderFullScreen)
+							const bool i_shouldRenderFullScreen,
+							const bool i_shouldEnableAntiAliasing)
 	{
 		if (mInstance == NULL)
 		{
-			if (false == GraphicsSystem::CreateInstance(i_mainWindow, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen))
+			if (false == GraphicsSystem::CreateInstance(i_mainWindow, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen, i_shouldEnableAntiAliasing))
 			{
 				assert(false);
 				return NULL;
