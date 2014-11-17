@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Game", "Code\Game\Game.vcxproj", "{8BD345F5-D9D2-48E5-B94A-ECFD3ADD0C12}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8A456F4F-DAB4-4C14-A9F8-87E4ECB9B50F} = {8A456F4F-DAB4-4C14-A9F8-87E4ECB9B50F}
+		{142C42F2-AC79-4365-8B97-29D7A94CFDDF} = {142C42F2-AC79-4365-8B97-29D7A94CFDDF}
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Game", "Game", "{29F978D8-DB33-46AD-8FFA-88C546C2575B}"
@@ -85,6 +86,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MayaExporter", "Code\Tools\MayaExporter\MayaExporter.vcxproj", "{603CE656-CD1A-42A8-9845-D733438EB408}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UserSettings", "Code\Tools\UserSettings\UserSettings.vcxproj", "{142C42F2-AC79-4365-8B97-29D7A94CFDDF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9DA3A343-BF4C-4167-88F9-076994F375D1} = {9DA3A343-BF4C-4167-88F9-076994F375D1}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

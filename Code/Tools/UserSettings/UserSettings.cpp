@@ -12,7 +12,7 @@
 // Static Data Initialization
 //===========================
 
-namespace UserSettings
+namespace
 {
 	unsigned int s_height = 480;
 	bool s_isFullScreenModeEnabled = false;
@@ -26,6 +26,7 @@ namespace UserSettings
 
 namespace UserSettings
 {
+	bool IsThisWidthSupported(int iWidth);
 	bool InitializeIfNecessary();
 	bool IsNumberAnInteger( const lua_Number i_number );
 	bool LoadUserSettingsIntoLuaTable( lua_State& io_luaState, bool& o_doesUserSettingsFileExist );
@@ -47,7 +48,7 @@ unsigned int UserSettings::GetWidth()
 	return s_width;
 }
 
-unsigned int UserSettings::IsFullScreenModeEnabled()
+bool UserSettings::IsFullScreenModeEnabled()
 {
 	InitializeIfNecessary();
 	return s_isFullScreenModeEnabled;
@@ -58,6 +59,34 @@ unsigned int UserSettings::IsFullScreenModeEnabled()
 
 namespace UserSettings
 {
+	bool IsThisWidthSupported(int iWidth)
+	{
+		DEVMODE dm = { 0 };
+		dm.dmSize = sizeof(dm);
+		
+		for (int iModeNum = 0; EnumDisplaySettings(NULL, iModeNum, &dm) != 0; iModeNum++) 
+		{
+			if (dm.dmPelsWidth == iWidth)
+				return true;
+		}
+
+		return false;
+	}
+
+	bool IsThisHeightSupported(int iHeight)
+	{
+		DEVMODE dm = { 0 };
+		dm.dmSize = sizeof(dm);
+
+		for (int iModeNum = 0; EnumDisplaySettings(NULL, iModeNum, &dm) != 0; iModeNum++)
+		{
+			if (dm.dmPelsHeight == iHeight)
+				return true;
+		}
+
+		return false;
+	}
+
 	bool InitializeIfNecessary()
 	{
 		static bool isInitialized = false;
@@ -235,6 +264,99 @@ namespace UserSettings
 
 	bool PopulateUserSettingsFromLuaTable( lua_State& io_luaState )
 	{
-		EAE6320_TODO
+		//Iterating through the constant key value pairs
+		lua_pushnil(&io_luaState);
+		int CurrentIndexOfConstantTable = -2;
+		while (lua_next(&io_luaState, CurrentIndexOfConstantTable))
+		{
+			//Current Table is at -3 inside the while loop
+			int IndexOfKey = -2; int IndexOfValue = -1;
+			if (lua_type(&io_luaState, IndexOfKey) != LUA_TSTRING)
+			{
+				// Pop the returned key value pair on error
+				lua_pop(&io_luaState, 2);
+				goto OnExit;
+			}
+
+			//Store the valid key in a variable
+			const char * OptionName = lua_tostring(&io_luaState, IndexOfKey);
+
+			if (strcmp(OptionName, "width") == 0)
+			{
+				if (lua_type(&io_luaState, IndexOfValue) != LUA_TNUMBER)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Ignoring the invalid entry for Screen Width: " << s_userSettingsfileName;
+					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+
+					// Pop the returned key value pair on error
+					lua_pop(&io_luaState, 2);
+					goto OnExit;
+				}
+
+				int tempWidth = lua_tointeger(&io_luaState, IndexOfValue);
+
+				if (IsThisWidthSupported(tempWidth))
+				{
+					s_width = tempWidth;
+				}
+				else
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Screen Width not supported :" << tempWidth;
+					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+				}
+			}
+
+			if (strcmp(OptionName, "height") == 0)
+			{
+				if (lua_type(&io_luaState, IndexOfValue) != LUA_TNUMBER)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Ignoring the invalid entry for Screen Height: " << s_userSettingsfileName;
+					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+
+					// Pop the returned key value pair on error
+					lua_pop(&io_luaState, 2);
+					goto OnExit;
+				}
+
+				int tempHeight = lua_tointeger(&io_luaState, IndexOfValue);
+
+				if (IsThisHeightSupported(tempHeight))
+				{
+					s_height = tempHeight;
+				}
+				else
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Screen Height not supported: " << tempHeight;
+					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+				}
+			}
+
+			if (strcmp(OptionName, "fullscreen") == 0)
+			{
+				if (lua_type(&io_luaState, IndexOfValue) != LUA_TBOOLEAN)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Ignoring the invalid entry for fullscreen: " << s_userSettingsfileName;
+					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+
+					// Pop the returned key value pair on error
+					lua_pop(&io_luaState, 2);
+					goto OnExit;
+				}
+
+				s_isFullScreenModeEnabled = lua_toboolean(&io_luaState, IndexOfValue) == 1 ? true : false;
+			}
+
+			//Pop the value, but leave the key
+			lua_pop(&io_luaState, 1);
+		}
+
+	OnExit:
+
+		return true;
 	}
 }

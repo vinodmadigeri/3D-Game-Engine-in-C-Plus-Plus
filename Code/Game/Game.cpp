@@ -19,15 +19,13 @@
 #include "PlayerController.h"
 #include "CameraController.h"
 
+#include "../Tools/UserSettings/UserSettings.h"
+
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
 	#include <crtdbg.h>
 	#include <stdlib.h>
 #endif
-
-static const unsigned int g_windowWidth = 800;
-static const unsigned int g_windowHeight = 600;
-static const bool g_shouldRenderFullScreen = false;
 
 MainGame::MainGame():
 	mInitilized(false)
@@ -42,8 +40,8 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	std::string sWindowCaption = "EAE2014: Vinod's Game";
 	
 	mInitilized = Win32Management::WindowsManager::CreateInstance(i_thisInstanceOfTheProgram, i_initialWindowDisplayState, 
-																	sMainWindowClassName, sWindowCaption, g_windowWidth, 
-																	g_windowHeight, g_shouldRenderFullScreen);
+																	sMainWindowClassName, sWindowCaption, UserSettings::GetWidth(), 
+																	UserSettings::GetHeight(), UserSettings::IsFullScreenModeEnabled());
 	if (mInitilized == false)
 	{
 		Engine::DebugPrint("Failed to Create Windows Loop Instance");
@@ -52,8 +50,8 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 
 	HWND mainWindowHandle = Win32Management::WindowsManager::GetInstance()->GetReferenceToMainWindowHandle();
 
-	mInitilized = Engine::RenderableObjectSystem::CreateInstance(mainWindowHandle, g_windowWidth,
-													g_windowHeight, g_shouldRenderFullScreen);
+	mInitilized = Engine::RenderableObjectSystem::CreateInstance(mainWindowHandle, UserSettings::GetWidth(),
+													UserSettings::GetHeight(), UserSettings::IsFullScreenModeEnabled());
 
 	if (mInitilized == false)
 	{
@@ -76,7 +74,9 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	float FieldOfView = static_cast<float>(Engine::Get_PI_Value() / 3); //60 degrees
 	float NearPlane = 0.1f;
 	float FarPlane = 100.0f;
-	mInitilized = Engine::CameraSystem::CreateInstance(g_windowWidth, g_windowHeight, FieldOfView, NearPlane, FarPlane, eyeLocation, LookAtLocation, Up);
+	
+	mInitilized = Engine::CameraSystem::CreateInstance(UserSettings::GetWidth(),UserSettings::GetHeight(), FieldOfView, 
+														NearPlane, FarPlane, eyeLocation, LookAtLocation, Up);
 
 	if (mInitilized == false)
 	{
@@ -127,24 +127,11 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		float Rotation = 0.0f;
 
 		const char * pMaterialPath = "data/cubeNvidiaMaterial.mat";
-		const char * pMeshPath = "data/cube.dat";
+		const char * pMeshPath = "data/cubeNvidia.dat";
 
 		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "CubeNvidia1", "Cube", Size, Rotation, pMaterialPath, pMeshPath);
 	}
 
-	//Create Nvidia Cube
-	{
-		Vector3 Position = Vector3(0.0f, 0.0f, 2.0f);
-		Vector3 Velocity = Vector3(0.0f, 0.0f, 0.0f);
-		Vector3 Acceleration = Vector3(0.0f, 0.0f, 0.0f);
-		Vector3 Size = Vector3(1.0f, 1.0f, 0.0f);
-		float Rotation = 0.0f;
-
-		const char * pMaterialPath = "data/cubeNvidiaMaterial.mat";
-		const char * pMeshPath = "data/cube.dat";
-
-		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "CubeNvidia2", "Cube", Size, Rotation, pMaterialPath, pMeshPath);
-	}
 
 	//Create Plane
 	{

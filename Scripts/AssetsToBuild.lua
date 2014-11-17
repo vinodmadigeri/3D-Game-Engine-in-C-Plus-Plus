@@ -46,7 +46,8 @@ return
 		assets =
 		{
 			"plane",
-			"cube"
+			"cube",
+			"cubeNvidia",
 		},
 	},
 	

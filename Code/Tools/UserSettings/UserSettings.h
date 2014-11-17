@@ -16,7 +16,7 @@ namespace UserSettings
 {
 	unsigned int GetHeight();
 	unsigned int GetWidth();
-	unsigned int IsFullScreenModeEnabled();
+	bool IsFullScreenModeEnabled();
 }
 
 #endif	// _USERSETTINGS_H

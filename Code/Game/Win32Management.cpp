@@ -7,6 +7,7 @@
 
 #include "precompiled.h"
 #include "Win32Management.h"
+#include "../Tools/UserSettings/UserSettings.h"
 
 // Resource.h contains the #defines for the icon resources
 // that the main window will use
@@ -153,6 +154,7 @@ namespace Win32Management
 			va_list* insertsAreIgnored = NULL;
 			const DWORD storedCharacterCount = FormatMessage( formattingOptions, messageIsFromWindows, errorCode,
 				useTheDefaultLanguage, reinterpret_cast<LPSTR>( &messageBuffer ), minimumCharacterCountToAllocate, insertsAreIgnored );
+			
 			if ( storedCharacterCount != 0 )
 			{
 				errorMessage = messageBuffer;
@@ -419,9 +421,18 @@ namespace Win32Management
 					// that asks the user for confirmation
 					int result;
 					{
-						const char* caption = "Exit Program?";
-						const char* message = "Are you sure you want to quit?";
-						result = MessageBox(m_mainWindow, message, caption, MB_YESNO | MB_ICONQUESTION);
+						// Only display the message box if the game is running in windowed mode
+						if (UserSettings::IsFullScreenModeEnabled())
+						{
+							result = IDYES;
+						}
+						else
+						{
+							const char* caption = "Exit Program?";
+							const char* message = "Are you sure you want to quit?";
+							result = MessageBox(m_mainWindow, message, caption, MB_YESNO | MB_ICONQUESTION);
+						}
+						
 					}
 					if ( result == IDYES )
 					{

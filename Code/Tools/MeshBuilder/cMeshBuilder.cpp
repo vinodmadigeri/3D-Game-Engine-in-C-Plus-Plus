@@ -18,12 +18,12 @@ Mesh::cMeshBuilder::~cMeshBuilder()
 {
 	if (mMeshData.mVertices)
 	{
-		delete mMeshData.mVertices;
+		delete [] mMeshData.mVertices;
 	}
 
 	if (mMeshData.mIndices)
 	{
-		delete mMeshData.mIndices;
+		delete [] mMeshData.mIndices;
 	}
 }
 
@@ -36,27 +36,40 @@ bool Mesh::cMeshBuilder::Build(const std::vector<const std::string>&)
 	if (!LoadMeshFile(m_path_source, &errorMessage))
 	{
 		wereThereErrors = true;
+
+		goto OnExit;
+	}
+	{
+		std::ofstream TargetMeshFile;
+		{
+			TargetMeshFile.open(m_path_target, std::ios::out | std::ios::binary);
+
+			//First Write, Vertex Count and Index Count
+			char * DataOffsetToWriteToFile = reinterpret_cast<char *>(&mMeshData);
+			unsigned int Datasize = sizeof(DWORD32) + sizeof(DWORD32); //Vertices and Indices count
+			TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
+
+			//Second Write, Vertices
+			DataOffsetToWriteToFile = reinterpret_cast<char *>(mMeshData.mVertices);
+			Datasize = sizeof(Engine::sVertexData) * mMeshData.VertexCount;
+			TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
+
+			//Third Write, Indices
+			DataOffsetToWriteToFile = reinterpret_cast<char *>(mMeshData.mIndices);
+			Datasize = sizeof(DWORD32) * mMeshData.IndexCount;
+			TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
+
+			TargetMeshFile.close();
+		}
 	}
 
-	std::ofstream TargetMeshFile;
-	TargetMeshFile.open(m_path_target, std::ios::out | std::ios::binary);
-	
-	//First Write, Vertex Count and Index Count
-	char * DataOffsetToWriteToFile = reinterpret_cast<char *>(&mMeshData);
-	unsigned int Datasize = sizeof(DWORD32) + sizeof(DWORD32); //Vertices and Indices count
-	TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
+OnExit:
 
-	//Second Write, Vertices
-	DataOffsetToWriteToFile = reinterpret_cast<char *>(mMeshData.mVertices);
-	Datasize = sizeof(Engine::sVertexData) * mMeshData.VertexCount;
-	TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
+	if (wereThereErrors)
+	{
+		BuilderHelper::OutputErrorMessage(errorMessage.c_str());
+	}
 
-	//Third Write, Indices
-	DataOffsetToWriteToFile = reinterpret_cast<char *>(mMeshData.mIndices);
-	Datasize = sizeof(DWORD32) * mMeshData.IndexCount;
-	TargetMeshFile.write(DataOffsetToWriteToFile, Datasize);
-
-	TargetMeshFile.close();
 	return !wereThereErrors;
 }
 
@@ -413,7 +426,21 @@ bool Mesh::cMeshBuilder::LoadEachVertexDataTable(lua_State& io_luaState, std::st
 	int CurrentIndexOfVertexTable = -2;
 	while (lua_next(&io_luaState, CurrentIndexOfVertexTable))
 	{
-		assert(VertexIndex < mMeshData.VertexCount);
+		if (VertexIndex > mMeshData.VertexCount)
+		{
+			wereThereErrors = true;
+			if (o_errorMessage)
+			{
+				std::stringstream errormessage;
+				errormessage << "VertexIndex: " << VertexIndex << " is greater than max vertex count: " << mMeshData.VertexCount << "\n";
+				*o_errorMessage = errormessage.str();
+			}
+
+			// Pop the returned key value pair on error
+			lua_pop(&io_luaState, 2);
+			goto OnExit;
+		}
+
 		//Current Table is at -3 inside the while loop, -2 is the number of empty table name
 		int IndexOfValue = -1;	//Is the value inside which is a table
 
@@ -452,7 +479,8 @@ OnExit:
 
 	if (wereThereErrors)
 	{
-		delete mMeshData.mVertices;
+		delete [] mMeshData.mVertices;
+		mMeshData.mVertices = NULL;
 	}
 
 	return !wereThereErrors;
@@ -572,7 +600,18 @@ bool Mesh::cMeshBuilder::LoadEachFloatDataValues(lua_State& io_luaState, float *
 	assert(o_DataVariable);
 	//Iterating through every value table
 	const int DataCount = luaL_len(&io_luaState, -1);
-	assert(DataCount == i_DataCount);
+
+	if (DataCount != i_DataCount)
+	{
+		if (o_errorMessage)
+		{
+			std::stringstream errorMessage;
+			errorMessage << "Data count:" << DataCount << " while loading float values is not equal to expected data count:" << i_DataCount << "\n";
+			*o_errorMessage = errorMessage.str();
+		}
+
+		return false;
+	}
 
 	for (int i = 1; i <= DataCount; ++i)
 	{
@@ -612,8 +651,18 @@ bool Mesh::cMeshBuilder::LoadEachUCHARDataValues(lua_State& io_luaState, unsigne
 	assert(o_DataVariable);
 	//Iterating through every value table
 	const int DataCount = luaL_len(&io_luaState, -1);
-	assert(DataCount == i_DataCount);
+	
+	if (DataCount != i_DataCount)
+	{
+		if (o_errorMessage)
+		{
+			std::stringstream errorMessage;
+			errorMessage << "Data count:" << DataCount << " while loading char values is not equal to expected data count:" << i_DataCount << "\n";
+			*o_errorMessage = errorMessage.str();
+		}
 
+		return false;
+	}
 	for (int i = 1; i <= DataCount; ++i)
 	{
 		lua_pushinteger(&io_luaState, i);
@@ -652,7 +701,18 @@ bool Mesh::cMeshBuilder::LoadEachUINTDataValues(lua_State& io_luaState, DWORD32 
 	assert(o_DataVariable);
 	//Iterating through every value table
 	const int DataCount = luaL_len(&io_luaState, -1);
-	assert(DataCount == i_DataCount);
+	
+	if (DataCount != i_DataCount)
+	{
+		if (o_errorMessage)
+		{
+			std::stringstream errorMessage;
+			errorMessage << "Data count:" << DataCount << " while loading Uint values is not equal to expected data count:" << i_DataCount << "\n";
+			*o_errorMessage = errorMessage.str();
+		}
+
+		return false;
+	}
 
 	for (int i = 1; i <= DataCount; ++i)
 	{
@@ -736,9 +796,10 @@ OnExit:
 	{
 		if (mMeshData.mIndices)
 		{
-			delete mMeshData.mIndices;
+			delete [] mMeshData.mIndices;
+			mMeshData.mIndices = NULL;
 		}
 	}
 
 	return !wereThereErrors;
-}
+}	

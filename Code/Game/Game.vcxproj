@@ -61,7 +61,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Engine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>UserSettings.lib;Engine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>copy "$(TargetPath)" "$(GameDir)$(TargetFileName)" /y</Command>

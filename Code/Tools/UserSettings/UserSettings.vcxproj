@@ -11,7 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <None Include="settings.ini" />
+    <CustomBuild Include="settings.ini">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy "$(ProjectDir)settings.ini" "$(GameDir)settings.ini" /y</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying User Settings file</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(GameDir)settings.ini</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="UserSettings.cpp" />
@@ -70,6 +75,9 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>Lualib.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

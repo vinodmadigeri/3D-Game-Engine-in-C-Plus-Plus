@@ -424,14 +424,12 @@ namespace MayaExporter
 				fout << "\tIndices =\n";
 				fout << "\t{";
 				
-				for (unsigned int i = 0; i < i_indexBuffer.size(); i++)
+				for (int i = 0; i < i_indexBuffer.size(); i = i + 3)
 				{
-					if (i % 3 == 0)
-					{
-						fout << "\n\t\t";
-					}
-
+					fout << "\n\t\t";
 					fout << i_indexBuffer[i] << ", ";
+					fout << i_indexBuffer[i + 2] << ", ";
+					fout << i_indexBuffer[i + 1] << ", ";
 				}
 				
 				fout << "\n";
