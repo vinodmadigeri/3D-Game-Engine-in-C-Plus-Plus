@@ -19,7 +19,7 @@
 #include "PlayerController.h"
 #include "CameraController.h"
 
-#include "../Tools/UserSettings/UserSettings.h"
+#include "UserSettings/UserSettings.h"
 
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC

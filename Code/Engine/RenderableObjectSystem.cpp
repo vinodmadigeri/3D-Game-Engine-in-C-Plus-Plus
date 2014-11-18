@@ -244,7 +244,7 @@ namespace Engine
 #endif
 
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
-			D3DPERF_BeginEvent(0, L"Set Material (Per-Instance \"g_transform_modelToWorld\")");
+			D3DPERF_BeginEvent(0, L"Set Material Constant (Per-Instance \"g_transform_modelToWorld\")");
 #endif
 			unsigned int count = 1;
 			//Set per-Instance constants
@@ -258,7 +258,7 @@ namespace Engine
 			assert(CameraSystem::GetInstance());
 
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
-			D3DPERF_BeginEvent(0, L"Set Material (Per-View \"g_transform_worldToView, g_transform_viewToScreen\")");
+			D3DPERF_BeginEvent(0, L"Set Material Constants (Per-View \"g_transform_worldToView, g_transform_viewToScreen\")");
 #endif
 			//Set per-view constants
 			if (!m3DRenderableObjects.at(ulCount)->GetMaterial()->SetPerViewConstantDataByName("g_transform_worldToView", &CameraSystem::GetInstance()->GetWorldToView(), count))

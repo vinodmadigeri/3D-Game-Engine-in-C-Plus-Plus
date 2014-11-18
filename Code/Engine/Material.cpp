@@ -78,7 +78,7 @@ namespace Engine
 
 		HRESULT result = D3D_OK;
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
-		D3DPERF_BeginEvent(0, L"Set Material (Per-Material)");
+		D3DPERF_BeginEvent(0, L"Set Material Constant (Per-Material)");
 #endif
 		if (!SetPerMaterialConstantDataFromMaterialFile(
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED

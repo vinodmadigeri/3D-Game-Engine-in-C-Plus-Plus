@@ -216,7 +216,7 @@ namespace Engine
 			}
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
 			std::wstringstream EventMessage;
-			EventMessage << "Draw Mesh" << (i_Mesh->GetName().c_str());
+			EventMessage << "Draw Mesh " << (i_Mesh->GetName().c_str());
 			D3DPERF_BeginEvent(0, EventMessage.str().c_str());
 #endif
 			// Bind a specific vertex buffer to the device as a data source

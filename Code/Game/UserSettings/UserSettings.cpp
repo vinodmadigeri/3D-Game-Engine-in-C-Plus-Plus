@@ -7,7 +7,7 @@
 #include <sstream>
 #include <string>
 #include "../../External/Lua/Includes.h"
-#include "../BuilderHelper/UtilityFunctions.h"
+#include "../../Tools/BuilderHelper/UtilityFunctions.h"
 
 // Static Data Initialization
 //===========================
