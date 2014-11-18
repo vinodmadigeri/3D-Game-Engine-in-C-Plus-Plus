@@ -335,11 +335,16 @@ namespace Engine
 			return false;
 		}
 
-		LoadTableValues_Texture(io_luaState, "Texture", PathTexture, SamplerName
+		if (!LoadTableValues_Texture(io_luaState, "Texture", PathTexture, SamplerName
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-		, o_errorMessage
+			, o_errorMessage
 #endif
-		);
+			))
+		{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			MessageBox(NULL, o_errorMessage->c_str(), PathTexture.c_str(), MB_OK | MB_ICONERROR);
+#endif
+		}
 
 		if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
@@ -347,6 +352,9 @@ namespace Engine
 #endif
 			))
 		{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			MessageBox(NULL, o_errorMessage->c_str(), PathTexture.c_str(), MB_OK | MB_ICONERROR);
+#endif
 			PathTexture = "data/missingTexture.dds";
 			SamplerName = "g_color_sampler";
 			if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_direct3dDevice
