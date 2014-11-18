@@ -27,7 +27,7 @@ namespace
 
 namespace UserSettings
 {
-	bool IsThisWidthSupported(int iWidth);
+	bool IsThisWidthAndHeightSupported(int iWidth);
 	bool InitializeIfNecessary();
 	bool IsNumberAnInteger( const lua_Number i_number );
 	bool LoadUserSettingsIntoLuaTable( lua_State& io_luaState, bool& o_doesUserSettingsFileExist );
@@ -66,28 +66,14 @@ bool UserSettings::IsAntiAliasingEnabled()
 
 namespace UserSettings
 {
-	bool IsThisWidthSupported(int iWidth)
+	bool IsThisWidthAndHeightSupported(int iWidth, int iHeight)
 	{
 		DEVMODE dm = { 0 };
 		dm.dmSize = sizeof(dm);
 		
 		for (int iModeNum = 0; EnumDisplaySettings(NULL, iModeNum, &dm) != 0; iModeNum++) 
 		{
-			if (dm.dmPelsWidth == iWidth)
-				return true;
-		}
-
-		return false;
-	}
-
-	bool IsThisHeightSupported(int iHeight)
-	{
-		DEVMODE dm = { 0 };
-		dm.dmSize = sizeof(dm);
-
-		for (int iModeNum = 0; EnumDisplaySettings(NULL, iModeNum, &dm) != 0; iModeNum++)
-		{
-			if (dm.dmPelsHeight == iHeight)
+			if (dm.dmPelsWidth == iWidth && dm.dmPelsHeight == iHeight)
 				return true;
 		}
 
@@ -274,6 +260,10 @@ namespace UserSettings
 		//Iterating through the constant key value pairs
 		lua_pushnil(&io_luaState);
 		int CurrentIndexOfConstantTable = -2;
+		
+		lua_Integer ScreenHeight = 480;
+		lua_Integer ScreenWidth = 640;
+
 		while (lua_next(&io_luaState, CurrentIndexOfConstantTable))
 		{
 			//Current Table is at -3 inside the while loop
@@ -296,20 +286,25 @@ namespace UserSettings
 					errorMessage << "Ignoring the invalid entry for Screen Width: " << s_userSettingsfileName;
 					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
 
+					ScreenHeight = 480;
+					ScreenWidth = 640;
 					// Pop the returned key value pair on error
 					lua_pop(&io_luaState, 2);
 					goto OnExit;
 				}
 
-				if (IsNumberAnInteger(lua_tonumber(&io_luaState, IndexOfValue)) && IsThisWidthSupported(lua_tointeger(&io_luaState, IndexOfValue)))
+				if (IsNumberAnInteger(lua_tonumber(&io_luaState, IndexOfValue)))
 				{
-					s_width = lua_tointeger(&io_luaState, IndexOfValue);
+					ScreenWidth = lua_tointeger(&io_luaState, IndexOfValue);
 				}
 				else
 				{
 					std::stringstream errorMessage;
 					errorMessage << "Screen Width not supported :" << lua_tonumber(&io_luaState, IndexOfValue);
 					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+
+					ScreenHeight = 480;
+					ScreenWidth = 640;
 				}
 			}
 
@@ -321,21 +316,24 @@ namespace UserSettings
 					errorMessage << "Ignoring the invalid entry for Screen Height: " << s_userSettingsfileName;
 					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
 
+					ScreenHeight = 480;
+					ScreenWidth = 640;
 					// Pop the returned key value pair on error
 					lua_pop(&io_luaState, 2);
 					goto OnExit;
 				}
 
-				if (IsNumberAnInteger(lua_tonumber(&io_luaState, IndexOfValue)) && IsThisHeightSupported(lua_tointeger(&io_luaState, IndexOfValue)))
+				if (IsNumberAnInteger(lua_tonumber(&io_luaState, IndexOfValue)))
 				{
-					s_height = lua_tointeger(&io_luaState, IndexOfValue);
-					
+					ScreenHeight = lua_tointeger(&io_luaState, IndexOfValue);
 				}
 				else
 				{
 					std::stringstream errorMessage;
 					errorMessage << "Screen Height not supported: " << lua_tonumber(&io_luaState, IndexOfValue);
 					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+					ScreenHeight = 480;
+					ScreenWidth = 640;
 				}
 			}
 
@@ -377,6 +375,21 @@ namespace UserSettings
 
 	OnExit:
 
+		if (ScreenHeight != 480 || ScreenWidth != 640)
+		{
+			if (!IsThisWidthAndHeightSupported(ScreenWidth, ScreenHeight))
+			{
+				std::stringstream errorMessage;
+				errorMessage << "Screen Width " << ScreenWidth << " and Screen Height " << ScreenHeight << " not supported";
+				MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+
+				ScreenHeight = 480;
+				ScreenWidth = 640;
+			}
+		}
+
+		s_height = ScreenHeight;
+		s_width = ScreenWidth;
 		return true;
 	}
 }
