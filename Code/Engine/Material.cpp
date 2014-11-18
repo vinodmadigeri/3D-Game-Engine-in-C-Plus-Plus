@@ -347,7 +347,16 @@ namespace Engine
 #endif
 			))
 		{
-			return false;
+			PathTexture = "data/missingTexture.dds";
+			SamplerName = "g_color_sampler";
+			if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif
+				))
+			{
+				return false;
+			}
 		}
 
 		if (!LoadConstantDataTable(io_luaState, "Constants"
