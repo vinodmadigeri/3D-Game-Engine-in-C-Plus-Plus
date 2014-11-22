@@ -33,7 +33,7 @@ sampler2D g_color_sampler;
 // Entry Point
 //============
 
-void main( in const float2 i_uv : TEXCOORD0, in const float3 i_color_perVertex : COLOR0,
+void main( in const float3 i_normal_world : NORMAL, in const float2 i_uv : TEXCOORD0, in const float3 i_color_perVertex : COLOR0,
 	out float4 o_color : COLOR0 )
 {
 	// "Sample" the texture to get the color at the given texture coordinates

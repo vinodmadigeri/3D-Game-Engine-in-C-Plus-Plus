@@ -554,6 +554,22 @@ bool Mesh::cMeshBuilder::LoadEachVertexData(lua_State& io_luaState, Engine::sVer
 			o_VertexData.y = Position[1];
 			o_VertexData.z = Position[2];
 		}
+		else if (strcmp(VertexDataTableName, "Normal") == 0)
+		{
+			const unsigned int NormalCountPerVertex = 3;
+			float Normal[NormalCountPerVertex];
+			if (!LoadEachFloatDataValues(io_luaState, Normal, NormalCountPerVertex, o_errorMessage))
+			{
+				wereThereErrors = true;
+				// Pop the returned key value pair on error
+				lua_pop(&io_luaState, 2);
+				goto OnExit;
+			}
+
+			o_VertexData.nx = Normal[0];
+			o_VertexData.ny = Normal[1];
+			o_VertexData.nz = Normal[2];
+		}
 		else if (strcmp(VertexDataTableName, "Color") == 0)
 		{
 			const unsigned int PositionCountPerVertex = 3;

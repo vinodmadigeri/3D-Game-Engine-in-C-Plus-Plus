@@ -25,6 +25,7 @@ namespace Engine
 	{
 		float x, y, z;
 		float U, V;
+		float nx, ny, nz;
 		D3DCOLOR color; // D3DCOLOR = 4 bytes, or 8 bits [0,255] per RGBA channel
 	}sVertexData;
 

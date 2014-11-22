@@ -1,40 +1,44 @@
--- Plane mesh in Lua
+-- mesh in Lua
 
 return
 {
 	VertexCount = 4,
-	
-	--Each Vertex Data
+
+		--Each Vertex Data
 	Vertices =
 	{
 		{
-			Position = {-5.0, 0.0, -5.0},
+			Position = {-5.92308, -1.33709e-015, -6.02171},
 			UV = {0, 1},
-			Color = {100, 100, 100}
+			Normal = {0, 1, -2.22045e-016},
+			Color = {255, 255, 255},
 		},
 		{
-			Position = {-5.0, 0.0, 5.0},
+			Position = {5.92308, -1.33709e-015, -6.02171},
+			UV = {0.983622, 1},
+			Normal = {0, 1, -2.22045e-016},
+			Color = {255, 255, 255},
+		},
+		{
+			Position = {-5.92308, 1.33709e-015, 6.02171},
 			UV = {0, 0},
-			Color = {150, 150, 150}
+			Normal = {0, 1, -2.22045e-016},
+			Color = {255, 255, 255},
 		},
 		{
-			Position = {5.0, 0.0, 5.0},
-			UV = {1, 0},
-			Color = {200, 200, 200}
+			Position = {5.92308, 1.33709e-015, 6.02171},
+			UV = {0.983622, 0},
+			Normal = {0, 1, -2.22045e-016},
+			Color = {255, 255, 255},
 		},
-		{
-			Position = {5.0, 0.0, -5.0},
-			UV = {1, 1},
-			Color = {50, 50, 50}
-		}
 	},
-	
+
 	IndexCount = 6,
-	
+
 	--Each triangle index data
-	Indices = 
+	Indices =
 	{
-		0, 1, 3,	--First Triangle Indices
-		3, 1, 2		--Second Triangle Indices
-	}
+		0, 2, 1, 
+		2, 3, 1, 
+	},
 }

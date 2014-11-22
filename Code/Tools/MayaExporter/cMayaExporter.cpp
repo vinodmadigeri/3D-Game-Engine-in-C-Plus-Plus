@@ -413,6 +413,7 @@ namespace MayaExporter
 					fout << "\t\t{\n";
 					fout << "\t\t\tPosition = {" << i_vertexBuffer[i].x << ", " << i_vertexBuffer[i].y << ", " << -(i_vertexBuffer[i].z) << "},\n";
 					fout << "\t\t\tUV = {" << i_vertexBuffer[i].u << ", " << (1 - i_vertexBuffer[i].v) <<"},\n";
+					fout << "\t\t\tNormal = {" << i_vertexBuffer[i].nx << ", " << i_vertexBuffer[i].ny << ", " << -(i_vertexBuffer[i].nz) << "},\n";
 					fout << "\t\t\tColor = {" << getColorValue(i_vertexBuffer[i].r) << ", " << getColorValue(i_vertexBuffer[i].g) << ", " << getColorValue(i_vertexBuffer[i].b) << "},\n";
 					fout << "\t\t},\n";
 				}
