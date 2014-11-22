@@ -2,8 +2,9 @@
 #include "PreCompiled.h"
 #include <d3dx9shader.h>
 #include "Material.h"
+#include "Actor.h"
 #include "WindowsError.h"
-
+#include "CameraSystem.h"
 namespace Engine
 {
 	Material::Material(const char *iName, IDirect3DDevice9 * i_direct3dDevice) :
@@ -68,7 +69,7 @@ namespace Engine
 		}
 	}
 
-	HRESULT Material::Set(IDirect3DDevice9 * i_direct3dDevice
+	HRESULT Material::Set(IDirect3DDevice9 * i_direct3dDevice, SharedPointer<Actor> ThisObject
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
 #endif
@@ -78,20 +79,9 @@ namespace Engine
 
 		HRESULT result = D3D_OK;
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
-		D3DPERF_BeginEvent(0, L"Set Material Constant (Per-Material)");
-#endif
-		if (!SetPerMaterialConstantDataFromMaterialFile(
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			o_errorMessage
-#endif
-			))
-		{
-			assert(false);
-
-			return false;
-		}
-#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
-		D3DPERF_EndEvent();
+		std::wstringstream EventMessage;
+		EventMessage << "Set Material " << (GetName().c_str());
+		D3DPERF_BeginEvent(0, EventMessage.str().c_str());
 #endif
 		// Set the shaders
 		result = i_direct3dDevice->SetVertexShader(m_vertexShader);
@@ -130,6 +120,80 @@ namespace Engine
 			}
 			return result;
 		}
+#endif
+
+		//Create a D3DMATRIX
+		D3DXMATRIX LocalToWorld;
+
+		//Transpose the stored matrix
+		Matrix4x4 ObjectMatrix = ThisObject->GetLocalToWorldMatrix().GetTranspose();
+		LocalToWorld._11 = ObjectMatrix.At(1, 1);
+		LocalToWorld._12 = ObjectMatrix.At(1, 2);
+		LocalToWorld._13 = ObjectMatrix.At(1, 3);
+		LocalToWorld._14 = ObjectMatrix.At(1, 4);
+		LocalToWorld._21 = ObjectMatrix.At(2, 1);
+		LocalToWorld._22 = ObjectMatrix.At(2, 2);
+		LocalToWorld._23 = ObjectMatrix.At(2, 3);
+		LocalToWorld._24 = ObjectMatrix.At(2, 4);
+		LocalToWorld._31 = ObjectMatrix.At(3, 1);
+		LocalToWorld._32 = ObjectMatrix.At(3, 2);
+		LocalToWorld._33 = ObjectMatrix.At(3, 3);
+		LocalToWorld._34 = ObjectMatrix.At(3, 4);
+		LocalToWorld._41 = ObjectMatrix.At(4, 1);
+		LocalToWorld._42 = ObjectMatrix.At(4, 2);
+		LocalToWorld._43 = ObjectMatrix.At(4, 3);
+		LocalToWorld._44 = ObjectMatrix.At(4, 4);
+
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_BeginEvent(0, L"Set Material Constant (Per-Instance \"g_transform_modelToWorld\")");
+#endif
+		unsigned int count = 1;
+		//Set per-Instance constants
+		if (!SetPerInstanceConstantDataByName("g_transform_modelToWorld", &LocalToWorld, count))
+		{
+			assert(false);
+		}
+
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_EndEvent();
+#endif
+		assert(CameraSystem::GetInstance());
+
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_BeginEvent(0, L"Set Material Constants (Per-View \"g_transform_worldToView, g_transform_viewToScreen\")");
+#endif
+		//Set per-view constants
+		if (!SetPerViewConstantDataByName("g_transform_worldToView", &CameraSystem::GetInstance()->GetWorldToView(), count))
+		{
+			assert(false);
+		}
+
+		//Set per-view constants
+		if (!SetPerViewConstantDataByName("g_transform_viewToScreen", &CameraSystem::GetInstance()->GetViewToScreen(), count))
+		{
+			assert(false);
+		}
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_EndEvent();
+#endif
+
+
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_BeginEvent(0, L"Set Material Constant (Per-Material)");
+#endif
+		if (!SetPerMaterialConstantDataFromMaterialFile(
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			o_errorMessage
+#endif
+			))
+		{
+			assert(false);
+
+			return false;
+		}
+
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+	D3DPERF_EndEvent();
 #endif
 
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
@@ -1101,7 +1165,6 @@ OnExit:
 
 		for (unsigned int i = 0; i < m_perInstanceConstantDatas.size(); i++)
 		{
-
 			if (i_name != m_perInstanceConstantDatas.at(i)->GetName())
 			{
 				continue;

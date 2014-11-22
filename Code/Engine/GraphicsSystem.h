@@ -23,6 +23,7 @@ namespace Engine
 {
 	class Material; //Forward Decleration
 	class Mesh;
+	class Actor;
 
 	class GraphicsSystem
 	{
@@ -77,7 +78,7 @@ namespace Engine
 
 		static GraphicsSystem * GetInstance();
 		bool BeingFrame(const ColorRGBA & i_ClearColor = ColorRGBA(0, 0, 0, 0));
-		void Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh);
+		void Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh, SharedPointer<Actor> ThisObject);
 		bool EndFrame(void);
 		SharedPointer<Mesh> CreateMesh(const char* i_MeshPath);
 		SharedPointer<Material> CreateMaterial(const char *i_MaterialPath);

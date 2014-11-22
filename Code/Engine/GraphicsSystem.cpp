@@ -3,7 +3,7 @@
 
 #include "PreCompiled.h"
 #include <d3dx9shader.h>
-
+#include "Actor.h"
 #include "GraphicsSystem.h"
 #include "Material.h"
 #include "Mesh.h"
@@ -189,7 +189,7 @@ namespace Engine
 		return true;
 	}
 
-	void GraphicsSystem::Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh)
+	void GraphicsSystem::Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh, SharedPointer<Actor> ThisObject)
 	{
 		assert(mInitilized == true);
 
@@ -201,7 +201,7 @@ namespace Engine
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				std::string errorMessage;
 #endif
-				HRESULT result = i_Material->Set(m_direct3dDevice
+				HRESULT result = i_Material->Set(m_direct3dDevice, ThisObject
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 					, &errorMessage
 #endif

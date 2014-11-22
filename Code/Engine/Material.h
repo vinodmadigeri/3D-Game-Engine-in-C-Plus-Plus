@@ -18,12 +18,15 @@ as well as the data that those shader program use
 #include "MaterialConstantData.h"
 #include "Vector3.h"
 #include "HashedString.h"
+#include "SharedPointer.h"
 
 // Class Declaration
 //==================
 
 namespace Engine
 {
+	class Actor;
+
 	class Material
 	{
 		// Interface
@@ -37,7 +40,7 @@ namespace Engine
 
 		// Render
 		//-------
-		HRESULT Set(IDirect3DDevice9 * i_direct3dDevice
+		HRESULT Set(IDirect3DDevice9 * i_direct3dDevice, SharedPointer<Actor> ThisObject
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage = NULL
 #endif
