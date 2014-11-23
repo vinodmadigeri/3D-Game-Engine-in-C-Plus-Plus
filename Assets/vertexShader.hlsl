@@ -7,18 +7,15 @@
 
 // Per-View
 //---------
-
 uniform float4x4 g_transform_worldToView;
 uniform float4x4 g_transform_viewToScreen;
 
 // Per-Instance
 //-------------
-
 uniform float4x4 g_transform_modelToWorld;
 
 // Entry Point
 //============
-
 void main( in const float3 i_position_model : POSITION, in const float2 i_uv : TEXCOORD0, in const float3 i_normal_model : NORMAL, in const float3 i_color : COLOR0,
 	out float4 o_position_screen : POSITION, out float3 o_normal_world : NORMAL, out float2 o_uv : TEXCOORD0, out float3 o_color : COLOR0 )
 {
