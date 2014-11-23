@@ -29,17 +29,47 @@ namespace Mesh
 		
 		// Lua Logic to load mesh file
 		//-----------------------------
-		bool LoadMeshFile(const char* i_MeshFilepath, std::string* o_errorMessage);
-		bool LoadTableValues(lua_State& io_luaState, std::string* o_errorMessage);
-		bool LoadDataCount(lua_State& io_luaState, const char* DataCountKey, DWORD32 & o_DataCount, std::string* o_errorMessage);
-		bool LoadVertexDataTable(lua_State& io_luaState, const char* RootConstantTableName, std::string* o_errorMessage);
-		bool LoadEachVertexDataTable(lua_State& io_luaState, std::string* o_errorMessage);
-		bool LoadEachVertexData(lua_State& io_luaState, Engine::sVertexData& o_VertexData, std::string* o_errorMessage);
-		bool LoadEachFloatDataValues(lua_State& io_luaState, float * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage);
-		bool LoadEachUCHARDataValues(lua_State& io_luaState, unsigned char * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage);
-		bool LoadEachUINTDataValues(lua_State& io_luaState, DWORD32 * o_DataVariable, const unsigned int i_DataCount, std::string* o_errorMessage);
-		bool LoadIndexDataTable(lua_State& io_luaState, const char* RootConstantTableName, std::string* o_errorMessage);
+		bool LoadMeshFile(const char* i_MeshFilepath
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
 
+		bool LoadTableValues(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+		bool LoadDataCount(lua_State& io_luaState, const char* DataCountKey, DWORD32 & o_DataCount
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+		bool LoadVertexDataTable(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+		bool LoadEachVertexDataTable(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+		bool LoadEachVertexData(lua_State& io_luaState, Engine::sVertexData& o_VertexData
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
+		bool LoadIndexDataTable(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
 	};
 }
 

@@ -123,7 +123,7 @@
     </Link>
     <Lib />
     <Lib>
-      <AdditionalDependencies>D3dx9.lib;d3d9.lib;LuaLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D3dx9.lib;d3d9.lib;LuaLib.lib;LuaHelper.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/ignore:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
@@ -147,7 +147,7 @@
     </Link>
     <Lib />
     <Lib>
-      <AdditionalDependencies>D3dx9.lib;d3d9.lib;LuaLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D3dx9.lib;d3d9.lib;LuaLib.lib;LuaHelper.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/ignore:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>

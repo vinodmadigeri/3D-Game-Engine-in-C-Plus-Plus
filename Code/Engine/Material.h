@@ -91,7 +91,7 @@ namespace Engine
 		// Lua Logic
 
 		//Constant
-		bool LoadConstantDataTable(lua_State& io_luaState, const char* RootConstantTableName
+		bool LoadConstantDataTable(lua_State& io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif
@@ -117,7 +117,12 @@ namespace Engine
 #endif
 			);
 
-		bool LoadTableValues_Shaders(lua_State& io_luaState, const char* key, std::string& o_PathShader
+		bool LoadTableValues_VertexShader(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+		bool LoadTableValues_FragmentShader(lua_State& io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif
@@ -129,7 +134,7 @@ namespace Engine
 #endif
 			);
 
-		bool LoadTableValues_Texture(lua_State& io_luaState, const char* key, std::string& o_PathTexture, std::string& o_NameSampler
+		bool LoadTableValues_Texture(lua_State& io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif

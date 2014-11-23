@@ -158,7 +158,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		const char * pMaterialPath = "data/StripesMaterial.mat";
 		const char * pMeshPath = "data/helix.dat";
 
-		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "TorusHelix", "Helix", Size, Rotation, pMaterialPath, pMeshPath);
+		WorldSystem::GetInstance()->CreateActors(Position, Velocity, Acceleration, "HelixStripes", "Helix", Size, Rotation, pMaterialPath, pMeshPath);
 	}
 
 	//Create Plane

@@ -5,6 +5,8 @@
 #include "Actor.h"
 #include "WindowsError.h"
 #include "CameraSystem.h"
+#include "./LuaHelper/LuaHelper.h"
+
 namespace Engine
 {
 	Material::Material(const char *iName, IDirect3DDevice9 * i_direct3dDevice) :
@@ -212,111 +214,23 @@ namespace Engine
 	{
 		assert(i_direct3dDevice && i_MaterialFilepath);
 
-
 		//Lua Logic
 		//---------
-		assert(i_MaterialFilepath);
 		bool wereThereErrors = false;
 
 		// Create a new Lua state
 		lua_State* luaState = NULL;
 		{
-			luaState = luaL_newstate();
-			if (!luaState)
+			if (!LuaHelper::Load_LuaFileAndTopTable(i_MaterialFilepath, luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif
+				))
 			{
 				wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage)
-				{
-					*o_errorMessage = "Failed to create a new Lua state\n";
-				}
-#endif
 				goto OnExit;
 			}
-		}
 
-		// Load the asset file as a "chunk",
-		// meaning there will be a callable function at the top of the stack
-		{
-			const int luaResult = luaL_loadfile(luaState, i_MaterialFilepath);
-			if (luaResult != LUA_OK)
-			{
-				wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage)
-				{
-					*o_errorMessage = lua_tostring(luaState, -1);
-				}
-#endif
-				// Pop the error message
-				lua_pop(luaState, 1);
-				goto OnExit;
-			}
-		}
-		// Execute the "chunk", which should load the asset
-		// into a table at the top of the stack
-		{
-			const int argumentCount = 0;
-			const int returnValueCount = LUA_MULTRET;	// Return _everything_ that the file returns
-			const int noMessageHandler = 0;
-			const int luaResult = lua_pcall(luaState, argumentCount, returnValueCount, noMessageHandler);
-			if (luaResult == LUA_OK)
-			{
-				// A well-behaved asset file will only return a single value
-				const int returnedValueCount = lua_gettop(luaState);
-				if (returnedValueCount == 1)
-				{
-					// A correct asset file _must_ return a table
-					if (!lua_istable(luaState, -1))
-					{
-						wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-						if (o_errorMessage)
-						{
-							std::stringstream errorMessage;
-							errorMessage << "Asset files must return a table (instead of a "
-								<< luaL_typename(luaState, -1) << ")\n";
-
-							*o_errorMessage = errorMessage.str();
-						}
-#endif
-						// Pop the returned non-table value
-						lua_pop(luaState, 1);
-						goto OnExit;
-					}
-				}
-				else
-				{
-					wereThereErrors = true;
-
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-					if (o_errorMessage)
-					{
-						std::stringstream errorMessage;
-						errorMessage << "Asset files must return a single table (instead of " <<
-							returnedValueCount << " values)\n";
-
-						*o_errorMessage = errorMessage.str();
-					}
-#endif
-					// Pop every value that was returned
-					lua_pop(luaState, returnedValueCount);
-					goto OnExit;
-				}
-			}
-			else
-			{
-				wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage)
-				{
-					*o_errorMessage = lua_tostring(luaState, -1);
-				}
-#endif
-				// Pop the error message
-				lua_pop(luaState, 1);
-				goto OnExit;
-			}
 		}
 
 		// If this code is reached the asset file was loaded successfully,
@@ -330,38 +244,33 @@ namespace Engine
 			wereThereErrors = true;
 		}
 
-		// Pop the table
-		lua_pop(luaState, 1);
+		// Pop the root table
+		LuaHelper::UnLoad_LuaTable(*luaState);
 
 	OnExit:
 
-		if (luaState)
+		if (!wereThereErrors)
 		{
-			// If I haven't made any mistakes
-			// there shouldn't be anything on the stack,
-			// regardless of any errors encountered while loading the file:
-			assert(lua_gettop(luaState) == 0);
-
-			lua_close(luaState);
-			luaState = NULL;
+			wereThereErrors = !LuaHelper::UnLoad_LuaFile(luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif
+				);
 		}
 
 		return !wereThereErrors;
 	}
 
-//Load Fragment and Vertex Shader Path.
-//Load Texture and Sampler path.
+
+	//Load Fragment and Vertex Shader Path.
+	//Load Texture and Sampler path.
 	bool Material::LoadTableValues(lua_State& io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
 #endif
 		)
 	{
-		std::string PathVertexShader;
-		std::string PathFragmentShader;
-		std::string PathTexture = "data/missingTexture.dds";
-		std::string SamplerName = "g_color_sampler";
-		if (!LoadTableValues_Shaders(io_luaState, "VertexShader", PathVertexShader
+		if (!LoadTableValues_VertexShader(io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
 #endif
@@ -370,17 +279,8 @@ namespace Engine
 			return false;
 		}
 
-		//Load the shader itself from the path
-		if (!LoadVertexShader(PathVertexShader.c_str(), m_direct3dDevice
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, o_errorMessage
-#endif		
-			))
-		{
-			return false;
-		}
 
-		if (!LoadTableValues_Shaders(io_luaState, "FragmentShader", PathFragmentShader
+		if (!LoadTableValues_FragmentShader(io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
 #endif
@@ -389,49 +289,16 @@ namespace Engine
 			return false;
 		}
 
-		//Load the shader itself from the path
-		if (!LoadFragmentShader(PathFragmentShader.c_str(), m_direct3dDevice
+		if (!LoadTableValues_Texture(io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
-#endif		
+#endif
 			))
 		{
 			return false;
 		}
 
-		if (!LoadTableValues_Texture(io_luaState, "Texture", PathTexture, SamplerName
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, o_errorMessage
-#endif
-			))
-		{
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			MessageBox(NULL, o_errorMessage->c_str(), PathTexture.c_str(), MB_OK | MB_ICONERROR);
-#endif
-		}
-
-		if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_direct3dDevice
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, o_errorMessage
-#endif
-			))
-		{
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			MessageBox(NULL, o_errorMessage->c_str(), PathTexture.c_str(), MB_OK | MB_ICONERROR);
-#endif
-			PathTexture = "data/missingTexture.dds";
-			SamplerName = "g_color_sampler";
-			if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_direct3dDevice
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				, o_errorMessage
-#endif
-				))
-			{
-				return false;
-			}
-		}
-
-		if (!LoadConstantDataTable(io_luaState, "Constants"
+		if (!LoadConstantDataTable(io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
 #endif
@@ -446,603 +313,308 @@ namespace Engine
 
 	//================================================================
 	//Constant load logic
-	bool Material::LoadConstantDataTable(lua_State& io_luaState, const char* RootConstantTableName
+	bool Material::LoadConstantDataTable(lua_State& io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
 #endif
 		)
 	{
-		assert(RootConstantTableName);
 		bool wereThereErrors = false;
 
-		// Right now the asset table is at -1.
-		// After the following table operation it will be at -2
-		// and the "textures" table will be at -1:
-		lua_pushstring(&io_luaState, RootConstantTableName);
-		lua_gettable(&io_luaState, -2);
-		// It can be hard to remember where the stack is at
-		// and how many values to pop.
-		// One strategy I would suggest is to always call a new function
-		// When you are at a new level:
-		// Right now we know that we have an original table at -2,
-		// and a new one at -1,
-		// and so we _know_ that we always have to pop at least _one_
-		// value before leaving this function
-		// (to make the original table be back to index -1).
-		// If we don't do any further stack manipulation in this function
-		// then it becomes easy to remember how many values to pop
-		// because it will always be one.
-		// This is the strategy I'll take in this example
-		// (look at the "OnExit" label):
-		if (lua_istable(&io_luaState, -1))
+		if (LuaHelper::Load_LuaTable(io_luaState, "Constants"
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif
+			))
 		{
-			if (!LoadEachConstantData(io_luaState
+			//Load each Constant Value lua table
+			const char * ConstantName = "g_color_perMaterial";
+			if (LuaHelper::Load_LuaTable(io_luaState, ConstantName
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				, o_errorMessage
 #endif
 				))
 			{
-				wereThereErrors = true;
-				goto OnExit;
-			}
-		}
-		else
-		{
-			//No constant table in material file.
-		}
-
-	OnExit:
-
-		// Pop the table
-		lua_pop(&io_luaState, 1);
-
-		return !wereThereErrors;
-	}
-
-
-	bool Material::LoadEachConstantData(lua_State& io_luaState
+				const unsigned int DataCount = 3;
+				//Get the value of constant form the constant lua table
+				float ConstantValue[DataCount];
+				if (LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, ConstantValue, DataCount
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-		, std::string* o_errorMessage
+					, o_errorMessage
 #endif
-		)
-	{
-		bool wereThereErrors = false;
-
-		//Iterating through the constant key value pairs
-		lua_pushnil(&io_luaState);
-		int CurrentIndexOfConstantTable = -2;
-		while (lua_next(&io_luaState, CurrentIndexOfConstantTable))
-		{
-			//Current Table is at -3 inside the while loop
-			int IndexOfKey = -2; int IndexOfValue = -1;
-			if (lua_type(&io_luaState, IndexOfKey) != LUA_TSTRING)
-			{
-				wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage)
+					))
 				{
-					std::stringstream errorMessage;
-					errorMessage << "key must be a string (instead of a " <<
-						luaL_typename(&io_luaState, IndexOfKey) << ")\n";
 
-					*o_errorMessage = errorMessage.str();
-				}
-
-				// Pop the returned key value pair on error
-				lua_pop(&io_luaState, 2);
-				goto OnExit;
-#endif
-			}
-
-			//Store the valid key in a variable
-			const char * ConstantName = lua_tostring(&io_luaState, IndexOfKey);
-
-			if (!lua_istable(&io_luaState, IndexOfValue))
-			{
-				wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage)
-				{
-					std::stringstream errorMessage;
-					errorMessage << "value must be a table (instead of a " <<
-						luaL_typename(&io_luaState, IndexOfValue) << ")\n";
-
-					*o_errorMessage = errorMessage.str();
-				}
-
-				// Pop the returned key value pair on error
-				lua_pop(&io_luaState, 2);
-				goto OnExit;
-#endif
-			}
-
-			if (!LoadEachConstantDataValue(io_luaState, ConstantName
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				, o_errorMessage
-#endif
-				))
-			{
-				wereThereErrors = true;
-				// Pop the returned key value pair on error
-				lua_pop(&io_luaState, 2);
-				goto OnExit;
-			}
-			
-			//Pop the value, but leave the key
-			lua_pop(&io_luaState, 1);
-		}
+					//At this point both constant name and value are stored,
+					//Get reference to per-instance constant
 
 
-	OnExit:
+					D3DXHANDLE ConstHandle = m_pvertexShaderConsts->GetConstantByName(NULL, ConstantName);
+					BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
 
-		return !wereThereErrors;
-	}
-
-	bool Material::LoadEachConstantDataValue(lua_State& io_luaState, const char * i_ConstantName
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-		, std::string* o_errorMessage
-#endif
-		)
-	{
-		assert(m_pvertexShaderConsts && m_pfragmentShaderConsts);
-		bool wereThereErrors = false;
-
-		//Iterating through every value table
-		if (strcmp(i_ConstantName, "g_color_perMaterial") == 0)
-		{
-			const int DataCount = luaL_len(&io_luaState, -1);
-			float *pValue = new float[DataCount];
-			assert(pValue);
-
-			for (int i = 1; i <= DataCount; ++i)
-			{
-				lua_pushinteger(&io_luaState, i);
-				const int currentIndexOfConstantDataTable = -2;
-				lua_gettable(&io_luaState, currentIndexOfConstantDataTable);
-
-				if (lua_type(&io_luaState, -1) != LUA_TNUMBER)
-				{
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-					if (o_errorMessage)
+					if (ConstHandle == NULL)
 					{
-						std::stringstream errorMessage;
-						errorMessage << "value must be a number (instead of a " <<
-							luaL_typename(&io_luaState, -1) << ")\n";
-						*o_errorMessage = errorMessage.str();
+						ConstHandle = m_pfragmentShaderConsts->GetConstantByName(NULL, ConstantName);
+						iBelongsTo = BelongsToenum::FRAGMENT_SHADER;
 					}
-#endif
-					//Pop the invalid data value from stack and return false on error
-					lua_pop(&io_luaState, 1);
 
-					return false;
+					if (ConstHandle == NULL)
+					{
+						wereThereErrors = true;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "ConstHandle for " << ConstantName << " is NULL";
+							*o_errorMessage = errorMessage.str();
+						}
+#endif
+						iBelongsTo = BelongsToenum::NONE;
+					}
+
+					const unsigned int dataCount = DataCount;
+					IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
+
+					if (ConstHandle != NULL)
+					{
+						MaterialConstantData<float> *PerMaterialConstant = new MaterialConstantData<float>(ConstantName, ConstantValue, dataCount, ConstHandle, iBelongsTo, iIsA);
+						assert(PerMaterialConstant);
+
+						IMaterialConstant * BaseClassPointer = PerMaterialConstant;
+
+						m_perMaterialConstantDatas.push_back(BaseClassPointer);
+					}
 				}
-
-				pValue[i - 1] = static_cast<float>(lua_tonumber(&io_luaState, -1));
-				//Pop the value from the stack since it is stored
-				lua_pop(&io_luaState, 1);
-			}
-
-
-			//At this point both key and value pairs are stored in ThisData,
-			//Get reference to per-instance constant
-
-
-			D3DXHANDLE ConstHandle = m_pvertexShaderConsts->GetConstantByName(NULL, i_ConstantName);
-			BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
-
-			if (ConstHandle == NULL)
-			{
-				ConstHandle = m_pfragmentShaderConsts->GetConstantByName(NULL, i_ConstantName);
-				iBelongsTo = BelongsToenum::FRAGMENT_SHADER;
-			}
-
-			if (ConstHandle == NULL)
-			{
-				wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage)
-				{
-					std::stringstream errorMessage;
-					errorMessage << "ConstHandle for " << i_ConstantName <<" is NULL";
-					*o_errorMessage = errorMessage.str();
-				}
-#endif
-				iBelongsTo = BelongsToenum::NONE;
-			}
-
-			const unsigned int dataCount = DataCount;
-			IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
-
-			if (ConstHandle != NULL)
-			{
-				MaterialConstantData<float> *PerMaterialConstant = new MaterialConstantData<float>(i_ConstantName, pValue, dataCount, ConstHandle, iBelongsTo, iIsA);
-				assert(PerMaterialConstant);
-
-				IMaterialConstant * BaseClassPointer = PerMaterialConstant;
-
-				m_perMaterialConstantDatas.push_back(BaseClassPointer);
-			}
-
-			delete[] pValue;
-		}
-		else
-		{
-			assert(false);
-			//handle case for new constants
-		}
-		
-		return !wereThereErrors;
-	}
-
-	//==================================================================
-	//Shader load logic
-	bool Material::LoadTableValues_Shaders(lua_State& io_luaState, const char* key, std::string& o_PathShader
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-		, std::string* o_errorMessage
-#endif
-		)
-	{
-		assert(key);
-		bool wereThereErrors = false;
-
-		// Right now the asset table is at -1.
-		// After the following table operation it will be at -2
-		// and the "textures" table will be at -1:
-		lua_pushstring(&io_luaState, key);
-		lua_gettable(&io_luaState, -2);
-		// It can be hard to remember where the stack is at
-		// and how many values to pop.
-		// One strategy I would suggest is to always call a new function
-		// When you are at a new level:
-		// Right now we know that we have an original table at -2,
-		// and a new one at -1,
-		// and so we _know_ that we always have to pop at least _one_
-		// value before leaving this function
-		// (to make the original table be back to index -1).
-		// If we don't do any further stack manipulation in this function
-		// then it becomes easy to remember how many values to pop
-		// because it will always be one.
-		// This is the strategy I'll take in this example
-		// (look at the "OnExit" label):
-		if (lua_istable(&io_luaState, -1))
-		{
-			if (!LoadTableValues_Shader_paths(io_luaState, o_PathShader
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				, o_errorMessage
-#endif
-				))
-			{
-				wereThereErrors = true;
-				goto OnExit;
-			}
-		}
-		else
-		{
-			wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			if (o_errorMessage)
-			{
-				std::stringstream errorMessage;
-				errorMessage << "The value at \"" << key << "\" must be a table "
-					"(instead of a " << luaL_typename(&io_luaState, -1) << ")\n";
-
-				*o_errorMessage = errorMessage.str();
-			}
-#endif
-
-			goto OnExit;
-		}
-
-	OnExit:
-
-		// Pop the shader table
-		lua_pop(&io_luaState, 1);
-
-		return !wereThereErrors;
-	}
-
-	bool Material::LoadTableValues_Shader_paths(lua_State& io_luaState, std::string& o_PathShader
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-		, std::string* o_errorMessage
-#endif
-		)
-	{
-		// Right now the asset table is at -2
-		// and the textures table is at -1.
-		// NOTE, however, that it doesn't matter to me in this function
-		// that the asset table is at -2.
-		// Because I've carefully called a new function for every "stack level"
-		// The only thing I care about is that the textures table that I care about
-		// is at the top of the stack.
-		// As long as I make sure that when I leave this function it is _still_
-		// at -1 then it doesn't matter to me at all what is on the stack below it.
-		bool wereThereErrors = false;
-		
-		const int MAX_COUNT_OF_VALUES = 1;
-		int CountOfValues = 0;
-
-		//Iterating through the constant key value pairs
-		lua_pushnil(&io_luaState);
-		int CurrentIndexOfConstantTable = -2;
-		while (lua_next(&io_luaState, CurrentIndexOfConstantTable))
-		{
-			//Only one path should be present in this table
-			assert(CountOfValues <= MAX_COUNT_OF_VALUES);
-
-			//Current Table is at -3 inside the while loop
-			int IndexOfKey = -2; int IndexOfValue = -1;
-			if (lua_type(&io_luaState, IndexOfKey) != LUA_TSTRING)
-			{
-				wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage)
-				{
-					std::stringstream errorMessage;
-					errorMessage << "key must be a string (instead of a " <<
-						luaL_typename(&io_luaState, IndexOfKey) << ")\n";
-
-					*o_errorMessage = errorMessage.str();
-				}
-#endif
-				// Pop the returned key value pair on error
-				lua_pop(&io_luaState, 2);
-				goto OnExit;
-			}
-
-			//Store the valid key in a variable
-			const char * PathKeyName = lua_tostring(&io_luaState, IndexOfKey);
-
-			if (strcmp(PathKeyName, "Path") == 0)
-			{
-				// A correct asset file _must_ return a string as value
-				if (lua_type(&io_luaState, IndexOfValue) != LUA_TSTRING)
+				else
 				{
 					wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-					if (o_errorMessage)
-					{
-						std::stringstream errorMessage;
-						errorMessage << "file paths must be a string (instead of a " <<
-							luaL_typename(&io_luaState, IndexOfValue) << ")\n";
-
-						*o_errorMessage = errorMessage.str();
-					}
-#endif
-
-					// Pop the returned non-string value
-					lua_pop(&io_luaState, 1);
-					goto OnExit;
 				}
-
-				//No Errors, Value is a string
-				o_PathShader = lua_tostring(&io_luaState, -1);
 			}
 			else
 			{
 				wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage)
-				{
-					std::stringstream errorMessage;
-					errorMessage << "key must be named as string \"Path\" \n";
-
-					*o_errorMessage = errorMessage.str();
-				}
-#endif
-				// Pop the returned key value pair on error
-				lua_pop(&io_luaState, 2);
-				goto OnExit;
 			}
-
-			CountOfValues++;
-
-			//Pop the value, but leave the key
-			lua_pop(&io_luaState, 1);
+			
+			// Pop the each constant value table on error
+			LuaHelper::UnLoad_LuaTable(io_luaState);
+		}
+		else
+		{
+			wereThereErrors = true;
 		}
 
-	OnExit:
+		//Add More Get functions if more in the table
+
+		// Pop the constant table
+		LuaHelper::UnLoad_LuaTable(io_luaState);
+
 		return !wereThereErrors;
 	}
 
+	//==================================================================
+	//Vertex Shader load logic
+	bool Material::LoadTableValues_VertexShader(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		bool wereThereErrors = false;
+
+		if (!LuaHelper::Load_LuaTable(io_luaState, "VertexShader"
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif
+			))
+		{
+			wereThereErrors = true;
+			goto OnExit;
+		}
+
+		//Add score for PathVertexShader to remove error: "initialization of 'PathVertexShader' is skipped by 'goto OnExit'"
+		{
+			std::string PathVertexShader;
+			{
+				if (!LuaHelper::GetStringValueFromKey(io_luaState, "Path", PathVertexShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					wereThereErrors = true;
+					goto OnExit;
+				}
+			}
+
+			//Load the shader itself from the path
+			if (!LoadVertexShader(PathVertexShader.c_str(), m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif		
+				))
+			{
+				wereThereErrors = true;
+				goto OnExit;
+			}
+		}
+		//Add More Get functions if  more in the table
+	OnExit:
+
+		// Pop the shader table
+		LuaHelper::UnLoad_LuaTable(io_luaState);
+
+		return !wereThereErrors;
+	}
+
+
+	//==================================================================
+	//Vertex Shader load logic
+	bool Material::LoadTableValues_FragmentShader(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		bool wereThereErrors = false;
+
+		if (!LuaHelper::Load_LuaTable(io_luaState, "FragmentShader"
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif
+			))
+		{
+			wereThereErrors = true;
+			goto OnExit;
+		}
+
+		//Add score for PathFragmentShader to remove error: "initialization of 'PathFragmentShader' is skipped by 'goto OnExit'"
+		{
+			std::string PathFragmentShader;
+			{
+				if (!LuaHelper::GetStringValueFromKey(io_luaState, "Path", PathFragmentShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					wereThereErrors = true;
+					goto OnExit;
+				}
+			}
+
+			//Load the shader itself from the path
+			if (!LoadFragmentShader(PathFragmentShader.c_str(), m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif		
+				))
+			{
+				wereThereErrors = true;
+				goto OnExit;
+			}
+		}
+		//Add More Get functions if  more in the table
+	OnExit:
+
+		// Pop the shader table
+		LuaHelper::UnLoad_LuaTable(io_luaState);
+
+		return !wereThereErrors;
+	}
 
 
 	//==================================================================
 	//Texture load logic
-	bool Material::LoadTableValues_Texture(lua_State& io_luaState, const char* key, std::string& o_PathTexture, std::string& o_NameSampler
+	bool Material::LoadTableValues_Texture(lua_State& io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
 #endif
 		)
 	{
-		assert(key);
 		bool wereThereErrors = false;
-
-		// Right now the asset table is at -1.
-		// After the following table operation it will be at -2
-		// and the "textures" table will be at -1:
-		lua_pushstring(&io_luaState, key);
-		lua_gettable(&io_luaState, -2);
-		// It can be hard to remember where the stack is at
-		// and how many values to pop.
-		// One strategy I would suggest is to always call a new function
-		// When you are at a new level:
-		// Right now we know that we have an original table at -2,
-		// and a new one at -1,
-		// and so we _know_ that we always have to pop at least _one_
-		// value before leaving this function
-		// (to make the original table be back to index -1).
-		// If we don't do any further stack manipulation in this function
-		// then it becomes easy to remember how many values to pop
-		// because it will always be one.
-		// This is the strategy I'll take in this example
-		// (look at the "OnExit" label):
-		if (lua_istable(&io_luaState, -1))
+		std::string SamplerName = "g_color_sampler";
+		std::string PathTexture = "data/missingTexture.dds";
+		bool CouldLoadTexture = true;
+		if (LuaHelper::Load_LuaTable(io_luaState, "Texture"
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif
+			))
 		{
-			if (!LoadTableValues_TexturePathAndSampler(io_luaState, o_PathTexture, o_NameSampler
+			SamplerName = "g_color_sampler";
+			PathTexture = "data/missingTexture.dds";
+			{
+				if (LuaHelper::GetStringValueFromKey(io_luaState, "Path", PathTexture
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					if (LuaHelper::GetStringValueFromKey(io_luaState, "Sampler", SamplerName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, o_errorMessage
+#endif
+						))
+					{
+
+						if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+							, o_errorMessage
+#endif
+							))
+						{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+							MessageBox(NULL, o_errorMessage->c_str(), PathTexture.c_str(), MB_OK | MB_ICONERROR);
+#endif
+							CouldLoadTexture = false;
+						}
+					}
+					else
+					{
+						//Could not find the sampler name for a valid texture
+						wereThereErrors = true;
+						goto OnExit;
+					}
+				}
+				else
+				{
+
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					MessageBox(NULL, o_errorMessage->c_str(), PathTexture.c_str(), MB_OK | MB_ICONERROR);
+#endif
+					CouldLoadTexture = false;
+				}
+			}
+		}
+		else
+		{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			MessageBox(NULL, o_errorMessage->c_str(), PathTexture.c_str(), MB_OK | MB_ICONERROR);
+#endif
+			CouldLoadTexture = false;
+		}
+
+		if (!CouldLoadTexture)
+		{
+			//Try to laod default texture
+			SamplerName = "g_color_sampler";
+			PathTexture = "data/missingTexture.dds";
+			if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				, o_errorMessage
 #endif
 				))
 			{
+				//Could not load default texture, fail the function
 				wereThereErrors = true;
 				goto OnExit;
 			}
-		}
-		else
-		{
-			wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			if (o_errorMessage)
-			{
-				std::stringstream errorMessage;
-				errorMessage << "The value at \"" << key << "\" must be a table "
-					"(instead of a " << luaL_typename(&io_luaState, -1) << ")\n";
-
-				*o_errorMessage = errorMessage.str();
-			}
-#endif
-
-			goto OnExit;
 		}
 
 	OnExit:
 
-		// Pop the shader table
-		lua_pop(&io_luaState, 1);
-
-		return !wereThereErrors;
-	}
-
-	bool Material::LoadTableValues_TexturePathAndSampler(lua_State& io_luaState, std::string& o_PathTexture, std::string& o_NameSampler
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, std::string* o_errorMessage
-#endif
-		)
-	{
-		// Right now the asset table is at -2
-		// and the textures table is at -1.
-		// NOTE, however, that it doesn't matter to me in this function
-		// that the asset table is at -2.
-		// Because I've carefully called a new function for every "stack level"
-		// The only thing I care about is that the textures table that I care about
-		// is at the top of the stack.
-		// As long as I make sure that when I leave this function it is _still_
-		// at -1 then it doesn't matter to me at all what is on the stack below it.
-		bool wereThereErrors = false;
-
-		const int MAX_COUNT_OF_VALUES = 2; //Path and Sampler Name
-		int CountOfValues = 0;
-
-		//Iterating through the constant key value pairs
-		lua_pushnil(&io_luaState);
-		int CurrentIndexOfConstantTable = -2;
-		while (lua_next(&io_luaState, CurrentIndexOfConstantTable))
-		{
-			//Only one path should be present in this table
-			assert(CountOfValues <= MAX_COUNT_OF_VALUES);
-
-			//Current Table is at -3 inside the while loop
-			int IndexOfKey = -2; int IndexOfValue = -1;
-			if (lua_type(&io_luaState, IndexOfKey) != LUA_TSTRING)
-			{
-				wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage)
-				{
-					std::stringstream errorMessage;
-					errorMessage << "key must be a string (instead of a " <<
-						luaL_typename(&io_luaState, IndexOfKey) << ")\n";
-
-					*o_errorMessage = errorMessage.str();
-				}
-#endif
-				// Pop the returned key value pair on error
-				lua_pop(&io_luaState, 2);
-				goto OnExit;
-			}
-
-			//Store the valid key in a variable
-			const char * PathKeyName = lua_tostring(&io_luaState, IndexOfKey);
-
-			if (strcmp(PathKeyName, "Path") == 0)
-			{
-				// A correct asset file _must_ return a string as value
-				if (lua_type(&io_luaState, IndexOfValue) != LUA_TSTRING)
-				{
-					wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-					if (o_errorMessage)
-					{
-						std::stringstream errorMessage;
-						errorMessage << "file paths must be a string (instead of a " <<
-							luaL_typename(&io_luaState, IndexOfValue) << ")\n";
-
-						*o_errorMessage = errorMessage.str();
-					}
-#endif
-
-					// Pop the returned non-string value
-					lua_pop(&io_luaState, 1);
-					goto OnExit;
-				}
-
-				//No Errors, Value is a string
-				o_PathTexture = lua_tostring(&io_luaState, -1);
-			}
-			else if (strcmp(PathKeyName, "Sampler") == 0)
-			{
-				// A correct asset file _must_ return a string as value
-				if (lua_type(&io_luaState, IndexOfValue) != LUA_TSTRING)
-				{
-					wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-					if (o_errorMessage)
-					{
-						std::stringstream errorMessage;
-						errorMessage << "file paths must be a string (instead of a " <<
-							luaL_typename(&io_luaState, IndexOfValue) << ")\n";
-
-						*o_errorMessage = errorMessage.str();
-					}
-#endif
-
-					// Pop the returned non-string value
-					lua_pop(&io_luaState, 1);
-					goto OnExit;
-				}
-
-				//No Errors, Value is a string
-				o_NameSampler = lua_tostring(&io_luaState, -1);
-			}
-			else
-			{
-				wereThereErrors = true;
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage)
-				{
-					std::stringstream errorMessage;
-					errorMessage << "key must be named as string \"Path\" or \"Sampler\" \n";
-
-					*o_errorMessage = errorMessage.str();
-				}
-#endif
-				// Pop the returned key value pair on error
-				lua_pop(&io_luaState, 2);
-				goto OnExit;
-			}
-
-			CountOfValues++;
-
-			//Pop the value, but leave the key
-			lua_pop(&io_luaState, 1);
-		}
-
-OnExit:
-		if (CountOfValues == 0)
-		{
-			wereThereErrors = true;
-		}
-
+		// Pop the texture table
+		LuaHelper::UnLoad_LuaTable(io_luaState);
 		return !wereThereErrors;
 	}
 
@@ -1445,7 +1017,6 @@ OnExit:
 		return !wereThereErrors;
 	}
 
-
 	bool Material::LoadVertexShader(const char* i_VertexShaderpath, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
@@ -1501,11 +1072,8 @@ OnExit:
 #endif
 				wereThereErrors = true;
 			}
-#if 0
-			compiledShader->Release();
-#else
+
 			if (compiledShader) free(compiledShader);
-#endif
 		}
 
 		return !wereThereErrors;
