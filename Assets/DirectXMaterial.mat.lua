@@ -9,12 +9,18 @@ return
 	
 	VertexShader =
 	{
-		Path = "data/vertexShader.shd"
+		Path = "data/vertexShader.shd",
+		WorldToView = "g_transform_worldToView",
+		ViewToScreen = "g_transform_viewToScreen",
+		ModelToWorld = "g_transform_modelToWorld",
 	},
 
 	FragmentShader =
 	{
-		Path = "data/fragmentShader.shd"
+		Path = "data/fragmentShader.shd",
+		AmbientLight = "g_lighting_ambient",
+		DiffuseLight = "g_lighting",
+		LightDirection = "g_light_direction",
 	},
 	
 	Texture =

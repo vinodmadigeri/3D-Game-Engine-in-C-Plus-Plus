@@ -214,21 +214,21 @@ namespace Engine
 		int Datacount;
 		LightingSystem::GetInstance()->GetAmbientLight().GetAsFloatArray(Data, Datacount);
 
-		if (!SetPerFrameConstantDataByName("g_lighting_ambient", Data, Datacount))
+		if (!SetPerFrameConstantDataByName("AmbientLight", Data, Datacount))
 		{
 			assert(false);
 		}
 
 		LightingSystem::GetInstance()->GetDiffuseLight().GetAsFloatArray(Data, Datacount);
 
-		if (!SetPerFrameConstantDataByName("g_lighting", Data, Datacount))
+		if (!SetPerFrameConstantDataByName("DiffuseLight", Data, Datacount))
 		{
 			assert(false);
 		}
 
 		LightingSystem::GetInstance()->GetLightDirection().GetAsFloatArray(Data, Datacount);
 
-		if (!SetPerFrameConstantDataByName("g_light_direction", Data, Datacount))
+		if (!SetPerFrameConstantDataByName("LightDirection", Data, Datacount))
 		{
 			assert(false);
 		}
@@ -244,7 +244,7 @@ namespace Engine
 	}
 
 
-// Load material file from path
+	// Load material file from path
 	bool Material::Load(const char* i_MaterialFilepath, IDirect3DDevice9* i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
@@ -348,7 +348,6 @@ namespace Engine
 
 		return true;
 	}
-
 
 	//================================================================
 	//Constant load logic
@@ -467,7 +466,7 @@ namespace Engine
 			goto OnExit;
 		}
 
-		//Add score for PathVertexShader to remove error: "initialization of 'PathVertexShader' is skipped by 'goto OnExit'"
+		//Add scope for PathVertexShader to remove error: "initialization of 'PathVertexShader' is skipped by 'goto OnExit'"
 		{
 			std::string PathVertexShader;
 			{
@@ -523,7 +522,7 @@ namespace Engine
 			goto OnExit;
 		}
 
-		//Add score for PathFragmentShader to remove error: "initialization of 'PathFragmentShader' is skipped by 'goto OnExit'"
+		//Add scope for PathFragmentShader to remove error: "initialization of 'PathFragmentShader' is skipped by 'goto OnExit'"
 		{
 			std::string PathFragmentShader;
 			{
@@ -538,8 +537,58 @@ namespace Engine
 				}
 			}
 
+
+			std::map<std::string, std::string> constNameMap;
+
+			std::string AmbientLightConstantName;
+			{
+				if (!LuaHelper::GetStringValueFromKey(io_luaState, "AmbientLight", AmbientLightConstantName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					wereThereErrors = true;
+					goto OnExit;
+				}
+
+				constNameMap.insert(std::pair<std::string, std::string>("AmbientLight", AmbientLightConstantName));
+			}
+
+			
+
+			std::string DiffuseLightConstantName;
+			{
+				if (!LuaHelper::GetStringValueFromKey(io_luaState, "DiffuseLight", DiffuseLightConstantName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					wereThereErrors = true;
+					goto OnExit;
+				}
+
+				constNameMap.insert(std::pair<std::string, std::string>("DiffuseLight", DiffuseLightConstantName));
+			}
+
+			std::string LightDirectionConstantName;
+			{
+				if (!LuaHelper::GetStringValueFromKey(io_luaState, "LightDirection", LightDirectionConstantName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					wereThereErrors = true;
+					goto OnExit;
+				}
+
+				constNameMap.insert(std::pair<std::string, std::string>("LightDirection", LightDirectionConstantName));
+			}
+
 			//Load the shader itself from the path
-			if (!LoadFragmentShader(PathFragmentShader.c_str(), m_direct3dDevice
+			if (!LoadFragmentShader(PathFragmentShader.c_str(), constNameMap, m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				, o_errorMessage
 #endif		
@@ -549,6 +598,8 @@ namespace Engine
 				goto OnExit;
 			}
 		}
+
+
 		//Add More Get functions if  more in the table
 	OnExit:
 
@@ -1026,7 +1077,7 @@ namespace Engine
 	}
 
 
-	bool Material::LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
+	bool Material::LoadFragmentShader(const char* i_FragmentShaderpath, std::map<std::string, std::string> & i_constantNameMap, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
 #endif
@@ -1052,7 +1103,14 @@ namespace Engine
 
 		if (m_pfragmentShaderConsts != NULL)
 		{
-			LoadFragmentShaderConstants(m_pfragmentShaderConsts, i_direct3dDevice);
+			if (!LoadFragmentShaderConstants(i_FragmentShaderpath, m_pfragmentShaderConsts, i_constantNameMap, i_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif
+				))
+			{
+				return false;
+			}
 		}
 
 		bool wereThereErrors = false;
@@ -1076,85 +1134,178 @@ namespace Engine
 		return !wereThereErrors;
 	}
 
-	bool Material::LoadFragmentShaderConstants(ID3DXConstantTable* i_pfragmentShaderConsts, IDirect3DDevice9 * i_direct3dDevice)
+	bool Material::LoadFragmentShaderConstants(const char* i_FragmentShaderpath, ID3DXConstantTable* i_pfragmentShaderConsts, std::map<std::string, std::string> & i_constantNameMap, IDirect3DDevice9 * i_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
 	{
-		assert(i_pfragmentShaderConsts && i_direct3dDevice);
+		assert(i_pfragmentShaderConsts && i_direct3dDevice && i_FragmentShaderpath);
 
 		i_pfragmentShaderConsts->SetDefaults(i_direct3dDevice); //Set constant default
 
 		//-----------------------g_lighting_ambient-------------
 		{
-			const char * cConstantName = "g_lighting_ambient";
+			const char * cGlobalConstantName = "AmbientLight";
+			std::map<std::string, std::string>::iterator it;
 
-			D3DXHANDLE Handle = i_pfragmentShaderConsts->GetConstantByName(NULL, cConstantName);
+			//Find the actual constant name 
+			it = i_constantNameMap.find(cGlobalConstantName);
 
-			if (Handle != NULL)
+			if (it == i_constantNameMap.end())
 			{
-				assert(LightingSystem::GetInstance());
-				float FloatDataArray[3];
-				int dataCount;
-				LightingSystem::GetInstance()->GetAmbientLight().GetAsFloatArray(FloatDataArray, dataCount);
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant name in fragment shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
 
-				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
-				IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
-
-				MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
-				assert(PerViewMaterialConstant);
-
-				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
-
-				m_perFrameConstantDatas.push_back(BaseClassPointer);
+				return false;
+#endif
 			}
+
+			D3DXHANDLE Handle = i_pfragmentShaderConsts->GetConstantByName(NULL, it->second.c_str());
+
+			if (Handle == NULL)
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant " << it->second.c_str() << " in " << i_FragmentShaderpath << " fragment shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
+
+				return false;
+#endif
+			}
+
+			assert(LightingSystem::GetInstance());
+			float FloatDataArray[3];
+			int dataCount;
+			LightingSystem::GetInstance()->GetAmbientLight().GetAsFloatArray(FloatDataArray, dataCount);
+
+			BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
+			IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
+
+			MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cGlobalConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
+			assert(PerViewMaterialConstant);
+
+			IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+
+			m_perFrameConstantDatas.push_back(BaseClassPointer);
+
 		}
 
 		//-----------------------g_lighting-------------
 		{
-			const char * cConstantName = "g_lighting";
+			const char * cGlobalConstantName = "DiffuseLight";
+			std::map<std::string, std::string>::iterator it;
 
-			D3DXHANDLE Handle = i_pfragmentShaderConsts->GetConstantByName(NULL, cConstantName);
+			//Find the actual constant name 
+			it = i_constantNameMap.find(cGlobalConstantName);
 
-			if (Handle != NULL)
+			if (it == i_constantNameMap.end())
 			{
-				assert(LightingSystem::GetInstance());
-				float FloatDataArray[3];
-				int dataCount;
-				LightingSystem::GetInstance()->GetDiffuseLight().GetAsFloatArray(FloatDataArray, dataCount);
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant name in fragment shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
 
-				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
-				IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
-
-				MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
-				assert(PerViewMaterialConstant);
-
-				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
-
-				m_perFrameConstantDatas.push_back(BaseClassPointer);
+				return false;
+#endif
 			}
+
+			D3DXHANDLE Handle = i_pfragmentShaderConsts->GetConstantByName(NULL, it->second.c_str());
+			
+			if (Handle == NULL)
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant " << it->second.c_str() << " in " << i_FragmentShaderpath <<" fragment shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
+
+				return false;
+#endif
+			}
+
+			assert(LightingSystem::GetInstance());
+			float FloatDataArray[3];
+			int dataCount;
+			LightingSystem::GetInstance()->GetDiffuseLight().GetAsFloatArray(FloatDataArray, dataCount);
+
+			BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
+			IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
+
+			MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cGlobalConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
+			assert(PerViewMaterialConstant);
+
+			IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+
+			m_perFrameConstantDatas.push_back(BaseClassPointer);
+
 		}
 
 		//-----------------------g_light_direction-------------
 		{
-			const char * cConstantName = "g_light_direction";
+			const char * cGlobalConstantName = "LightDirection";
+			std::map<std::string, std::string>::iterator it;
 
-			D3DXHANDLE Handle = i_pfragmentShaderConsts->GetConstantByName(NULL, cConstantName);
+			//Find the actual constant name 
+			it = i_constantNameMap.find(cGlobalConstantName);
 
-			if (Handle != NULL)
+			if (it == i_constantNameMap.end())
 			{
-				assert(LightingSystem::GetInstance());
-				float FloatDataArray[3];
-				int dataCount;
-				LightingSystem::GetInstance()->GetLightDirection().GetAsFloatArray(FloatDataArray, dataCount);
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant name in fragment shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
 
-				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
-				IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
-
-				MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
-				assert(PerViewMaterialConstant);
-
-				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
-
-				m_perFrameConstantDatas.push_back(BaseClassPointer);
+				return false;
+#endif
 			}
+
+			D3DXHANDLE Handle = i_pfragmentShaderConsts->GetConstantByName(NULL, it->second.c_str());
+
+			if (Handle == NULL)
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant " << it->second.c_str() << " in " << i_FragmentShaderpath << " fragment shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
+
+				return false;
+#endif
+			}
+
+			assert(LightingSystem::GetInstance());
+			float FloatDataArray[3];
+			int dataCount;
+			LightingSystem::GetInstance()->GetLightDirection().GetAsFloatArray(FloatDataArray, dataCount);
+
+			BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
+			IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
+
+			MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cGlobalConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
+			assert(PerViewMaterialConstant);
+
+			IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+
+			m_perFrameConstantDatas.push_back(BaseClassPointer);
 		}
 
 		return true;

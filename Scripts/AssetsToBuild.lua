@@ -84,7 +84,7 @@ return
 		assets =
 		{
 			"AMDMaterial",
-			"genericMaterial",
+			"MicrosoftMaterial",
 			"DirectXMaterial",
 			"NvidiaMaterial",
 			"StripesMaterial",

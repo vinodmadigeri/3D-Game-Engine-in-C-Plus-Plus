@@ -9,7 +9,7 @@ return
 	
 	VertexShader =
 	{
-		Path = "data/vertexShader.shd"
+		Path = "data/vertexShader.shd",
 		WorldToView = "g_transform_worldToView",
 		ViewToScreen = "g_transform_viewToScreen",
 		ModelToWorld = "g_transform_modelToWorld",
@@ -25,7 +25,7 @@ return
 	
 	Texture =
 	{
-		Path = "data/amd.dds",
+		Path = "data/microsoftWindows.dds",
 		Sampler = "g_color_sampler"
 	},
 }

@@ -9,6 +9,7 @@ as well as the data that those shader program use
 // Header Files
 //=============
 #include "PreCompiled.h"
+#include <map>
 #include <d3d9.h>
 #include <d3dx9shader.h>
 #include <vector>
@@ -84,6 +85,7 @@ namespace Engine
 
 		IDirect3DTexture9* m_texture;
 		DWORD m_samplerRegister;
+
 		std::vector<IMaterialConstant *> m_perMaterialConstantDatas; //optional
 		std::vector<IMaterialConstant *> m_perInstanceConstantDatas; //optional
 		std::vector<IMaterialConstant *> m_perViewConstantDatas; 
@@ -159,13 +161,17 @@ namespace Engine
 #endif
 			);
 
-		bool LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
+		bool LoadFragmentShader(const char* i_FragmentShaderpath, std::map<std::string, std::string> & i_constantNameMap, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, std::string* o_errorMessage = NULL
+			, std::string* o_errorMessage
 #endif
 			);
 		
-		bool LoadFragmentShaderConstants(ID3DXConstantTable* i_pfragmentShaderConsts, IDirect3DDevice9 * i_direct3dDevice);
+		bool LoadFragmentShaderConstants(const char* i_FragmentShaderpath, ID3DXConstantTable* i_pfragmentShaderConsts, std::map<std::string, std::string> & i_constantNameMap, IDirect3DDevice9 * i_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
 
 		bool LoadVertexShader(const char* i_VertexShaderpath, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED

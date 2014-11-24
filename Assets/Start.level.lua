@@ -131,7 +131,7 @@ return
 			renderSettings = 
 			{
 				meshPath = "data/plane.dat",
-				materialPath = "data/genericMaterial.mat",
+				materialPath = "data/MicrosoftMaterial.mat",
 			},
 			
 			physicsSettings = 
