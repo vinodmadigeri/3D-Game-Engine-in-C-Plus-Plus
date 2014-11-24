@@ -1,7 +1,10 @@
 #ifndef __LUA_HELPER
 #define __LUA_HELPER
+
 #include <cassert>
+#include <vector>
 #include "../../External/Lua/Includes.h"
+
 
 namespace LuaHelper
 {
@@ -31,6 +34,23 @@ namespace LuaHelper
 		, std::string* o_errorMessage
 #endif
 		);
+
+	bool GetEachStringValuesInCurrentTable(lua_State& io_luaState, std::string * o_StringVariable, const unsigned int i_DataCount
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		);
+
+	bool GetEachStringValuesInCurrentTable(lua_State& io_luaState, std::vector<std::string> & o_StringVector, const unsigned int i_DataCount
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		);
+
+	inline int GetTableValuesLength(lua_State& io_luaState)
+	{
+		return luaL_len(&io_luaState, -1);
+	}
 
 	//Template Functions
 	//--------------

@@ -17,6 +17,9 @@ static const double CONSTANT_TIME_FRAME = 1000.0f / 60.0f;
 namespace Engine
 {
 	class IActorController;
+	
+	template<class T> 
+	class NamedBitSet;
 }
 
 namespace Engine
@@ -36,6 +39,8 @@ namespace Engine
 		bool				bMarkForDeath;
 		Matrix4x4			mLocalToWorld;
 		static MemoryPool	*m_pActorMemoryPool;
+		static NamedBitSet<int>	mActorTypeNamedBitSet;
+
 		IActorController	*m_pController;
 		HashedString		mType;
 
@@ -46,11 +51,14 @@ namespace Engine
 			float	i_Rotation,
 			char *i_GameObjectName,
 			const Matrix4x4 &i_LocalToWorld,
+			const unsigned int i_ClassBitIndex,
 			const char * i_Type);
 
 		static void CreateActorMemoryPool();
 
 	public:
+		unsigned int		mClassBitIndex;
+
 		~Actor();
 		static SharedPointer<Actor> Create
 		(
@@ -89,6 +97,7 @@ namespace Engine
 		const float GetDeltaTime(void) const;
 		char *GetName(void) const;
 		const Matrix4x4 & GetLocalToWorldMatrix(void) const;
+		static void AddGlobalClassTypes(const char * i_ActorType);
 		bool IsA(const char * i_ActorType) const;
 
 		void SetController(IActorController * i_pController);

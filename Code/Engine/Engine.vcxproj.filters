@@ -53,6 +53,15 @@
     <ClCompile Include="CameraSystem.cpp">
       <Filter>GraphicsSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Util\Profiling.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\RingBuffer.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelLoadHelper.cpp">
+      <Filter>Util\LevelLoading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PreCompiled.h" />
@@ -128,6 +137,21 @@
     <ClInclude Include="Util\WindowsError.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="LightingData.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\NamedBitSet.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Profiling.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\RingBuffer.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelLoadHelper.h">
+      <Filter>Util\LevelLoading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GraphicsSystem">
@@ -157,6 +181,9 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{ede9e3cb-b25b-4601-83aa-d4f0b469c586}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Util\LevelLoading">
+      <UniqueIdentifier>{63b1144a-a32a-4f81-a6cc-d5e3d4eb57dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Util\Vector3.inl">
@@ -172,6 +199,12 @@
       <Filter>Util\Matrix4X4</Filter>
     </None>
     <None Include="Util\RandomNumber.inl">
+      <Filter>Util</Filter>
+    </None>
+    <None Include="Util\NamedBitSet.inl">
+      <Filter>Util</Filter>
+    </None>
+    <None Include="Util\RingBuffer.inl">
       <Filter>Util</Filter>
     </None>
   </ItemGroup>

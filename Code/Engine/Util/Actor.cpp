@@ -5,11 +5,13 @@
 #include "ActorController.h"
 #include "Debug.h"
 #include "Vector3.h"
+#include "NamedBitSet.h"
 
 namespace Engine
 {
 	MemoryPool *Actor::m_pActorMemoryPool = NULL;
-	
+	NamedBitSet<int> Actor::mActorTypeNamedBitSet;
+
 	Actor::Actor
 	(
 		Vector3 i_Position,  
@@ -19,6 +21,7 @@ namespace Engine
 		float	i_Rotation,
 		char *i_GameObjectName,
 		const Matrix4x4 &i_LocalToWorld,
+		const unsigned int i_ClassBitIndex,
 		const char *i_Type
 	):
 		mPosition(i_Position),
@@ -33,6 +36,7 @@ namespace Engine
 		mFriction(Vector3(0.0f, 0.0f, 0.0f)),
 		mDeltaTime(static_cast<float>(CONSTANT_TIME_FRAME)),
 		mLocalToWorld(i_LocalToWorld),
+		mClassBitIndex(i_ClassBitIndex),
 		m_pController(NULL),
 		mType(i_Type)
 	{
@@ -54,6 +58,13 @@ namespace Engine
 		assert(i_GameObjectName != NULL);
 		char *pGameObjName = _strdup(i_GameObjectName);
 
+		int ClassBitIndex = 0;
+		if (false == mActorTypeNamedBitSet.FindBitMask(i_ActorType, ClassBitIndex))
+		{
+			CONSOLE_PRINT("Actor type is not present in global class types");
+			//assert(false); ToDo Fix the camera parse
+		}
+
 		Matrix4x4 Translation, Rotation, LocalToWorld;
 
 		Translation.CreateTranslation(i_Position);
@@ -61,7 +72,7 @@ namespace Engine
 
 		LocalToWorld = Translation * Rotation;
 
-		return SharedPointer<Actor>(new Actor(i_Position, i_Size, i_Velocity, i_Acceleration, i_Rotation, pGameObjName, LocalToWorld, i_ActorType));
+		return SharedPointer<Actor>(new Actor(i_Position, i_Size, i_Velocity, i_Acceleration, i_Rotation, pGameObjName, LocalToWorld, ClassBitIndex, i_ActorType));
 	}
 
 	Actor::~Actor()
@@ -134,6 +145,11 @@ namespace Engine
 		mLocalToWorld = i_Input;
 	}
 
+	void Actor::AddGlobalClassTypes(const char * i_ActorType)
+	{
+		(void)mActorTypeNamedBitSet.GetBitMask(i_ActorType);
+	}
+
 	const Vector3 & Actor::GetPosition(void) const
 	{
 		return mPosition;
@@ -192,14 +208,14 @@ namespace Engine
 
 	bool Actor::IsA(const char * i_ActorType) const
 	{
-		assert(i_ActorType);
 
-		if (mType.Get() == HashedString::Hash(i_ActorType))
+		int o_BitIndex = 0;
+
+		if ((true == mActorTypeNamedBitSet.FindBitMask(i_ActorType, o_BitIndex)) && (mClassBitIndex == o_BitIndex))
 		{
 			return true;
 		}
 
-		//ToDo named bitset
 		return false;
 	}
 

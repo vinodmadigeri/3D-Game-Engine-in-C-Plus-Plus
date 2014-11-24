@@ -302,4 +302,112 @@ namespace LuaHelper
 
 		return true;
 	}
+
+
+	bool GetEachStringValuesInCurrentTable(lua_State& io_luaState, std::string * o_StringArray, const unsigned int i_DataCount
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		assert(o_StringArray);
+		//Iterating through every value table
+		const int DataCount = luaL_len(&io_luaState, -1);
+
+		if (DataCount != i_DataCount)
+		{
+			if (o_errorMessage)
+			{
+				std::stringstream errorMessage;
+				errorMessage << "Data count:" << DataCount << " while loading float values is not equal to expected data count:" << i_DataCount << "\n";
+				*o_errorMessage = errorMessage.str();
+			}
+
+			return false;
+		}
+
+		for (int i = 1; i <= DataCount; ++i)
+		{
+			lua_pushinteger(&io_luaState, i);
+			const int currentIndexOfConstantDataTable = -2;
+			lua_gettable(&io_luaState, currentIndexOfConstantDataTable);
+
+			if (lua_type(&io_luaState, -1) != LUA_TSTRING)
+			{
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "value must be a number (instead of a " <<
+						luaL_typename(&io_luaState, -1) << ")\n";
+					*o_errorMessage = errorMessage.str();
+				}
+
+				//Pop the invalid data value from stack and return false on error
+				lua_pop(&io_luaState, 1);
+
+				return false;
+			}
+
+			o_StringArray[i - 1] = (lua_tostring(&io_luaState, -1));
+
+			//Pop the value from the stack since it is stored
+			lua_pop(&io_luaState, 1);
+		}
+		//At this point all the values are stored in o_DataVariable
+
+		return true;
+	}
+
+	bool GetEachStringValuesInCurrentTable(lua_State& io_luaState, std::vector<std::string> & o_StringVector, const unsigned int i_DataCount
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		//Iterating through every value table
+		const int DataCount = GetTableValuesLength(io_luaState);
+
+		if (DataCount != i_DataCount)
+		{
+			if (o_errorMessage)
+			{
+				std::stringstream errorMessage;
+				errorMessage << "Data count:" << DataCount << " while loading float values is not equal to expected data count:" << i_DataCount << "\n";
+				*o_errorMessage = errorMessage.str();
+			}
+
+			return false;
+		}
+
+		for (int i = 1; i <= DataCount; ++i)
+		{
+			lua_pushinteger(&io_luaState, i);
+			const int currentIndexOfConstantDataTable = -2;
+			lua_gettable(&io_luaState, currentIndexOfConstantDataTable);
+
+			if (lua_type(&io_luaState, -1) != LUA_TSTRING)
+			{
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "value must be a number (instead of a " <<
+						luaL_typename(&io_luaState, -1) << ")\n";
+					*o_errorMessage = errorMessage.str();
+				}
+
+				//Pop the invalid data value from stack and return false on error
+				lua_pop(&io_luaState, 1);
+
+				return false;
+			}
+
+			o_StringVector.push_back(lua_tostring(&io_luaState, -1));
+
+			//Pop the value from the stack since it is stored
+			lua_pop(&io_luaState, 1);
+		}
+		//At this point all the values are stored in o_DataVariable
+
+		return true;
+	}
 }

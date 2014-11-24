@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CameraSystem.cpp" />
+    <ClCompile Include="LevelLoadHelper.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="RenderableObjectSystem.cpp" />
     <ClCompile Include="GraphicsSystem.cpp" />
@@ -28,6 +29,8 @@
     <ClCompile Include="Util\Debug.cpp" />
     <ClCompile Include="Util\HashedString.cpp" />
     <ClCompile Include="Util\HighResTime.cpp" />
+    <ClCompile Include="Util\Profiling.cpp" />
+    <ClCompile Include="Util\RingBuffer.cpp" />
     <ClCompile Include="Util\UserInput.cpp" />
     <ClCompile Include="Util\MathUtil.cpp" />
     <ClCompile Include="Util\Matrix4x4.cpp" />
@@ -37,6 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraSystem.h" />
+    <ClInclude Include="LevelLoadHelper.h" />
+    <ClInclude Include="LightingData.h" />
     <ClInclude Include="MaterialConstantData.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="RenderableObjectSystem.h" />
@@ -51,6 +56,9 @@
     <ClInclude Include="Util\Debug.h" />
     <ClInclude Include="Util\HashedString.h" />
     <ClInclude Include="Util\HighResTime.h" />
+    <ClInclude Include="Util\NamedBitSet.h" />
+    <ClInclude Include="Util\Profiling.h" />
+    <ClInclude Include="Util\RingBuffer.h" />
     <ClInclude Include="Util\UserInput.h" />
     <ClInclude Include="Util\MathUtil.h" />
     <ClInclude Include="Util\Matrix4x4.h" />
@@ -64,7 +72,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Util\HashedString.inl" />
+    <None Include="Util\NamedBitSet.inl" />
     <None Include="Util\RandomNumber.inl" />
+    <None Include="Util\RingBuffer.inl" />
     <None Include="Util\SharedPointer.inl" />
     <None Include="Util\Vector3.inl" />
     <None Include="Util\Vector4.inl" />

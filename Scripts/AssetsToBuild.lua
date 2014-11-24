@@ -72,8 +72,8 @@ return
 		},
 	},
 	
-	-- Generic Assets
-	-- (That just get copied as-is rather than built)
+	-- Material Assets
+	-- (Just gets copied as-is rather than built)
 	{
 		builder = "GenericBuilder.exe",
 		extensions =
@@ -83,11 +83,26 @@ return
 		},
 		assets =
 		{
+			"AMDMaterial",
 			"genericMaterial",
 			"DirectXMaterial",
 			"NvidiaMaterial",
-			"AMDMaterial",
 			"StripesMaterial",
+		},
+	},
+	
+	-- Level Assets
+	-- (Just get copied as-is rather than built)
+	{
+		builder = "GenericBuilder.exe",
+		extensions =
+		{
+			source = "level.lua",
+			target = "level",
+		},
+		assets =
+		{
+			"Start",
 		},
 	},
 }
