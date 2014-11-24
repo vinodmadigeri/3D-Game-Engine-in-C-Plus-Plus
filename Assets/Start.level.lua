@@ -18,7 +18,7 @@ return
 		LightDirection = {0.0, -1.0, 0.0}
 	},
 	
-	--ToDo Parse and create Camera instance
+	--ToDo Parse and create Camera instance from level
 	CameraData = 
 	{
 		EyeLocation = {0.0, 0.0, -11.0},
@@ -56,7 +56,6 @@ return
 				
 			}
 		} ,
-		
 		{
 			name = "CubeAMD",
 			class = "Cube",
@@ -75,7 +74,6 @@ return
 				
 			}
 		} ,
-		
 		{
 			name = "TorusStripes",
 			class = "Torus",
@@ -98,7 +96,6 @@ return
 				--}
 			}
 		} ,
-		
 		{
 			name = "HelixStripes",
 			class = "Helix",
@@ -117,7 +114,6 @@ return
 				
 			}
 		} ,
-		
 		{
 			name = "BaseQuad",
 			class = "Plane",

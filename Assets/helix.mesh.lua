@@ -4,7 +4,7 @@ return
 {
 	VertexCount = 4816,
 
-		--Each Vertex Data
+	--Each Vertex Data
 	Vertices =
 	{
 		{

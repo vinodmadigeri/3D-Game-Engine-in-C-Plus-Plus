@@ -86,44 +86,60 @@ namespace Player
 		}
 
 		float singleAccelerationvalue = 0.00005f;
-
+		
 		switch (CharID)
 		{
 			case 'w':
 			case 'W':
 			{
+				if (i_Actor.GetAcceleration().z() < 0.0f)
+				{
+					i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
+				}
+
 				//Set velocity of the Player in Positive Y axis since 'W' is pressed
 				i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, singleAccelerationvalue));
 				i_Actor.SetVelocity(Vector3(0.0f, 0.0f, i_Actor.GetVelocity().z()));
-				CONSOLE_PRINT("Positive Z axis since 'W' is pressed");
 				break;
 			}
 
 			case 'a':
 			case 'A':
 			{
+				if (i_Actor.GetAcceleration().x() > 0.0f)
+				{
+					i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
+				}
+
 				i_Actor.SetAcceleration(Vector3(-singleAccelerationvalue, 0.0f, 0.0f));
 				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f, 0.0f));
-				CONSOLE_PRINT("negative X axis since 'A' is pressed");
 				break;
 			}
 
 			case 's':
 			case 'S':
 			{
+				if (i_Actor.GetAcceleration().z() > 0.0f)
+				{
+					i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
+				}
+
 				i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, -singleAccelerationvalue));
 				i_Actor.SetVelocity(Vector3(0.0f, 0.0f, i_Actor.GetVelocity().z()));
-				CONSOLE_PRINT("Negative Z axis since 'S' is pressed");
 				break;
 			}
 
 			case 'd':
 			case 'D':
 			{
+				if (i_Actor.GetAcceleration().x() < 0.0f)
+				{
+					i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
+				}
+
 				//Move the Player in Positive X axis since 'D' is pressed
 				i_Actor.SetAcceleration(Vector3(singleAccelerationvalue, 0.0f, 0.0f));
 				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f, 0.0f));
-				CONSOLE_PRINT("Postive X axis since 'D' is pressed");
 				break;
 			}
 

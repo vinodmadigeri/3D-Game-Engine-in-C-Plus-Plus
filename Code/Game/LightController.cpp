@@ -131,15 +131,20 @@ namespace Light
 
 		if (KeyPressed == true)
 		{
-			Vector3 CurrentPosition = Engine::LightingSystem::GetInstance()->m_WorldObject->GetPosition();
+			Vector3 CurrentXZPosition = Engine::LightingSystem::GetInstance()->m_WorldObject->GetPosition();
 
-			CurrentPosition += Offset * i_DeltaTime;
+			CurrentXZPosition += Offset * i_DeltaTime;
 
-			Engine::LightingSystem::GetInstance()->m_WorldObject->SetPosition(CurrentPosition);
+			Engine::LightingSystem::GetInstance()->m_WorldObject->SetPosition(CurrentXZPosition);
 
-		
-			Engine::LightingSystem::GetInstance()->SetLightDirection(Engine::Vector3(CurrentPosition.x(), Engine::LightingSystem::GetInstance()->GetLightDirection().y(), CurrentPosition.z()));
+			Vector3 Direction = Engine::LightingSystem::GetInstance()->GetLightDirection();
+
+			Direction.SetCoordinates(CurrentXZPosition.x(), Direction.y(), CurrentXZPosition.z());
+			Direction = Direction.Normalized();
+
+			Engine::LightingSystem::GetInstance()->SetLightDirection(Direction);
 			
+			//CONSOLE_PRINT("Direction = %f, %f, %f", Direction.x(), Direction.y(), Direction.z());
 		}
 
 		return;

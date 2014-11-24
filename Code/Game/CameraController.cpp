@@ -93,38 +93,54 @@ namespace Camera
 			case 'w':
 			case 'W':
 			{
+				if (i_Actor.GetAcceleration().y() < 0.0f)
+				{
+					i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
+				}
+
 				//Set velocity of the camera in Positive Y axis since 'W' is pressed
 				i_Actor.SetAcceleration(Vector3(0.0f, singleAccelerationvalue, 0.0f));
 				i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), 0.0f));
-				CONSOLE_PRINT("Positive Y axis since 'W' is pressed");
 				break;
 			}
 
 			case 'a':
 			case 'A':
 			{
+				if (i_Actor.GetAcceleration().x() > 0.0f)
+				{
+					i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
+				}
+
 				i_Actor.SetAcceleration(Vector3(-singleAccelerationvalue, 0.0f, 0.0f));
 				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f , 0.0f));
-				CONSOLE_PRINT("Negative X axis since 'A' is pressed");
 				break;
 			}
 
 			case 's':
 			case 'S':
 			{
+				if (i_Actor.GetAcceleration().y() > 0.0f)
+				{
+					i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
+				}
+
 				i_Actor.SetAcceleration(Vector3(0.0f, -singleAccelerationvalue, 0.0f));
 				i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), 0.0f));
-				CONSOLE_PRINT("Negative Y axis since 'S' is pressed");
 				break;
 			}
 
 			case 'd':
 			case 'D':
 			{
+				if (i_Actor.GetAcceleration().x() < 0.0f)
+				{
+					i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
+				}
+
 				//Move the camera in Positive X axis since 'D' is pressed
 				i_Actor.SetAcceleration(Vector3(singleAccelerationvalue, 0.0f, 0.0f));
 				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f, 0.0f));
-				CONSOLE_PRINT("Postive X axis since 'D' is pressed");
 				break;
 			}
 

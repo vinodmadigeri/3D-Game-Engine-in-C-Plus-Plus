@@ -30,7 +30,7 @@ namespace Engine
 	{
 		if (mInstance == NULL)
 		{
-			Vector3 InitialPosition(0.0f, 0.0f, 0.0f);
+			Vector3 InitialPosition = iLightDirection;
 			Vector3 InitialVelocity(0.0f, 0.0f, 0.0f);
 			Vector3 InitialAccln(0.0f, 0.0f, 0.0f);
 			Vector3 Size(0.4f, 0.4f, 0.4f);
