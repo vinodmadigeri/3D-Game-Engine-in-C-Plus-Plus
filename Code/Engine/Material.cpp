@@ -159,7 +159,7 @@ namespace Engine
 #endif
 		unsigned int count = 1;
 		//Set per-Instance constants
-		if (!SetPerInstanceConstantDataByName("g_transform_modelToWorld", &LocalToWorld, count))
+		if (!SetPerInstanceConstantDataByName("ModelToWorld", &LocalToWorld, count))
 		{
 			assert(false);
 		}
@@ -173,13 +173,13 @@ namespace Engine
 		D3DPERF_BeginEvent(0, L"Set Material Constants (Per-View \"g_transform_worldToView, g_transform_viewToScreen\")");
 #endif
 		//Set per-view constants
-		if (!SetPerViewConstantDataByName("g_transform_worldToView", &CameraSystem::GetInstance()->GetWorldToView(), count))
+		if (!SetPerViewConstantDataByName("WorldToView", &CameraSystem::GetInstance()->GetWorldToView(), count))
 		{
 			assert(false);
 		}
 
 		//Set per-view constants
-		if (!SetPerViewConstantDataByName("g_transform_viewToScreen", &CameraSystem::GetInstance()->GetViewToScreen(), count))
+		if (!SetPerViewConstantDataByName("ViewToScreen", &CameraSystem::GetInstance()->GetViewToScreen(), count))
 		{
 			assert(false);
 		}
@@ -481,8 +481,57 @@ namespace Engine
 				}
 			}
 
+
+			std::map<std::string, std::string> constNameMap;
+
+			std::string ModelToWorldConstantName;
+			{
+				if (!LuaHelper::GetStringValueFromKey(io_luaState, "ModelToWorld", ModelToWorldConstantName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					wereThereErrors = true;
+					goto OnExit;
+				}
+
+				constNameMap.insert(std::pair<std::string, std::string>("ModelToWorld", ModelToWorldConstantName));
+			}
+
+
+			std::string WorldToViewConstantName;
+			{
+				if (!LuaHelper::GetStringValueFromKey(io_luaState, "WorldToView", WorldToViewConstantName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					wereThereErrors = true;
+					goto OnExit;
+				}
+
+				constNameMap.insert(std::pair<std::string, std::string>("WorldToView", WorldToViewConstantName));
+			}
+
+			std::string ViewToScreenConstantName;
+			{
+				if (!LuaHelper::GetStringValueFromKey(io_luaState, "ViewToScreen", ViewToScreenConstantName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					wereThereErrors = true;
+					goto OnExit;
+				}
+
+				constNameMap.insert(std::pair<std::string, std::string>("ViewToScreen", ViewToScreenConstantName));
+			}
+
 			//Load the shader itself from the path
-			if (!LoadVertexShader(PathVertexShader.c_str(), m_direct3dDevice
+			if (!LoadVertexShader(PathVertexShader.c_str(), constNameMap, m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				, o_errorMessage
 #endif		
@@ -1311,7 +1360,7 @@ namespace Engine
 		return true;
 	}
 
-	bool Material::LoadVertexShader(const char* i_VertexShaderpath, IDirect3DDevice9 * i_direct3dDevice
+	bool Material::LoadVertexShader(const char* i_VertexShaderpath, std::map<std::string, std::string> & i_constantNameMap, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
 #endif
@@ -1338,14 +1387,12 @@ namespace Engine
 		//Get reference to per-instance constant
 		if (m_pvertexShaderConsts != NULL)
 		{
-			if (!LoadVertexShaderConstants(m_pvertexShaderConsts, i_direct3dDevice))
-			{
+			if (!LoadVertexShaderConstants(i_VertexShaderpath, m_pvertexShaderConsts, i_constantNameMap, i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				if (o_errorMessage)
-				{
-					*o_errorMessage = "Failed to load the vertex shader constants";
-				}
+				, o_errorMessage
 #endif
+				))
+			{
 				return false;
 			}
 		}
@@ -1374,7 +1421,11 @@ namespace Engine
 	}
 
 
-	bool Material::LoadVertexShaderConstants(ID3DXConstantTable* i_pvertexShaderConsts, IDirect3DDevice9 * i_direct3dDevice)
+	bool Material::LoadVertexShaderConstants(const char* i_VertexShaderpath, ID3DXConstantTable* i_pvertexShaderConsts, std::map<std::string, std::string> & i_constantNameMap, IDirect3DDevice9 * i_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
 	{
 		assert(i_pvertexShaderConsts && i_direct3dDevice);
 
@@ -1385,64 +1436,153 @@ namespace Engine
 
 		//-------------------g_transform_modelToWorld------------
 		{
-			const char * cConstantName = "g_transform_modelToWorld";
+			const char * cGlobalConstantName = "ModelToWorld";
+			std::map<std::string, std::string>::iterator it;
 
-			D3DXHANDLE Handle = i_pvertexShaderConsts->GetConstantByName(NULL, cConstantName);
+			//Find the actual constant name 
+			it = i_constantNameMap.find(cGlobalConstantName);
 
-			if (Handle != NULL)
+			if (it == i_constantNameMap.end())
 			{
-				const unsigned int dataCount = 1;
-				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
-				IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant name in fragment shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
 
-				MaterialConstantData<D3DXMATRIX> *PerInstanceMaterialConstant = new MaterialConstantData<D3DXMATRIX>(cConstantName, &pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
-				assert(PerInstanceMaterialConstant);
-
-				IMaterialConstant * BaseClassPointer = PerInstanceMaterialConstant;
-
-				m_perInstanceConstantDatas.push_back(BaseClassPointer);
+				return false;
+#endif
 			}
+
+			D3DXHANDLE Handle = i_pvertexShaderConsts->GetConstantByName(NULL, it->second.c_str());
+
+			if (Handle == NULL)
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant " << it->second.c_str() << " in " << i_VertexShaderpath << " vertex shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
+
+				return false;
+#endif
+			}
+
+			const unsigned int dataCount = 1;
+			BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
+			IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
+
+			MaterialConstantData<D3DXMATRIX> *PerInstanceMaterialConstant = new MaterialConstantData<D3DXMATRIX>(cGlobalConstantName, &pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
+			assert(PerInstanceMaterialConstant);
+
+			IMaterialConstant * BaseClassPointer = PerInstanceMaterialConstant;
+
+			m_perInstanceConstantDatas.push_back(BaseClassPointer);
 		}
 
 		//-----------------------g_transform_worldToView-------------
 		{
-			const char * cConstantName = "g_transform_worldToView";
+			const char * cGlobalConstantName = "WorldToView";
+			std::map<std::string, std::string>::iterator it;
 
-			D3DXHANDLE Handle = i_pvertexShaderConsts->GetConstantByName(NULL, cConstantName);
+			//Find the actual constant name 
+			it = i_constantNameMap.find(cGlobalConstantName);
 
-			if (Handle != NULL)
+			if (it == i_constantNameMap.end())
 			{
-				const unsigned int dataCount = 1;
-				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
-				IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant name in fragment shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
 
-				MaterialConstantData<D3DXMATRIX> *PerViewMaterialConstant = new MaterialConstantData<D3DXMATRIX>(cConstantName, &pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
-				assert(PerViewMaterialConstant);
-
-				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
-
-				m_perViewConstantDatas.push_back(BaseClassPointer);
+				return false;
+#endif
 			}
+
+			D3DXHANDLE Handle = i_pvertexShaderConsts->GetConstantByName(NULL, it->second.c_str());
+
+			if (Handle == NULL)
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant " << it->second.c_str() << " in " << i_VertexShaderpath << " vertex shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
+
+				return false;
+#endif
+			}
+
+			const unsigned int dataCount = 1;
+			BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
+			IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
+
+			MaterialConstantData<D3DXMATRIX> *PerViewMaterialConstant = new MaterialConstantData<D3DXMATRIX>(cGlobalConstantName, &pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
+			assert(PerViewMaterialConstant);
+
+			IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+
+			m_perViewConstantDatas.push_back(BaseClassPointer);
+
 		}
+
 		//-----------------------g_transform_viewToScreen-------------
 		{
-			const char * cConstantName = "g_transform_viewToScreen";
+			const char * cGlobalConstantName = "ViewToScreen";
+			std::map<std::string, std::string>::iterator it;
 
-			D3DXHANDLE Handle = i_pvertexShaderConsts->GetConstantByName(NULL, cConstantName);
+			//Find the actual constant name 
+			it = i_constantNameMap.find(cGlobalConstantName);
 
-			if (Handle != NULL)
+			if (it == i_constantNameMap.end())
 			{
-				const unsigned int dataCount = 1;
-				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
-				IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant name in fragment shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
 
-				MaterialConstantData<D3DXMATRIX> *PerViewMaterialConstant = new MaterialConstantData<D3DXMATRIX>(cConstantName, &pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
-				assert(PerViewMaterialConstant);
-
-				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
-
-				m_perViewConstantDatas.push_back(BaseClassPointer);
+				return false;
+#endif
 			}
+
+			D3DXHANDLE Handle = i_pvertexShaderConsts->GetConstantByName(NULL, it->second.c_str());
+
+			if (Handle == NULL)
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "Could not find constant " << it->second.c_str() << " in " << i_VertexShaderpath << " vertex shader for " << cGlobalConstantName;
+					*o_errorMessage = errorMessage.str();
+				}
+
+				return false;
+#endif
+			}
+
+			const unsigned int dataCount = 1;
+			BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
+			IsAenum::IsA iIsA = IsAenum::IsA::MATRIX_4X4;
+
+			MaterialConstantData<D3DXMATRIX> *PerViewMaterialConstant = new MaterialConstantData<D3DXMATRIX>(cGlobalConstantName, &pMatrixValue, dataCount, Handle, iBelongsTo, iIsA);
+			assert(PerViewMaterialConstant);
+
+			IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+
+			m_perViewConstantDatas.push_back(BaseClassPointer);
 		}
 		return true;
 	}

@@ -10,9 +10,9 @@ return
 	VertexShader =
 	{
 		Path = "data/vertexShader.shd",
+		ModelToWorld = "g_transform_modelToWorld",
 		WorldToView = "g_transform_worldToView",
 		ViewToScreen = "g_transform_viewToScreen",
-		ModelToWorld = "g_transform_modelToWorld",
 	},
 
 	FragmentShader =
