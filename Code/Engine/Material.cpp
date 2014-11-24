@@ -5,6 +5,8 @@
 #include "Actor.h"
 #include "WindowsError.h"
 #include "CameraSystem.h"
+#include "LightingSystem.h"
+
 #include "./LuaHelper/LuaHelper.h"
 
 namespace Engine
@@ -39,6 +41,12 @@ namespace Engine
 		{
 			delete m_perViewConstantDatas[i];
 		}
+
+		for (unsigned int i = 0; i < m_perFrameConstantDatas.size(); i++)
+		{
+			delete m_perFrameConstantDatas[i];
+		}
+
 
 		if (m_vertexShader)
 		{
@@ -199,6 +207,37 @@ namespace Engine
 #endif
 
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+	D3DPERF_BeginEvent(0, L"Set Material Constant (Per-Frame \"g_lighting_ambient, g_lighting, g_light_direction\")");
+#endif
+		//Set per-Instance constants
+		float Data[3];
+		int Datacount;
+		LightingSystem::GetInstance()->GetAmbientLight().GetAsFloatArray(Data, Datacount);
+
+		if (!SetPerFrameConstantDataByName("g_lighting_ambient", Data, Datacount))
+		{
+			assert(false);
+		}
+
+		LightingSystem::GetInstance()->GetDiffuseLight().GetAsFloatArray(Data, Datacount);
+
+		if (!SetPerFrameConstantDataByName("g_lighting", Data, Datacount))
+		{
+			assert(false);
+		}
+
+		LightingSystem::GetInstance()->GetLightDirection().GetAsFloatArray(Data, Datacount);
+
+		if (!SetPerFrameConstantDataByName("g_light_direction", Data, Datacount))
+		{
+			assert(false);
+		}
+
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+	D3DPERF_EndEvent();
+#endif
+
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
 		D3DPERF_EndEvent();
 #endif
 		return result;
@@ -344,11 +383,8 @@ namespace Engine
 #endif
 					))
 				{
-
 					//At this point both constant name and value are stored,
 					//Get reference to per-instance constant
-
-
 					D3DXHANDLE ConstHandle = m_pvertexShaderConsts->GetConstantByName(NULL, ConstantName);
 					BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
 
@@ -728,6 +764,29 @@ namespace Engine
 		return !WereThereErrors;
 	}
 
+	bool Material::SetPerFrameConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count)
+	{
+		bool WereThereErrors = false;
+
+		assert(i_pValue && i_name);
+
+		for (unsigned int i = 0; i < m_perFrameConstantDatas.size(); i++)
+		{
+
+			if (i_name != m_perFrameConstantDatas.at(i)->GetName())
+			{
+				continue;
+			}
+
+			if (!SetConstantDataByType(i_name, i_pValue, m_perFrameConstantDatas.at(i), i_count))
+			{
+				WereThereErrors = true;
+			}
+		}
+
+		return !WereThereErrors;
+	}
+
 
 	bool Material::SetPerInstanceConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count)
 	{
@@ -993,7 +1052,7 @@ namespace Engine
 
 		if (m_pfragmentShaderConsts != NULL)
 		{
-			m_pfragmentShaderConsts->SetDefaults(i_direct3dDevice); //Set constant default
+			LoadFragmentShaderConstants(m_pfragmentShaderConsts, i_direct3dDevice);
 		}
 
 		bool wereThereErrors = false;
@@ -1015,6 +1074,90 @@ namespace Engine
 		}
 
 		return !wereThereErrors;
+	}
+
+	bool Material::LoadFragmentShaderConstants(ID3DXConstantTable* i_pfragmentShaderConsts, IDirect3DDevice9 * i_direct3dDevice)
+	{
+		assert(i_pfragmentShaderConsts && i_direct3dDevice);
+
+		i_pfragmentShaderConsts->SetDefaults(i_direct3dDevice); //Set constant default
+
+		//-----------------------g_lighting_ambient-------------
+		{
+			const char * cConstantName = "g_lighting_ambient";
+
+			D3DXHANDLE Handle = i_pfragmentShaderConsts->GetConstantByName(NULL, cConstantName);
+
+			if (Handle != NULL)
+			{
+				assert(LightingSystem::GetInstance());
+				float FloatDataArray[3];
+				int dataCount;
+				LightingSystem::GetInstance()->GetAmbientLight().GetAsFloatArray(FloatDataArray, dataCount);
+
+				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
+				IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
+
+				MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
+				assert(PerViewMaterialConstant);
+
+				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+
+				m_perFrameConstantDatas.push_back(BaseClassPointer);
+			}
+		}
+
+		//-----------------------g_lighting-------------
+		{
+			const char * cConstantName = "g_lighting";
+
+			D3DXHANDLE Handle = i_pfragmentShaderConsts->GetConstantByName(NULL, cConstantName);
+
+			if (Handle != NULL)
+			{
+				assert(LightingSystem::GetInstance());
+				float FloatDataArray[3];
+				int dataCount;
+				LightingSystem::GetInstance()->GetDiffuseLight().GetAsFloatArray(FloatDataArray, dataCount);
+
+				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
+				IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
+
+				MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
+				assert(PerViewMaterialConstant);
+
+				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+
+				m_perFrameConstantDatas.push_back(BaseClassPointer);
+			}
+		}
+
+		//-----------------------g_light_direction-------------
+		{
+			const char * cConstantName = "g_light_direction";
+
+			D3DXHANDLE Handle = i_pfragmentShaderConsts->GetConstantByName(NULL, cConstantName);
+
+			if (Handle != NULL)
+			{
+				assert(LightingSystem::GetInstance());
+				float FloatDataArray[3];
+				int dataCount;
+				LightingSystem::GetInstance()->GetLightDirection().GetAsFloatArray(FloatDataArray, dataCount);
+
+				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
+				IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
+
+				MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
+				assert(PerViewMaterialConstant);
+
+				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+
+				m_perFrameConstantDatas.push_back(BaseClassPointer);
+			}
+		}
+
+		return true;
 	}
 
 	bool Material::LoadVertexShader(const char* i_VertexShaderpath, IDirect3DDevice9 * i_direct3dDevice
@@ -1078,6 +1221,7 @@ namespace Engine
 
 		return !wereThereErrors;
 	}
+
 
 	bool Material::LoadVertexShaderConstants(ID3DXConstantTable* i_pvertexShaderConsts, IDirect3DDevice9 * i_direct3dDevice)
 	{

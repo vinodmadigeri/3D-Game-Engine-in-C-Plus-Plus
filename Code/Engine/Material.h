@@ -57,6 +57,7 @@ namespace Engine
 
 		bool SetPerInstanceConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count);
 		bool SetPerViewConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count);
+		bool SetPerFrameConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count);
 		inline std::string GetName() const { return mName; }
 	private:
 		IDirect3DDevice9 * m_direct3dDevice;
@@ -86,6 +87,7 @@ namespace Engine
 		std::vector<IMaterialConstant *> m_perMaterialConstantDatas; //optional
 		std::vector<IMaterialConstant *> m_perInstanceConstantDatas; //optional
 		std::vector<IMaterialConstant *> m_perViewConstantDatas; 
+		std::vector<IMaterialConstant *> m_perFrameConstantDatas;
 		
 		//==========
 		// Lua Logic
@@ -162,6 +164,8 @@ namespace Engine
 			, std::string* o_errorMessage = NULL
 #endif
 			);
+		
+		bool LoadFragmentShaderConstants(ID3DXConstantTable* i_pfragmentShaderConsts, IDirect3DDevice9 * i_direct3dDevice);
 
 		bool LoadVertexShader(const char* i_VertexShaderpath, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED

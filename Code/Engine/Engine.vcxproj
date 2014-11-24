@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="CameraSystem.cpp" />
     <ClCompile Include="LevelLoadHelper.cpp" />
+    <ClCompile Include="LightingSystem.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="RenderableObjectSystem.cpp" />
     <ClCompile Include="GraphicsSystem.cpp" />
@@ -42,6 +43,7 @@
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="LevelLoadHelper.h" />
     <ClInclude Include="LightingData.h" />
+    <ClInclude Include="LightingSystem.h" />
     <ClInclude Include="MaterialConstantData.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="RenderableObjectSystem.h" />

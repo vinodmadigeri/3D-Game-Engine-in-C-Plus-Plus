@@ -15,7 +15,7 @@ return
 	{
 		AmbientLight = {0.2, 0.2, 0.2},
 		DiffuseLight = {1.0, 1.0, 1.0},
-		LightDirection = {1.0, -1.0, 1.0}
+		LightDirection = {0.0, -1.0, 0.0}
 	},
 	
 	--ToDo Parse and create Camera instance

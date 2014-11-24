@@ -2,7 +2,7 @@
 #include "LevelLoadHelper.h"
 
 #include "LightingData.h"
-
+#include "LightingSystem.h"
 
 #include "WorldSystem.h"
 #include "Actor.h"
@@ -66,6 +66,16 @@ namespace Engine
 			goto OnExit;
 		}
 
+		if (!CreateLightingInstance(LightingDatas
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, &errorMessage
+#endif
+			))
+		{
+			WereThereErrors = true;
+			goto OnExit;
+		}
+
 		if (!LoadActorsData(*luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, &errorMessage
@@ -101,6 +111,51 @@ namespace Engine
 		}
 #endif
 		return !WereThereErrors;
+	}
+
+	//******************************************************************************
+	bool CreateLightingInstance(std::vector<LightingData> &LightingDatas
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		//Instantiate light with data
+		Vector3 *iAmbientLight = NULL;
+		Vector3 *iDiffuseLight = NULL;
+		Vector3 *iLightDirection = NULL;
+		for (unsigned int i = 0; i < LightingDatas.size(); i++)
+		{
+			if (LightingDatas[i].mLightingDataName == "AmbientLight")
+			{
+				iAmbientLight = &LightingDatas[i].mDataValue;
+			}
+
+			if (LightingDatas[i].mLightingDataName == "DiffuseLight")
+			{
+				iDiffuseLight = &LightingDatas[i].mDataValue;
+			}
+
+			if (LightingDatas[i].mLightingDataName == "LightDirection")
+			{
+				iLightDirection = &LightingDatas[i].mDataValue;
+			}
+		}
+
+		assert(iLightDirection && iDiffuseLight && iLightDirection);
+
+		if (!LightingSystem::CreateInstance(*iAmbientLight, *iDiffuseLight, *iLightDirection))
+		{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			if (o_errorMessage)
+			{
+				*o_errorMessage = "Could not create Lighting system instance";
+			}
+#endif
+			return false;
+		}
+
+		return true;
 	}
 
 	//******************************************************************************

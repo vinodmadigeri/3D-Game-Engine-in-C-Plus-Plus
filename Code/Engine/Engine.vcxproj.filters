@@ -60,7 +60,10 @@
       <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="LevelLoadHelper.cpp">
-      <Filter>Util\LevelLoading</Filter>
+      <Filter>LevelLoading</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingSystem.cpp">
+      <Filter>GraphicsSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -150,7 +153,10 @@
       <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="LevelLoadHelper.h">
-      <Filter>Util\LevelLoading</Filter>
+      <Filter>LevelLoading</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingSystem.h">
+      <Filter>GraphicsSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -181,7 +187,7 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{ede9e3cb-b25b-4601-83aa-d4f0b469c586}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Util\LevelLoading">
+    <Filter Include="LevelLoading">
       <UniqueIdentifier>{63b1144a-a32a-4f81-a6cc-d5e3d4eb57dc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

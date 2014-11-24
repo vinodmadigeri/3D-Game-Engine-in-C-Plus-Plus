@@ -8,8 +8,6 @@
 
 namespace Engine
 {
-	//class Actor; //Forward decleration
-
 	class CameraSystem
 	{
 	private:
@@ -30,8 +28,6 @@ namespace Engine
 		bool CreateWorldToView(const D3DXVECTOR3 & i_Eye,
 								const D3DXVECTOR3 & i_LookAt,
 								const D3DXVECTOR3 & i_Up);
-
-		//float				mRotation;
 
 		static D3DXVECTOR3 mLookAt, mUp;
 		static D3DXMATRIXA16 s_worldToView; //View matrix

@@ -405,7 +405,7 @@ namespace MayaExporter
 			fout << "return\n{\n";
 			{
 				fout << "\tVertexCount = " << i_vertexBuffer.size() << ",\n\n";
-				fout << "\t	--Each Vertex Data\n";
+				fout << "\t--Each Vertex Data\n";
 				fout << "\tVertices =\n";
 				fout << "\t{\n";
 				for (unsigned int i = 0; i < i_vertexBuffer.size(); i++)
