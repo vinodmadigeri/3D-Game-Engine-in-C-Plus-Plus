@@ -93,10 +93,8 @@ return
 			{
 				--canCollideWith = 
 				--{
-				--	"Player", 
-				--	"HorizontalWall", 
-				--	"VerticalWall", 
-				--	"Monster"
+				--	"Cube", 
+				--	"Plane",
 				--}
 			}
 		} ,

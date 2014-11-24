@@ -14,11 +14,13 @@
 #include "UserInput.h"
 #include "PhysicsSystem.h"
 #include "CameraSystem.h"
+#include "LightingSystem.h"
 #include "Win32Management.h"
 #include "MathUtil.h"
 #include "PlayerController.h"
 #include "CameraController.h"
 #include "LevelLoadHelper.h"
+#include "LightController.h"
 
 #include "UserSettings/UserSettings.h"
 
@@ -104,7 +106,8 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	}
 
 	using namespace Engine;
-
+	
+	//Load the first level
 	if (!LoadLevel("data/Start.level"))
 	{
 		return false;
@@ -121,6 +124,9 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 
 	Camera::CreateController();
 	CameraSystem::GetInstance()->m_WorldObject->SetController(Camera::GetController());
+	
+	Light::CreateController();
+	LightingSystem::GetInstance()->m_WorldObject->SetController(Light::GetController());
 
 	return mInitilized;
 }
@@ -142,6 +148,7 @@ int MainGame::Run(void)
 			Engine::WorldSystem::GetInstance()->ActorsUpdate(static_cast<float>(GameTimer.GetLastFrameMS()));
 			Engine::PhysicsSystem::GetInstance()->ApplyEulerPhysics(static_cast<float>(GameTimer.GetLastFrameMS()));
 			Engine::CameraSystem::GetInstance()->Update(static_cast<float>(GameTimer.GetLastFrameMS()));
+			Engine::LightingSystem::GetInstance()->Update(static_cast<float>(GameTimer.GetLastFrameMS()));
 			Engine::RenderableObjectSystem::GetInstance()->Render();
 			Win32Management::WindowsManager::GetInstance()->UpdateMainWindow(exitCode, QuitRequested);
 			
@@ -164,6 +171,7 @@ void MainGame::Shutdown(const HINSTANCE i_thisInstanceOfTheProgram)
 		Engine::UserInput::Destroy();
 		Engine::WorldSystem::Destroy();
 		Engine::CameraSystem::Destroy();
+		Engine::LightingSystem::Destroy();
 		Engine::RenderableObjectSystem::Destroy();
 		Win32Management::WindowsManager::Destroy();
 	}

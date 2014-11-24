@@ -2,7 +2,8 @@
 #include "PreCompiled.h"
 
 #include "Game.h"
-#include "CameraController.h"
+#include "LightingSystem.h"
+#include "LightController.h"
 #include "RandomNumber.h"
 #include "WorldSystem.h"
 #include "UserInput.h"
@@ -10,12 +11,12 @@
 using namespace std;
 using namespace Engine;
 
-namespace Camera
+namespace Light
 {
-	static CameraController *mpCameraController = NULL;
+	static LightController *mpLightController = NULL;
 
 	/******************************************************************************
-	Function     : CameraController
+	Function     : LightController
 	Description  : constructor
 	Input        :
 	Output       :
@@ -25,13 +26,13 @@ namespace Camera
 	Author       : Vinod VM
 	Modification : Created function
 	******************************************************************************/
-	CameraController::CameraController()
+	LightController::LightController()
 	{
 
 	}
 
 	/******************************************************************************
-	Function     : ~CameraController
+	Function     : ~LightController
 	Description  : Destructor
 	Input        :
 	Output       :
@@ -41,14 +42,14 @@ namespace Camera
 	Author       : Vinod VM
 	Modification : Created function
 	******************************************************************************/
-	CameraController:: ~CameraController()
+	LightController:: ~LightController()
 	{
 
 	}
 
 	/******************************************************************************
 	Function     : UpdateActor
-	Description  : CameraController: Defines how camera is controlled by update actor.
+	Description  : LightController: Defines how light direction is controlled by update actor.
 	Input        : Actor &i_Actor, const float i_DeltaTime
 	Output       :
 	Return Value : void
@@ -59,81 +60,86 @@ namespace Camera
 	Author       : Vinod VM
 	Modification : Created function
 	******************************************************************************/
-	void CameraController::UpdateActor(Actor &i_Actor, const float i_DeltaTime)
+	void LightController::UpdateActor(Actor &i_Actor, const float i_DeltaTime)
 	{
-
-		Vector3 Friction = Vector3(0.0f, 0.0f, 0.0f);
-
-		i_Actor.SetFriction(Friction);
 		i_Actor.SetDeltaTime(i_DeltaTime);
+
+		Vector3 Offset(0.0f, 0.0f, 0.0f);
 
 		char CharID = 0;
 
-		if (UserInput::GetInstance()->IsKeyPressed('A'))
+		if (UserInput::GetInstance()->IsKeyPressed('H'))
 		{
-			CharID = 'A';
+			CharID = 'H';
 		}
-		else if (UserInput::GetInstance()->IsKeyPressed('D'))
+		else if (UserInput::GetInstance()->IsKeyPressed('K'))
 		{
-			CharID = 'D';
+			CharID = 'K';
 		}
-		else if (UserInput::GetInstance()->IsKeyPressed('W'))
+		else if (UserInput::GetInstance()->IsKeyPressed('U'))
 		{
-			CharID = 'W';
+			CharID = 'U';
 		}
-		else if (UserInput::GetInstance()->IsKeyPressed('S'))
+		else if (UserInput::GetInstance()->IsKeyPressed('J'))
 		{
-			CharID = 'S';
+			CharID = 'J';
 		}
 
-		float singleAccelerationvalue = 0.00005f;
+		float singleAccelerationvalue = 0.001f;
+		
+		bool KeyPressed = false;
 
 		switch (CharID)
 		{
-			case 'w':
-			case 'W':
+			case 'u':
+			case 'U':
 			{
-				//Set velocity of the camera in Positive Y axis since 'W' is pressed
-				i_Actor.SetAcceleration(Vector3(0.0f, singleAccelerationvalue, 0.0f));
-				i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), 0.0f));
-				CONSOLE_PRINT("Positive Y axis since 'W' is pressed");
+				Offset = Vector3(0.0f, 0.0f, singleAccelerationvalue);
+				KeyPressed = true;
 				break;
 			}
 
-			case 'a':
-			case 'A':
+			case 'h':
+			case 'H':
 			{
-				i_Actor.SetAcceleration(Vector3(-singleAccelerationvalue, 0.0f, 0.0f));
-				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f , 0.0f));
-				CONSOLE_PRINT("Negative X axis since 'A' is pressed");
+				Offset = Vector3(-singleAccelerationvalue, 0.0f, 0.0f);
+				KeyPressed = true;
 				break;
 			}
 
-			case 's':
-			case 'S':
+			case 'j':
+			case 'J':
 			{
-				i_Actor.SetAcceleration(Vector3(0.0f, -singleAccelerationvalue, 0.0f));
-				i_Actor.SetVelocity(Vector3(0.0f, i_Actor.GetVelocity().y(), 0.0f));
-				CONSOLE_PRINT("Negative Y axis since 'S' is pressed");
+				Offset = Vector3(0.0f, 0.0f, -singleAccelerationvalue);
+				KeyPressed = true;
 				break;
 			}
 
-			case 'd':
-			case 'D':
+			case 'k':
+			case 'K':
 			{
-				//Move the camera in Positive X axis since 'D' is pressed
-				i_Actor.SetAcceleration(Vector3(singleAccelerationvalue, 0.0f, 0.0f));
-				i_Actor.SetVelocity(Vector3(i_Actor.GetVelocity().x(), 0.0f, 0.0f));
-				CONSOLE_PRINT("Postive X axis since 'D' is pressed");
+				Offset = Vector3(singleAccelerationvalue, 0.0f, 0.0f);
+				KeyPressed = true;
 				break;
 			}
 
 			default:
 			{
-				//Set acceleration to zero
-				i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, 0.0f));
-				i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
+				break;
 			}
+		}
+
+		if (KeyPressed == true)
+		{
+			Vector3 CurrentPosition = Engine::LightingSystem::GetInstance()->m_WorldObject->GetPosition();
+
+			CurrentPosition += Offset * i_DeltaTime;
+
+			Engine::LightingSystem::GetInstance()->m_WorldObject->SetPosition(CurrentPosition);
+
+		
+			Engine::LightingSystem::GetInstance()->SetLightDirection(Engine::Vector3(CurrentPosition.x(), Engine::LightingSystem::GetInstance()->GetLightDirection().y(), CurrentPosition.z()));
+			
 		}
 
 		return;
@@ -152,34 +158,34 @@ namespace Camera
 	******************************************************************************/
 	void CreateController(void)
 	{
-		if (mpCameraController == NULL)
-			mpCameraController = new CameraController;
+		if (mpLightController == NULL)
+			mpLightController = new LightController;
 	}
 
 	/******************************************************************************
 	Function     : GetController
 	Description  : Function to get controller
 	Input        :
-	Output       : camera Controller pointer
-	Return Value : mpCameraController *
+	Output       : light Controller pointer
+	Return Value : mpLightController *
 
 	History      :
 	Author       : Vinod VM
 	Modification : Created function
 	******************************************************************************/
-	CameraController * GetController(void)
+	LightController * GetController(void)
 	{
-		assert(mpCameraController);
+		assert(mpLightController);
 
-		return mpCameraController;
+		return mpLightController;
 	}
 
 	/******************************************************************************
 	Function     : Shutdown
 	Description  : Function to free controller
 	Input        :
-	Output       : camera Controller pointer
-	Return Value : mpCameraController *
+	Output       : light Controller pointer
+	Return Value : mpLightController *
 
 	History      :
 	Author       : Vinod VM
@@ -187,7 +193,7 @@ namespace Camera
 	******************************************************************************/
 	void ShutDown(void)
 	{
-		if (mpCameraController)
-			delete mpCameraController;
+		if (mpLightController)
+			delete mpLightController;
 	}
 }

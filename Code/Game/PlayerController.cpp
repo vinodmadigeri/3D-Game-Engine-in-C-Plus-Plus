@@ -61,15 +61,10 @@ namespace Player
 	******************************************************************************/
 	void PlayerController::UpdateActor(Actor &i_Actor, const float i_DeltaTime)
 	{
-		unsigned char ucMove[4] = {'w', 'a', 's', 'd'};
-
-		Vector3 cPlayerPosition;
 		Vector3 Friction = Vector3(0.0f, 0.0f, 0.0f);
 
 		i_Actor.SetFriction(Friction);
 		i_Actor.SetDeltaTime(i_DeltaTime);
-
-		cPlayerPosition = i_Actor.GetPosition();
 		
 		char CharID = 0;
 

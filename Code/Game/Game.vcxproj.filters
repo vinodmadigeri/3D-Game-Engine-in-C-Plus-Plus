@@ -23,6 +23,7 @@
     <ClInclude Include="PreCompiled.h" />
     <ClInclude Include="PlayerController.h" />
     <ClInclude Include="CameraController.h" />
+    <ClInclude Include="LightController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -32,6 +33,7 @@
     <ClCompile Include="PreCompiled.cpp" />
     <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="LightController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Game.rc">

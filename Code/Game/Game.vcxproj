@@ -110,6 +110,7 @@
   <ItemGroup>
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="LightController.h" />
     <ClInclude Include="PlayerController.h" />
     <ClInclude Include="Resources\Resource.h" />
     <ClInclude Include="PreCompiled.h" />
@@ -119,6 +120,7 @@
   <ItemGroup>
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="LightController.cpp" />
     <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="PreCompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
