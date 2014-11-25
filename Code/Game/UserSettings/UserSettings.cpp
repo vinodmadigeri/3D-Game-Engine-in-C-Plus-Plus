@@ -145,7 +145,7 @@ namespace UserSettings
 					std::ostringstream errorMessage;
 					errorMessage << "There are still " << stackItemCount
 						<< " items in the Lua stack when the Lua state is being closed";
-					MessageBox( NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR );
+					MessageBox( NULL, errorMessage.str().c_str(), "UserSettings.ini", MB_OK | MB_ICONERROR );
 					wereThereErrors = true;
 				}
 			}
@@ -284,7 +284,7 @@ namespace UserSettings
 				{
 					std::stringstream errorMessage;
 					errorMessage << "Ignoring the invalid entry for Screen Width: " << s_userSettingsfileName;
-					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+					MessageBox(NULL, errorMessage.str().c_str(), "UserSettings.ini", MB_OK | MB_ICONERROR);
 
 					ScreenHeight = 480;
 					ScreenWidth = 640;
@@ -301,7 +301,7 @@ namespace UserSettings
 				{
 					std::stringstream errorMessage;
 					errorMessage << "Screen Width not supported :" << lua_tonumber(&io_luaState, IndexOfValue);
-					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+					MessageBox(NULL, errorMessage.str().c_str(), "Error Reading UserSettings.ini", MB_OK | MB_ICONERROR);
 
 					ScreenHeight = 480;
 					ScreenWidth = 640;
@@ -314,7 +314,7 @@ namespace UserSettings
 				{
 					std::stringstream errorMessage;
 					errorMessage << "Ignoring the invalid entry for Screen Height: " << s_userSettingsfileName;
-					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+					MessageBox(NULL, errorMessage.str().c_str(), "Error Reading UserSettings.ini", MB_OK | MB_ICONERROR);
 
 					ScreenHeight = 480;
 					ScreenWidth = 640;
@@ -331,7 +331,7 @@ namespace UserSettings
 				{
 					std::stringstream errorMessage;
 					errorMessage << "Screen Height not supported: " << lua_tonumber(&io_luaState, IndexOfValue);
-					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+					MessageBox(NULL, errorMessage.str().c_str(), "Error Reading UserSettings.ini", MB_OK | MB_ICONERROR);
 					ScreenHeight = 480;
 					ScreenWidth = 640;
 				}
@@ -343,7 +343,7 @@ namespace UserSettings
 				{
 					std::stringstream errorMessage;
 					errorMessage << "Ignoring the invalid entry for fullscreen: " << s_userSettingsfileName;
-					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+					MessageBox(NULL, errorMessage.str().c_str(), "Error Reading UserSettings.ini", MB_OK | MB_ICONERROR);
 
 					// Pop the returned key value pair on error
 					lua_pop(&io_luaState, 2);
@@ -359,7 +359,7 @@ namespace UserSettings
 				{
 					std::stringstream errorMessage;
 					errorMessage << "Ignoring the invalid entry for antialiasing: " << s_userSettingsfileName;
-					MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+					MessageBox(NULL, errorMessage.str().c_str(), "Error Reading UserSettings.ini", MB_OK | MB_ICONERROR);
 
 					// Pop the returned key value pair on error
 					lua_pop(&io_luaState, 2);
@@ -375,13 +375,13 @@ namespace UserSettings
 
 	OnExit:
 
-		if (ScreenHeight != 480 || ScreenWidth != 640)
+		if ((ScreenHeight != 480 || ScreenWidth != 640) && s_isFullScreenModeEnabled)
 		{
 			if (!IsThisWidthAndHeightSupported(ScreenWidth, ScreenHeight))
 			{
 				std::stringstream errorMessage;
 				errorMessage << "Screen Width " << ScreenWidth << " and Screen Height " << ScreenHeight << " not supported";
-				MessageBox(NULL, errorMessage.str().c_str(), "No User Settings", MB_OK | MB_ICONERROR);
+				MessageBox(NULL, errorMessage.str().c_str(), "Error Reading UserSettings.ini", MB_OK | MB_ICONERROR);
 
 				ScreenHeight = 480;
 				ScreenWidth = 640;
