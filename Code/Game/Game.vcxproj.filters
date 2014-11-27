@@ -1,25 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Win32">
-      <UniqueIdentifier>{3e79d4ba-01e8-4109-943d-cc52d2c1a9be}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Win32Management.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\targetver.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\Resource.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="PreCompiled.h" />
     <ClInclude Include="PlayerController.h" />
     <ClInclude Include="CameraController.h" />
@@ -27,25 +9,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Win32Management.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
     <ClCompile Include="PreCompiled.cpp" />
     <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="LightController.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Resources\Game.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Resources\Game.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\small.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
 </Project>

@@ -8,6 +8,7 @@
 #include "Material.h"
 #include "Mesh.h"
 #include "MeshData.h"
+#include "../UserSettings/UserSettings.h"
 
 // Static Data Initialization
 //===========================
@@ -65,15 +66,11 @@ namespace Engine
 	}
 
 	//Creates only one instance
-	bool GraphicsSystem::CreateInstance(const HWND i_mainWindow,
-		const unsigned int i_windowWidth,
-		const unsigned int i_windowHeight,
-		const bool i_shouldRenderFullScreen,
-		const bool i_shouldEnableAntiAliasing)
+	bool GraphicsSystem::CreateInstance(const HWND i_mainWindow)
 	{
 		if (m_pInstance == NULL)
 		{
-			m_pInstance = new GraphicsSystem(i_mainWindow, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen, i_shouldEnableAntiAliasing);
+			m_pInstance = new GraphicsSystem(i_mainWindow, UserSettings::GetWidth(), UserSettings::GetHeight(), UserSettings::IsFullScreenModeEnabled(), UserSettings::IsAntiAliasingEnabled());
 
 			//Handle crash
 			if (m_pInstance == NULL)

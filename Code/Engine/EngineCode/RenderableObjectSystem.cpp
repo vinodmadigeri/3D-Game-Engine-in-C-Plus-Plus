@@ -249,15 +249,11 @@ namespace Engine
 		}
 	}
 
-	bool RenderableObjectSystem::CreateInstance(const HWND i_mainWindow,
-							const unsigned int i_windowWidth,
-							const unsigned int i_windowHeight,
-							const bool i_shouldRenderFullScreen,
-							const bool i_shouldEnableAntiAliasing)
+	bool RenderableObjectSystem::CreateInstance(const HWND i_mainWindow)
 	{
 		if (mInstance == NULL)
 		{
-			if (false == GraphicsSystem::CreateInstance(i_mainWindow, i_windowWidth, i_windowHeight, i_shouldRenderFullScreen, i_shouldEnableAntiAliasing))
+			if (false == GraphicsSystem::CreateInstance(i_mainWindow))
 			{
 				assert(false);
 				return NULL;

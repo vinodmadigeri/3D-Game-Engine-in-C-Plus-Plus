@@ -8,7 +8,7 @@
 
 #include "../../External/Lua/Includes.h"
 
-#include "../../Engine/MeshData.h"
+#include "../../Engine/EngineCode/MeshData.h"
 
 // Class Declaration
 //==================

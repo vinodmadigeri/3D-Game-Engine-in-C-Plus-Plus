@@ -14,7 +14,7 @@ as well as the data that those shader program use
 #include <d3dx9shader.h>
 #include <vector>
 
-#include "../External/Lua/Includes.h"
+#include "../../External/Lua/Includes.h"
 
 #include "MaterialConstantData.h"
 #include "Vector3.h"

@@ -15,14 +15,13 @@
 #include "PhysicsSystem.h"
 #include "CameraSystem.h"
 #include "LightingSystem.h"
-#include "Win32Management.h"
 #include "MathUtil.h"
 #include "PlayerController.h"
 #include "CameraController.h"
 #include "LevelLoadHelper.h"
 #include "LightController.h"
-
-#include "UserSettings/UserSettings.h"
+#include "Win32Management.h"
+#include "../Engine/UserSettings/UserSettings.h"
 
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
@@ -43,8 +42,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	std::string sWindowCaption = "EAE2014: Vinod's Game";
 	
 	mInitilized = Win32Management::WindowsManager::CreateInstance(i_thisInstanceOfTheProgram, i_initialWindowDisplayState, 
-																	sMainWindowClassName, sWindowCaption, UserSettings::GetWidth(), 
-																	UserSettings::GetHeight(), UserSettings::IsFullScreenModeEnabled());
+																	sMainWindowClassName, sWindowCaption);
 	if (mInitilized == false)
 	{
 		Engine::DebugPrint("Failed to Create Windows Loop Instance");
@@ -53,9 +51,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 
 	HWND mainWindowHandle = Win32Management::WindowsManager::GetInstance()->GetReferenceToMainWindowHandle();
 
-	mInitilized = Engine::RenderableObjectSystem::CreateInstance(mainWindowHandle, UserSettings::GetWidth(),
-																UserSettings::GetHeight(), UserSettings::IsFullScreenModeEnabled(), 
-																UserSettings::IsAntiAliasingEnabled());
+	mInitilized = Engine::RenderableObjectSystem::CreateInstance(mainWindowHandle);
 
 	if (mInitilized == false)
 	{

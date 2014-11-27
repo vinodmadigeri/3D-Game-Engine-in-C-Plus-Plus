@@ -7,7 +7,7 @@
 #include "CameraSystem.h"
 #include "LightingSystem.h"
 
-#include "./LuaHelper/LuaHelper.h"
+#include "../LuaHelper/LuaHelper.h"
 
 namespace Engine
 {

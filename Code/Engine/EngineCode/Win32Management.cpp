@@ -7,11 +7,11 @@
 
 #include "precompiled.h"
 #include "Win32Management.h"
-#include "UserSettings/UserSettings.h"
+#include "../UserSettings/UserSettings.h"
 
 // Resource.h contains the #defines for the icon resources
 // that the main window will use
-#include "Resources\Resource.h"
+#include "Resources/Resource.h"
 
 // Static Data Initialization
 //===========================

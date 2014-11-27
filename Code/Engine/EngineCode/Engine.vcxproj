@@ -25,18 +25,19 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreCompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreCompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="Util\Actor.cpp" />
-    <ClCompile Include="Util\BitArray.cpp" />
-    <ClCompile Include="Util\Debug.cpp" />
-    <ClCompile Include="Util\HashedString.cpp" />
-    <ClCompile Include="Util\HighResTime.cpp" />
-    <ClCompile Include="Util\Profiling.cpp" />
-    <ClCompile Include="Util\RingBuffer.cpp" />
-    <ClCompile Include="Util\UserInput.cpp" />
-    <ClCompile Include="Util\MathUtil.cpp" />
-    <ClCompile Include="Util\Matrix4x4.cpp" />
-    <ClCompile Include="Util\MemoryPool.cpp" />
-    <ClCompile Include="Util\Vector3.cpp" />
+    <ClCompile Include="..\Util\Actor.cpp" />
+    <ClCompile Include="..\Util\BitArray.cpp" />
+    <ClCompile Include="..\Util\Debug.cpp" />
+    <ClCompile Include="..\Util\HashedString.cpp" />
+    <ClCompile Include="..\Util\HighResTime.cpp" />
+    <ClCompile Include="..\Util\Profiling.cpp" />
+    <ClCompile Include="..\Util\RingBuffer.cpp" />
+    <ClCompile Include="..\Util\UserInput.cpp" />
+    <ClCompile Include="..\Util\MathUtil.cpp" />
+    <ClCompile Include="..\Util\Matrix4x4.cpp" />
+    <ClCompile Include="..\Util\MemoryPool.cpp" />
+    <ClCompile Include="..\Util\Vector3.cpp" />
+    <ClCompile Include="Win32Management.cpp" />
     <ClCompile Include="WorldSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -52,34 +53,45 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshData.h" />
     <ClInclude Include="PreCompiled.h" />
-    <ClInclude Include="Util\Actor.h" />
-    <ClInclude Include="Util\ActorController.h" />
-    <ClInclude Include="Util\BitArray.h" />
-    <ClInclude Include="Util\Debug.h" />
-    <ClInclude Include="Util\HashedString.h" />
-    <ClInclude Include="Util\HighResTime.h" />
-    <ClInclude Include="Util\NamedBitSet.h" />
-    <ClInclude Include="Util\Profiling.h" />
-    <ClInclude Include="Util\RingBuffer.h" />
-    <ClInclude Include="Util\UserInput.h" />
-    <ClInclude Include="Util\MathUtil.h" />
-    <ClInclude Include="Util\Matrix4x4.h" />
-    <ClInclude Include="Util\MemoryPool.h" />
-    <ClInclude Include="Util\RandomNumber.h" />
-    <ClInclude Include="Util\SharedPointer.h" />
-    <ClInclude Include="Util\Vector3.h" />
-    <ClInclude Include="Util\Vector4.h" />
-    <ClInclude Include="Util\WindowsError.h" />
+    <ClInclude Include="Resources\Resource.h" />
+    <ClInclude Include="Resources\targetver.h" />
+    <ClInclude Include="..\Util\Actor.h" />
+    <ClInclude Include="..\Util\ActorController.h" />
+    <ClInclude Include="..\Util\BitArray.h" />
+    <ClInclude Include="..\Util\Debug.h" />
+    <ClInclude Include="..\Util\HashedString.h" />
+    <ClInclude Include="..\Util\HighResTime.h" />
+    <ClInclude Include="..\Util\NamedBitSet.h" />
+    <ClInclude Include="..\Util\Profiling.h" />
+    <ClInclude Include="..\Util\RingBuffer.h" />
+    <ClInclude Include="..\Util\UserInput.h" />
+    <ClInclude Include="..\Util\MathUtil.h" />
+    <ClInclude Include="..\Util\Matrix4x4.h" />
+    <ClInclude Include="..\Util\MemoryPool.h" />
+    <ClInclude Include="..\Util\RandomNumber.h" />
+    <ClInclude Include="..\Util\SharedPointer.h" />
+    <ClInclude Include="..\Util\Vector3.h" />
+    <ClInclude Include="..\Util\Vector4.h" />
+    <ClInclude Include="..\Util\WindowsError.h" />
+    <ClInclude Include="Win32Management.h" />
     <ClInclude Include="WorldSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Util\HashedString.inl" />
-    <None Include="Util\NamedBitSet.inl" />
-    <None Include="Util\RandomNumber.inl" />
-    <None Include="Util\RingBuffer.inl" />
-    <None Include="Util\SharedPointer.inl" />
-    <None Include="Util\Vector3.inl" />
-    <None Include="Util\Vector4.inl" />
+    <None Include="Resources\Game.aps" />
+    <None Include="..\Util\HashedString.inl" />
+    <None Include="..\Util\NamedBitSet.inl" />
+    <None Include="..\Util\RandomNumber.inl" />
+    <None Include="..\Util\RingBuffer.inl" />
+    <None Include="..\Util\SharedPointer.inl" />
+    <None Include="..\Util\Vector3.inl" />
+    <None Include="..\Util\Vector4.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Game.ico" />
+    <Image Include="Resources\small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\Game.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8A456F4F-DAB4-4C14-A9F8-87E4ECB9B50F}</ProjectGuid>
@@ -105,13 +117,13 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\SolutionMacros.props" />
-    <Import Project="..\DefaultLocations.props" />
+    <Import Project="..\..\SolutionMacros.props" />
+    <Import Project="..\..\DefaultLocations.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\SolutionMacros.props" />
-    <Import Project="..\DefaultLocations.props" />
+    <Import Project="..\..\SolutionMacros.props" />
+    <Import Project="..\..\DefaultLocations.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -127,7 +139,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_ENABLE_DEBUG_LOGS;EAE2014_SHOULDALLRETURNVALUESBECHECKED;EAE2014_GRAPHICS_SHOULDD3DDEBUGINFOBEENABLED;EAE2014_GRAPHICS_SHOULDDEBUGSHADERSBEUSED;EAE2014_GRAPHICS_AREPIXEVENTSENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>PreCompiled.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include\;$(EngineDir)Util;$(EngineDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include\;$(EngineDir)Util;$(EngineDir)EngineCode</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,9 +147,10 @@
     </Link>
     <Lib />
     <Lib>
-      <AdditionalDependencies>D3dx9.lib;d3d9.lib;LuaLib.lib;LuaHelper.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D3dx9.lib;d3d9.lib;LuaLib.lib;LuaHelper.lib;UserSettings.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/ignore:4006,4221 %(AdditionalOptions)</AdditionalOptions>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -149,7 +162,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;EAE2014_SHOULDALLRETURNVALUESBECHECKED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>PreCompiled.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include\;$(EngineDir)Util;$(EngineDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include\;$(EngineDir)Util;$(EngineDir)EngineCode</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -159,9 +172,10 @@
     </Link>
     <Lib />
     <Lib>
-      <AdditionalDependencies>D3dx9.lib;d3d9.lib;LuaLib.lib;LuaHelper.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D3dx9.lib;d3d9.lib;LuaLib.lib;LuaHelper.lib;UserSettings.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/ignore:4006,4221 %(AdditionalOptions)</AdditionalOptions>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

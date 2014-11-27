@@ -70,11 +70,7 @@ namespace Engine
 		
 
 	public:
-		static bool CreateInstance(const HWND i_mainWindow,
-			const unsigned int i_windowWidth = 800,
-			const unsigned int i_windowHeight = 600,
-			const bool i_shouldRenderFullScreen = false,
-			const bool i_shouldEnableAntiAliasing = false);
+		static bool CreateInstance(const HWND i_mainWindow);
 
 		static GraphicsSystem * GetInstance();
 		bool BeingFrame(const ColorRGBA & i_ClearColor = ColorRGBA(0, 0, 0, 0));

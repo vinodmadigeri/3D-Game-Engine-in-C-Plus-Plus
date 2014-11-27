@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="PreCompiled.cpp" />
+    <ClCompile Include="GraphicsSystem.cpp">
+      <Filter>GraphicsSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>GraphicsSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldSystem.cpp">
+      <Filter>WorldSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>GraphicsSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderableObjectSystem.cpp">
+      <Filter>GraphicsSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraSystem.cpp">
+      <Filter>GraphicsSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelLoadHelper.cpp">
+      <Filter>LevelLoading</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingSystem.cpp">
+      <Filter>GraphicsSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32Management.cpp">
+      <Filter>Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\Actor.cpp">
+      <Filter>Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\Vector3.cpp">
+      <Filter>Util\Vector3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\BitArray.cpp">
+      <Filter>Util\MemoryManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\MemoryPool.cpp">
+      <Filter>Util\MemoryManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\Debug.cpp">
+      <Filter>Util\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\Matrix4x4.cpp">
+      <Filter>Util\Matrix4X4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\MathUtil.cpp">
+      <Filter>Util\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\HashedString.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\HighResTime.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\Profiling.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\RingBuffer.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\UserInput.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PreCompiled.h" />
+    <ClInclude Include="GraphicsSystem.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldSystem.h">
+      <Filter>WorldSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshData.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderableObjectSystem.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialConstantData.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSystem.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingData.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelLoadHelper.h">
+      <Filter>LevelLoading</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingSystem.h">
+      <Filter>GraphicsSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32Management.h">
+      <Filter>Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\Resource.h">
+      <Filter>Windows\Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\targetver.h">
+      <Filter>Windows\Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\Actor.h">
+      <Filter>Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\ActorController.h">
+      <Filter>Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\Vector3.h">
+      <Filter>Util\Vector3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\Vector4.h">
+      <Filter>Util\Vector3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\BitArray.h">
+      <Filter>Util\MemoryManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\MemoryPool.h">
+      <Filter>Util\MemoryManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\Debug.h">
+      <Filter>Util\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\Matrix4x4.h">
+      <Filter>Util\Matrix4X4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\MathUtil.h">
+      <Filter>Util\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\RandomNumber.h">
+      <Filter>Util\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\HashedString.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\HighResTime.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\NamedBitSet.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\Profiling.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\RingBuffer.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\SharedPointer.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\UserInput.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\WindowsError.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="GraphicsSystem">
+      <UniqueIdentifier>{bd1813e4-a295-496b-bb19-28eab9baaf4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{3a245189-6863-48a4-80cf-7469c75c58f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Vector3">
+      <UniqueIdentifier>{33b77cf8-b28a-4010-a6d1-6e077f58866d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Debug">
+      <UniqueIdentifier>{434c9b6c-8ee7-4816-b0ab-3838a640c9c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WorldSystem">
+      <UniqueIdentifier>{aa373415-3016-457a-bb29-6bd0ca2707f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\MemoryManagement">
+      <UniqueIdentifier>{d2b48398-c772-4b13-a2e2-b28982503c08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Actor">
+      <UniqueIdentifier>{d7fbf397-5730-414f-ab03-eb597fa3c745}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Matrix4X4">
+      <UniqueIdentifier>{59011d2c-7636-4444-8729-b81fbb9bdfe3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{ede9e3cb-b25b-4601-83aa-d4f0b469c586}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelLoading">
+      <UniqueIdentifier>{63b1144a-a32a-4f81-a6cc-d5e3d4eb57dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windows">
+      <UniqueIdentifier>{b82e0c15-b623-4c23-b785-8230fda93024}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windows\Resource Files">
+      <UniqueIdentifier>{382b6cd6-ae6c-49d7-a87f-1065d3e83e56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Math">
+      <UniqueIdentifier>{a121a01d-d754-4a3a-8662-238a65d968a2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Game.aps">
+      <Filter>Windows\Resource Files</Filter>
+    </None>
+    <None Include="..\Util\Vector3.inl">
+      <Filter>Util\Vector3</Filter>
+    </None>
+    <None Include="..\Util\Vector4.inl">
+      <Filter>Util\Vector3</Filter>
+    </None>
+    <None Include="..\Util\RandomNumber.inl">
+      <Filter>Util\Math</Filter>
+    </None>
+    <None Include="..\Util\HashedString.inl">
+      <Filter>Util</Filter>
+    </None>
+    <None Include="..\Util\NamedBitSet.inl">
+      <Filter>Util</Filter>
+    </None>
+    <None Include="..\Util\RingBuffer.inl">
+      <Filter>Util</Filter>
+    </None>
+    <None Include="..\Util\SharedPointer.inl">
+      <Filter>Util</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Game.ico">
+      <Filter>Windows\Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\small.ico">
+      <Filter>Windows\Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\Game.rc">
+      <Filter>Windows\Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
