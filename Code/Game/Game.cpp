@@ -15,6 +15,7 @@
 #include "PhysicsSystem.h"
 #include "CameraSystem.h"
 #include "LightingSystem.h"
+#include "Sprite.h"
 #include "MathUtil.h"
 #include "PlayerController.h"
 #include "CameraController.h"
@@ -124,6 +125,11 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	Light::CreateController();
 	LightingSystem::GetInstance()->m_WorldObject->SetController(Light::GetController());
 
+	const Engine::sRectangle position = Engine::sRectangle(-1.0f, 0.0f, 1.0f, 0.0f);
+	const Engine::sRectangle textcoord = Engine::sRectangle(0.0f, 1.0f, 0.0f, 1.0f);
+
+	Engine::RenderableObjectSystem::GetInstance()->CreateSprite("data/logo.dds", &position, &textcoord);
+
 	return mInitilized;
 }
 
@@ -134,6 +140,7 @@ int MainGame::Run(void)
 	
 	Engine::HighResTimer GameTimer;
 	GameTimer.Initilize();
+
 	//Game Loop
 	if (mInitilized)
 	{

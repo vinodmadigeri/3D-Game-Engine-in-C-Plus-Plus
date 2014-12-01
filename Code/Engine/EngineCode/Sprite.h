@@ -29,16 +29,15 @@ namespace Engine
 		SpriteDrawInfo(){}
 
 		SpriteDrawInfo(const sRectangle &i_position, const sRectangle &i_texcoords):
-			m_PrimitiveType(D3DPT_TRIANGLESTRIP), m_indexOfFirstVertexToRender(1), m_PrimitiveCount(2), m_NumOfVertices(6), m_VertexStride(sizeof(Engine::sVertexData))
+			m_PrimitiveType(D3DPT_TRIANGLESTRIP), m_indexOfFirstVertexToRender(0), m_PrimitiveCount(2), m_NumOfVertices(4), m_VertexStride(sizeof(Engine::sVertexData))
 		{
 			memset(m_pVerticesData, 0, sizeof(Engine::sVertexData) * m_NumOfVertices);
+			
+			FillSingleVertexData(i_position.left, i_position.bottom, i_texcoords.left, i_texcoords.bottom, m_pVerticesData[0]);
+			FillSingleVertexData(i_position.left, i_position.top, i_texcoords.left, i_texcoords.top, m_pVerticesData[1]);
+			FillSingleVertexData(i_position.right, i_position.bottom, i_texcoords.right, i_texcoords.bottom, m_pVerticesData[2]);
+			FillSingleVertexData(i_position.right, i_position.top, i_texcoords.right, i_texcoords.top, m_pVerticesData[3]);
 
-			FillSingleVertexData(i_position.left, i_position.top, i_texcoords.left, i_texcoords.top, m_pVerticesData[0]);
-			FillSingleVertexData(i_position.right, i_position.bottom, i_texcoords.right, i_texcoords.bottom, m_pVerticesData[1]);
-			FillSingleVertexData(i_position.left, i_position.bottom, i_texcoords.left, i_texcoords.bottom, m_pVerticesData[2]);
-			FillSingleVertexData(i_position.right, i_position.bottom, i_texcoords.right, i_texcoords.bottom, m_pVerticesData[3]);
-			FillSingleVertexData(i_position.left, i_position.top, i_texcoords.left, i_texcoords.top, m_pVerticesData[4]);
-			FillSingleVertexData(i_position.right, i_position.top, i_texcoords.right, i_texcoords.top, m_pVerticesData[5]);
 		}
 
 		void FillSingleVertexData(const float ix, const float iy, const float iU, const float iV, Engine::sVertexData & m_pVerticesData)
@@ -48,6 +47,7 @@ namespace Engine
 			m_pVerticesData.z = 0.0f;
 			m_pVerticesData.U = iU;
 			m_pVerticesData.V = iV;
+			m_pVerticesData.color = D3DCOLOR_XRGB(0, 0, 0);
 		}
 	};
 

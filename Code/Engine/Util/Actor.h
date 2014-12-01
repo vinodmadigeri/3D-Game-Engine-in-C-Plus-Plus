@@ -58,7 +58,7 @@ namespace Engine
 
 	public:
 		unsigned int		mClassBitIndex;
-
+		HashedString		mHashedName;
 		~Actor();
 		static SharedPointer<Actor> Create
 		(

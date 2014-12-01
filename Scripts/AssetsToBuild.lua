@@ -71,6 +71,7 @@ return
 			"nvidia",
 			"amd",
 			"stripes",
+			"logo",
 		},
 	},
 	

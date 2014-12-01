@@ -34,9 +34,7 @@ void main( in const float2 i_uv : TEXCOORD0,
 	out float4 o_color : COLOR0 )
 {
 	// "Sample" the texture to get the color at the given texture coordinates
-	float3 color_sample = tex2D( g_color_sampler, i_uv ).rgb;
+	float4 color_sample = tex2D( g_color_sampler, i_uv ).rgba;
 	
-	o_color = float4( color_sample, 
-		// For now the Alpha value should _always_ be 1.0
-		1.0 );
+	o_color = color_sample;
 }

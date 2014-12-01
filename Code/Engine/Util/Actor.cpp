@@ -36,9 +36,10 @@ namespace Engine
 		mFriction(Vector3(0.0f, 0.0f, 0.0f)),
 		mDeltaTime(static_cast<float>(CONSTANT_TIME_FRAME)),
 		mLocalToWorld(i_LocalToWorld),
-		mClassBitIndex(i_ClassBitIndex),
 		m_pController(NULL),
-		mType(i_Type)
+		mType(i_Type),
+		mClassBitIndex(i_ClassBitIndex),
+		mHashedName(i_GameObjectName)
 	{
 
 	}

@@ -342,7 +342,7 @@ namespace Engine
 	bool Sprite::CreateSpriteInfo(const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect, SpriteDrawInfo &i_spriteDrawIfo)
 	{
 		sRectangle positionRect(-1.0f, 0.0f, 1.0f, 0.0f);
-		sRectangle texcoordsRect(-1.0f, 0.0f, 1.0f, 0.0f);
+		sRectangle texcoordsRect(0.0f, 1.0f, 0.0f, 1.0f);
 
 		if (i_positionRect)
 		{

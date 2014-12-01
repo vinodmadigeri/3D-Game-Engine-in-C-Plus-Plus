@@ -1,6 +1,6 @@
 
 #include "PreCompiled.h"
-
+#include "HashedString.h"
 #include "Material.h"
 #include "MeshData.h"
 #include "RenderableObjectSystem.h"
@@ -11,7 +11,9 @@
 namespace Engine
 {
 	MemoryPool *RenderableObjectSystem::Renderable3DObject::Renderer3DMemoryPool = NULL;
+	MemoryPool *RenderableObjectSystem::RenderableSprites::SpriteMemoryPool = NULL;
 	unsigned int RenderableObjectSystem::MAX_3D_OBJECTS = 100;
+	unsigned int RenderableObjectSystem::MAX_2D_OBJECTS = 100;
 	RenderableObjectSystem* RenderableObjectSystem::mInstance = NULL;
 
 	/***************************3D Rendering **************************************/
@@ -89,17 +91,36 @@ namespace Engine
 		return mMesh;
 	}
 
-	/******************************************************************************
-		Function     : Add3DActorGameObject
-		Description  : Function to add 3D Actor object for Rendering, Only creates 
-					Material and Mesh if not in cache
-		Input        : void
-		Output       : 
-		Return Value : 
+	/***************************Sprite Rendering **************************************/
+	RenderableObjectSystem::RenderableSprites::RenderableSprites(SharedPointer<Sprite> &i_Sprite):
+		mSprite(i_Sprite)
+	{
 
-		History      :
-		Author       : Vinod VM
-		Modification : Created function
+	}
+
+	RenderableObjectSystem::RenderableSprites::~RenderableSprites()
+	{
+
+	}
+
+	SharedPointer<Sprite> RenderableObjectSystem::RenderableSprites::GetSprite(void) const
+	{
+		return mSprite;
+	}
+
+	/***************************Global Rendering***********************************/
+
+	/******************************************************************************
+	Function     : Add3DActorGameObject
+	Description  : Function to add 3D Actor object for Rendering, Only creates
+	Material and Mesh if not in cache
+	Input        : void
+	Output       :
+	Return Value :
+
+	History      :
+	Author       : Vinod VM
+	Modification : Created function
 	******************************************************************************/
 	void RenderableObjectSystem::Add3DActorGameObject(
 		SharedPointer<Actor> &i_Object,
@@ -136,7 +157,24 @@ namespace Engine
 		m3DRenderableObjects.push_back(new Renderable3DObject(i_Object, NewMaterial, NewMesh));
 	}
 
-	/***************************Global Rendering***********************************/
+	void RenderableObjectSystem::CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect)
+	{
+		assert(i_TexturePath && i_positionRect && i_texcoordsRect);
+
+		SharedPointer<Sprite> NewSprite;
+		{
+			//create new mesh and insert into mesh cache eventually
+			NewSprite = GraphicsSystem::GetInstance()->CreateSprite(i_TexturePath, i_positionRect, i_texcoordsRect);
+		}
+
+		if (NewSprite == NULL)
+		{
+			return;
+		}
+
+		mSpriteRenderableObjects.push_back(new RenderableSprites(NewSprite));
+	}
+
 	/******************************************************************************
 		Function     : DeleteMarkedToDeathGameObjects
 		Description  : Function to delete marked to death actor game object from 
@@ -166,8 +204,8 @@ namespace Engine
 	}
 
 	/******************************************************************************
-		Function     : DeleteAllGameObjects
-		Description  : Function to delete all actor game object from 
+		Function     : DeleteAllRenderableObjects
+		Description  : Function to delete all renderable object from 
 					rendering system
 		Input        : void
 		Output       : void
@@ -177,7 +215,7 @@ namespace Engine
 		Author       : Vinod VM
 		Modification : Created function
 	******************************************************************************/
-	void RenderableObjectSystem::DeleteAllGameObjects(void)
+	void RenderableObjectSystem::DeleteAllRenderableObjects(void)
 	{
 		//Delete 3D objects
 		for (unsigned long ulCount = 0; ulCount < m3DRenderableObjects.size(); ulCount++)
@@ -187,6 +225,45 @@ namespace Engine
 
 		m3DRenderableObjects.clear();
 
+		//Delete 3D objects
+		for (unsigned long ulCount = 0; ulCount < mSpriteRenderableObjects.size(); ulCount++)
+		{
+			delete mSpriteRenderableObjects.at(ulCount);
+		}
+
+		mSpriteRenderableObjects.clear();
+
+	}
+
+	bool RenderableObjectSystem::Delete3DGameObjectByName(const char * iName)
+	{
+		//Delete 3D objects
+		for (unsigned long ulCount = 0; ulCount < m3DRenderableObjects.size(); ulCount++)
+		{
+			if (m3DRenderableObjects.at(ulCount)->m_WorldObject->mHashedName.Get() == HashedString::Hash(iName))
+			{
+				delete m3DRenderableObjects.at(ulCount);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool RenderableObjectSystem::DeleteSpriteGameObjectByName(const char * iName)
+	{
+
+		//Delete Sprite
+		for (unsigned long ulCount = 0; ulCount < mSpriteRenderableObjects.size(); ulCount++)
+		{
+			if (mSpriteRenderableObjects.at(ulCount)->GetSprite()->GetName() == (iName))
+			{
+				delete mSpriteRenderableObjects.at(ulCount);
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/******************************************************************************
@@ -216,6 +293,12 @@ namespace Engine
 			GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh(), m3DRenderableObjects[ulCount]->m_WorldObject);
 		}
 
+		//Render sprites
+		for (unsigned long ulCount = 0; ulCount < mSpriteRenderableObjects.size(); ulCount++)
+		{
+			GraphicsSystem::GetInstance()->RenderSprite(mSpriteRenderableObjects.at(ulCount)->GetSprite());
+		}
+
 		GraphicsSystem::GetInstance()->EndFrame();
 		return;
 	}
@@ -230,7 +313,17 @@ namespace Engine
 			if (Renderable3DObject::Renderer3DMemoryPool == NULL)
 			{
 				assert(false);
-				WereThereErrors = false;
+				WereThereErrors = true;
+			}
+		}
+
+		if (RenderableSprites::SpriteMemoryPool == NULL)
+		{
+			RenderableSprites::SpriteMemoryPool = MemoryPool::Create(sizeof(RenderableSprites), MAX_2D_OBJECTS);
+			if (RenderableSprites::SpriteMemoryPool == NULL)
+			{
+				assert(false);
+				WereThereErrors = true;
 			}
 		}
 
@@ -239,13 +332,20 @@ namespace Engine
 
 	RenderableObjectSystem::~RenderableObjectSystem()
 	{
-		DeleteAllGameObjects();
+		DeleteAllRenderableObjects();
 		m3DRenderableObjects.clear();
+		mSpriteRenderableObjects.clear();
 
 		if (Renderable3DObject::Renderer3DMemoryPool)
 		{
 			unsigned long ulOutLength;
 			Renderable3DObject::Renderer3DMemoryPool->Destroy(&ulOutLength);
+		}
+
+		if (RenderableSprites::SpriteMemoryPool)
+		{
+			unsigned long ulOutLength;
+			RenderableSprites::SpriteMemoryPool->Destroy(&ulOutLength);
 		}
 	}
 

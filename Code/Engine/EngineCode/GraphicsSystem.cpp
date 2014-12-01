@@ -840,7 +840,7 @@ namespace Engine
 
 	bool GraphicsSystem::CreateVertexBufferForSprite(IDirect3DVertexDeclaration9** i_ppvertexDeclaration, IDirect3DVertexBuffer9** i_ppvertexBuffer, const SpriteDrawInfo &i_SpriteDrawInfo)
 	{
-		DWORD usage;
+		DWORD usage = 0;
 		// The usage tells Direct3D how this vertex buffer will be used
 		{
 			usage |= D3DUSAGE_WRITEONLY | D3DUSAGE_DYNAMIC;
