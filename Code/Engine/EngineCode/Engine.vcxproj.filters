@@ -68,6 +68,12 @@
     <ClCompile Include="..\Util\UserInput.cpp">
       <Filter>Util</Filter>
     </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>GraphicsSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\WindowsError.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PreCompiled.h" />
@@ -166,6 +172,9 @@
     </ClInclude>
     <ClInclude Include="..\Util\UserInput.h">
       <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>GraphicsSystem</Filter>
     </ClInclude>
     <ClInclude Include="..\Util\WindowsError.h">
       <Filter>Util</Filter>

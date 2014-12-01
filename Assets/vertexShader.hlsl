@@ -1,5 +1,5 @@
 /*
-	This is an example of a vertex shader
+	vertex shader for 3D models
 */
 
 // Constants

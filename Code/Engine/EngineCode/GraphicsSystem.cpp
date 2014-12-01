@@ -8,6 +8,7 @@
 #include "Material.h"
 #include "Mesh.h"
 #include "MeshData.h"
+#include "Sprite.h"
 #include "../UserSettings/UserSettings.h"
 
 // Static Data Initialization
@@ -33,6 +34,8 @@ namespace Engine
 	GraphicsSystem *GraphicsSystem::m_pInstance = NULL;
 	std::map<unsigned int, SharedPointer<Mesh>> GraphicsSystem::mMeshCache;
 	std::map<unsigned int, SharedPointer<Material>> GraphicsSystem::mMaterialCache;
+	std::map<unsigned int, SharedPointer<Sprite>> GraphicsSystem::mSpriteCache;
+
 	// Interface
 	//==========
 
@@ -188,12 +191,53 @@ namespace Engine
 		return true;
 	}
 
+	bool GraphicsSystem::Begin2D(void)
+	{
+		if (CanSubmit())
+		{
+			assert(m_direct3dDevice);
+
+			//To enable standard alpha blending
+			m_direct3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+			m_direct3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			m_direct3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+			//turn off depth writing and depth comparisons
+			m_direct3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+			m_direct3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool GraphicsSystem::Begin3D(void)
+	{
+		if (CanSubmit())
+		{
+			assert(m_direct3dDevice);
+
+			//To disable standard alpha blending
+			m_direct3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+
+			//turn on depth writing and depth comparisons
+			m_direct3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+			m_direct3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+			m_direct3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
+
+			return true;
+		}
+
+		return false;
+	}
+
 	void GraphicsSystem::Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh, SharedPointer<Actor> ThisObject)
 	{
 		assert(mInitilized == true);
 
 		//Only render when in frame
-		assert(s_bInFrame);
+		if (CanSubmit() && Begin3D())
 		{
 			// Set the shaders
 			{
@@ -245,11 +289,77 @@ namespace Engine
 				// It's possible to start rendering primitives in the middle of the stream
 				const unsigned int indexOfFirstVertexToRender = i_Mesh->mDrawInfo.m_indexOfFirstVertexToRender;
 				const unsigned int indexOfFirstIndexToUse = i_Mesh->mDrawInfo.m_indexOfFirstIndexToUse;
-				// We are drawing a single triangle
+				
 				const unsigned int primitiveCountToRender = i_Mesh->mDrawInfo.m_PrimitiveCount;
 				const unsigned int vertexCountToRender = i_Mesh->mDrawInfo.m_NumOfVertices; 
 
 				HRESULT result = m_direct3dDevice->DrawIndexedPrimitive(primitiveType, indexOfFirstVertexToRender, indexOfFirstVertexToRender, vertexCountToRender, indexOfFirstIndexToUse, primitiveCountToRender);
+				assert(SUCCEEDED(result));
+			}
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+			D3DPERF_EndEvent();
+#endif
+		}
+	}
+
+	void GraphicsSystem::RenderSprite(SharedPointer<Sprite> i_Sprite)
+	{
+		assert(mInitilized == true);
+
+		//Only render when in frame
+		if (CanSubmit() && Begin2D())
+		{
+			// Set the shaders
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				std::string errorMessage;
+#endif
+				HRESULT result = i_Sprite->Set(m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, &errorMessage
+#endif
+					);
+				assert(SUCCEEDED(result));
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (FAILED(result))
+				{
+					MessageBox(m_mainWindow, errorMessage.c_str(), "Error Setting Material", MB_OK | MB_ICONERROR);
+				}
+#endif
+			}
+
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+			std::wstringstream EventMessage;
+			EventMessage << "Draw Sprite " << (i_Sprite->GetName().c_str());
+			D3DPERF_BeginEvent(0, EventMessage.str().c_str());
+#endif
+			// Bind a specific vertex buffer to the device as a data source
+			{
+				// There can be multiple streams of data feeding the display adaptor at the same time
+				const unsigned int streamIndex = 0;
+				// It's possible to start streaming data in the middle of a vertex buffer
+				const unsigned int bufferOffset = 0;
+				// The "stride" defines how large a single vertex is in the stream of data
+				const unsigned int bufferStride = i_Sprite->m_spriteDrawIfo.m_VertexStride;
+				HRESULT result = m_direct3dDevice->SetStreamSource(streamIndex, i_Sprite->GetVertexBuffer(), bufferOffset, bufferStride);
+				assert(SUCCEEDED(result));
+			}
+
+			// Render objects from the current streams
+			{
+				// We are using triangles as the "primitive" type,
+				// and we have defined the vertex buffer as a triangle list
+				// (meaning that every triangle is defined by three vertices)
+				const D3DPRIMITIVETYPE primitiveType = i_Sprite->m_spriteDrawIfo.m_PrimitiveType;
+				// It's possible to start rendering primitives in the middle of the stream
+				const unsigned int indexOfFirstVertexToRender = i_Sprite->m_spriteDrawIfo.m_indexOfFirstVertexToRender;
+				
+				const unsigned int primitiveCountToRender = i_Sprite->m_spriteDrawIfo.m_PrimitiveCount;
+				const unsigned int vertexCountToRender = i_Sprite->m_spriteDrawIfo.m_NumOfVertices;
+
+				//HRESULT result = m_direct3dDevice->DrawIndexedPrimitive(primitiveType, indexOfFirstVertexToRender, indexOfFirstVertexToRender, vertexCountToRender, indexOfFirstIndexToUse, primitiveCountToRender);
+				HRESULT result = m_direct3dDevice->DrawPrimitive(primitiveType, indexOfFirstVertexToRender, primitiveCountToRender);
+				
 				assert(SUCCEEDED(result));
 			}
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
@@ -274,6 +384,11 @@ namespace Engine
 				if (mMeshCache.size() > 0)
 				{
 					mMeshCache.clear();
+				}
+
+				if (mSpriteCache.size() > 0)
+				{
+					mSpriteCache.clear();
 				}
 
 				m_direct3dDevice->SetVertexDeclaration(NULL);
@@ -643,6 +758,175 @@ namespace Engine
 				if (FAILED(result))
 				{
 					MessageBox(m_mainWindow, "DirectX failed to unlock the index buffer", "No Index Buffer", MB_OK | MB_ICONERROR);
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+
+	SharedPointer<Sprite> GraphicsSystem::CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect)
+	{
+		std::string errorMessage;
+		std::map<unsigned int, SharedPointer<Sprite>>::iterator it;
+		{
+			it = mSpriteCache.find(HashedString::Hash(i_TexturePath));
+
+			if (it != mSpriteCache.end())
+			{
+				return it->second;
+			}
+			else
+			{
+				SpriteDrawInfo io_SpriteDrawInfo;
+
+				if (!Sprite::CreateSpriteInfo(i_positionRect, i_texcoordsRect, io_SpriteDrawInfo))
+				{
+					goto OnError;
+				}
+
+				IDirect3DVertexDeclaration9* vertexDeclaration = NULL;
+				IDirect3DVertexBuffer9* vertexBuffer = NULL;
+				{
+					if (!CreateVertexBufferForSprite(&vertexDeclaration, &vertexBuffer, io_SpriteDrawInfo))
+					{
+						errorMessage = "DirectX Failed to create Vertex Buffer";
+						goto OnError;
+					}
+				}
+
+				SharedPointer<Sprite> pSprite = NULL;
+				{
+					pSprite = new Sprite(i_TexturePath, m_direct3dDevice, vertexBuffer, io_SpriteDrawInfo);
+
+					if (pSprite == NULL)
+					{
+						errorMessage = "Sprite Creation failed";
+						goto OnError;
+					}
+
+					bool result = pSprite->Load(i_TexturePath, m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, &errorMessage
+#endif
+						);
+
+					if (!result)
+					{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						std::stringstream errorMessagestream;
+						errorMessagestream << "Couldn't load Material File : " << i_TexturePath;
+						MessageBox(m_mainWindow, errorMessage.c_str(), errorMessagestream.str().c_str(), MB_OK | MB_ICONERROR);
+#endif
+						return NULL;
+					}
+
+					std::pair<unsigned int, SharedPointer<Sprite>> thisPair = std::pair<unsigned int, SharedPointer<Sprite>>(HashedString::Hash(i_TexturePath), pSprite);
+					mSpriteCache.insert(thisPair);
+
+					return pSprite;
+				}
+			}
+		}
+
+	OnError:
+		MessageBox(m_mainWindow, errorMessage.c_str(), "Can not create Sprite", MB_OK | MB_ICONERROR);
+
+		return NULL;
+	}
+
+
+	bool GraphicsSystem::CreateVertexBufferForSprite(IDirect3DVertexDeclaration9** i_ppvertexDeclaration, IDirect3DVertexBuffer9** i_ppvertexBuffer, const SpriteDrawInfo &i_SpriteDrawInfo)
+	{
+		DWORD usage;
+		// The usage tells Direct3D how this vertex buffer will be used
+		{
+			usage |= D3DUSAGE_WRITEONLY | D3DUSAGE_DYNAMIC;
+			// The type of vertex processing should match what was specified when the device interface was created with CreateDevice()
+			{
+				D3DDEVICE_CREATION_PARAMETERS deviceCreationParameters;
+				const HRESULT result = m_direct3dDevice->GetCreationParameters(&deviceCreationParameters);
+				if (SUCCEEDED(result))
+				{
+					DWORD vertexProcessingType = deviceCreationParameters.BehaviorFlags &
+						(D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MIXED_VERTEXPROCESSING | D3DCREATE_SOFTWARE_VERTEXPROCESSING);
+					usage |= (vertexProcessingType != D3DCREATE_SOFTWARE_VERTEXPROCESSING) ? 0 : D3DUSAGE_SOFTWAREPROCESSING;
+				}
+				else
+				{
+					MessageBox(m_mainWindow, "DirectX failed to get device creation parameters", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+					return false;
+				}
+			}
+		}
+
+		// Initialize the vertex format
+		HRESULT result = m_direct3dDevice->CreateVertexDeclaration(s_vertexElements, i_ppvertexDeclaration);
+		if (SUCCEEDED(result))
+		{
+			result = m_direct3dDevice->SetVertexDeclaration(*i_ppvertexDeclaration);
+			if (FAILED(result))
+			{
+				MessageBox(m_mainWindow, "DirectX failed to set the vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR);
+				return false;
+			}
+		}
+		else
+		{
+			MessageBox(m_mainWindow, "DirectX failed to create a Direct3D9 vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR);
+			return false;
+		}
+
+		// Create a vertex buffer
+		{
+			// We are drawing a mesh
+			const unsigned int vertexCount = i_SpriteDrawInfo.m_NumOfVertices;
+			const unsigned int bufferSize = vertexCount * i_SpriteDrawInfo.m_VertexStride;
+
+			// We will define our own vertex format
+			const DWORD useSeparateVertexDeclaration = 0;
+			// Place the vertex buffer into memory that Direct3D thinks is the most appropriate
+			const D3DPOOL useDefaultPool = D3DPOOL_DEFAULT;
+			HANDLE* const notUsed = NULL;
+
+			result = m_direct3dDevice->CreateVertexBuffer(bufferSize, usage, useSeparateVertexDeclaration, useDefaultPool,
+				i_ppvertexBuffer, notUsed);
+			if (FAILED(result))
+			{
+				MessageBox(m_mainWindow, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+				return false;
+			}
+		}
+
+		// Fill the vertex buffer with the Mesh's vertices
+		{
+			// Before the vertex buffer can be changed it must be "locked"
+			sVertexData* vertexData;
+			{
+				const unsigned int lockEntireBuffer = 0;
+				const DWORD useDefaultLockingBehavior = 0;
+				result = (*i_ppvertexBuffer)->Lock(lockEntireBuffer, lockEntireBuffer,
+					reinterpret_cast<void**>(&vertexData), useDefaultLockingBehavior);
+				if (FAILED(result))
+				{
+					MessageBox(m_mainWindow, "DirectX failed to lock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+					return false;
+				}
+			}
+
+			// Fill the buffer
+			{
+				memcpy(vertexData, i_SpriteDrawInfo.m_pVerticesData, i_SpriteDrawInfo.m_VertexStride * i_SpriteDrawInfo.m_NumOfVertices);
+			}
+
+			// The buffer must be "unlocked" before it can be used
+			{
+				result = (*i_ppvertexBuffer)->Unlock();
+				if (FAILED(result))
+				{
+					MessageBox(m_mainWindow, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
 					return false;
 				}
 			}

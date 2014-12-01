@@ -1,5 +1,5 @@
 /*
-	This is an example of a fragment shader
+	fragment shader for 3D models
 */
 
 // Constants

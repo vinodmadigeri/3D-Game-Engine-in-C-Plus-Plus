@@ -16,6 +16,7 @@ return
 		assets =
 		{
 			"fragmentShader",
+			"fragmentShaderSprite",
 		},
 	},
 
@@ -31,6 +32,7 @@ return
 		assets =
 		{
 			"vertexShader",
+			"vertexShaderSprite",
 		},
 	},
 	

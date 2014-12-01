@@ -24,6 +24,9 @@ namespace Engine
 	class Material; //Forward Decleration
 	class Mesh;
 	class Actor;
+	class Sprite;
+	struct sRectangle;
+	struct SpriteDrawInfo;
 
 	class GraphicsSystem
 	{
@@ -38,6 +41,7 @@ namespace Engine
 		
 		static std::map<unsigned int, SharedPointer<Material>> mMaterialCache; //Shared materials
 		static std::map<unsigned int, SharedPointer<Mesh>> mMeshCache; //Shared meshes
+		static std::map<unsigned int, SharedPointer<Sprite>> mSpriteCache; //Shared meshes
 
 		static GraphicsSystem *m_pInstance;
 		bool mInitilized;
@@ -57,9 +61,8 @@ namespace Engine
 		
 		bool CreateVertexBuffer(DWORD i_usage, IDirect3DVertexDeclaration9** i_ppvertexDeclaration, IDirect3DVertexBuffer9** i_ppvertexBuffer, const DrawInfo &i_DrawInfo);
 		bool CreateIndexBuffer(DWORD i_usage, IDirect3DIndexBuffer9** i_ppindexBuffer, const DrawInfo &i_DrawInfo);
-
+		bool CreateVertexBufferForSprite(IDirect3DVertexDeclaration9** i_ppvertexDeclaration, IDirect3DVertexBuffer9** i_ppvertexBuffer, const SpriteDrawInfo &i_SpriteDrawInfo);
 		
-
 		bool Initialize();
 		bool ShutDown();
 
@@ -74,10 +77,14 @@ namespace Engine
 
 		static GraphicsSystem * GetInstance();
 		bool BeingFrame(const ColorRGBA & i_ClearColor = ColorRGBA(0, 0, 0, 0));
+		bool GraphicsSystem::Begin2D(void);
+		bool GraphicsSystem::Begin3D(void);
 		void Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh, SharedPointer<Actor> ThisObject);
+		void RenderSprite(SharedPointer<Sprite> i_Sprite);
 		bool EndFrame(void);
 		SharedPointer<Mesh> CreateMesh(const char* i_MeshPath);
 		SharedPointer<Material> CreateMaterial(const char *i_MaterialPath);
+		SharedPointer<Sprite> CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect);
 
 		static void Destroy();
 	};

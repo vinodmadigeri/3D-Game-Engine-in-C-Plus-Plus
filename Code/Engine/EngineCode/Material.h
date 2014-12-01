@@ -56,10 +56,17 @@ namespace Engine
 #endif
 			);
 
+		static bool LoadAndAllocateShaderProgram(const char* i_path, void*& o_compiledShader
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
 		bool SetPerInstanceConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count);
 		bool SetPerViewConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count);
 		bool SetPerFrameConstantDataByName(const char * i_name, const void* i_pValue, const unsigned int i_count);
 		inline std::string GetName() const { return mName; }
+
 	private:
 		IDirect3DDevice9 * m_direct3dDevice;
 		// The vertex shader is a program that operates on vertices.
@@ -150,12 +157,6 @@ namespace Engine
 			);
 
 		bool LoadTextureAndSamplerRegister(const char* iTexturePath, const char* iSamplerName, IDirect3DDevice9 * i_direct3dDevice
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-			, std::string* o_errorMessage
-#endif
-			);
-
-		static bool LoadAndAllocateShaderProgram(const char* i_path, void*& o_compiledShader
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Util\WindowsError.cpp" />
     <ClCompile Include="CameraSystem.cpp" />
     <ClCompile Include="LevelLoadHelper.cpp" />
     <ClCompile Include="LightingSystem.cpp" />
@@ -37,10 +38,12 @@
     <ClCompile Include="..\Util\Matrix4x4.cpp" />
     <ClCompile Include="..\Util\MemoryPool.cpp" />
     <ClCompile Include="..\Util\Vector3.cpp" />
+    <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Win32Management.cpp" />
     <ClCompile Include="WorldSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Util\WindowsError.h" />
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="LevelLoadHelper.h" />
     <ClInclude Include="LightingData.h" />
@@ -72,7 +75,7 @@
     <ClInclude Include="..\Util\SharedPointer.h" />
     <ClInclude Include="..\Util\Vector3.h" />
     <ClInclude Include="..\Util\Vector4.h" />
-    <ClInclude Include="..\Util\WindowsError.h" />
+    <ClInclude Include="Sprite.h" />
     <ClInclude Include="Win32Management.h" />
     <ClInclude Include="WorldSystem.h" />
   </ItemGroup>
