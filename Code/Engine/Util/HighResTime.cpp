@@ -91,6 +91,55 @@ namespace Engine
 	#endif
 	}
 
+
+	/******************************************************************************
+	Function     : GetCurrentTimeStamp
+	Description  : function to get current time stamp
+	Input        :
+	Output       : 
+	Return Value : 
+
+	History      :
+	Author       : Vinod VM
+	Modification : Created function
+	******************************************************************************/
+	LONGLONG HighResTimer::GetCurrentTimeStamp(void) const
+	{
+		LARGE_INTEGER CurrentFrameCounter = { 0 };
+
+		assert(TRUE == QueryPerformanceCounter(&CurrentFrameCounter));
+
+		QueryPerformanceCounter(&CurrentFrameCounter);
+
+		return CurrentFrameCounter.QuadPart;
+	}
+
+	/******************************************************************************
+	Function     : GetTimeDifferenceinMS
+	Description  : function to get time difference
+	Input        :
+	Output       : 
+	Return Value : 
+
+	History      :
+	Author       : Vinod VM
+	Modification : Created function
+	******************************************************************************/
+	double HighResTimer::GetTimeDifferenceinMS(const LONGLONG i_FromTimeStamp) const
+	{
+		LARGE_INTEGER CurrentFrameCounter = { 0 };
+
+		assert(TRUE == QueryPerformanceCounter(&CurrentFrameCounter));
+
+		QueryPerformanceCounter(&CurrentFrameCounter);
+
+		double TimeDifference = ((CurrentFrameCounter.QuadPart - i_FromTimeStamp) * SEC_TO_MILLISEC) / FrameFrequency.QuadPart;
+
+
+		return TimeDifference;
+	}
+
+
 	/******************************************************************************
 	Function     : Tick
 	Description  : constructor for Tick class

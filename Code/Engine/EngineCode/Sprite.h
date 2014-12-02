@@ -6,6 +6,7 @@
 #include <d3d9.h>
 #include <d3dx9shader.h>
 #include "MeshData.h"
+#include "../UserSettings/UserSettings.h"
 
 namespace Engine
 {
@@ -25,19 +26,52 @@ namespace Engine
 		UINT				m_NumOfVertices;
 		unsigned int		m_VertexStride;
 		Engine::sVertexData	m_pVerticesData[4];
+		unsigned int m_MaxHorizontalCount;
+		unsigned int m_MaxVerticalCount;
 
 		SpriteDrawInfo(){}
 
-		SpriteDrawInfo(const sRectangle &i_position, const sRectangle &i_texcoords):
-			m_PrimitiveType(D3DPT_TRIANGLESTRIP), m_indexOfFirstVertexToRender(0), m_PrimitiveCount(2), m_NumOfVertices(4), m_VertexStride(sizeof(Engine::sVertexData))
+		SpriteDrawInfo(const sRectangle &i_position, const sRectangle &i_texcoords, unsigned int i_MaxHorizontalCount = 1, unsigned int i_MaxVerticalCount = 1) :
+			m_PrimitiveType(D3DPT_TRIANGLESTRIP), 
+			m_indexOfFirstVertexToRender(0), 
+			m_PrimitiveCount(2), 
+			m_NumOfVertices(4), 
+			m_VertexStride(sizeof(Engine::sVertexData)),
+			m_MaxHorizontalCount(i_MaxHorizontalCount), 
+			m_MaxVerticalCount(i_MaxVerticalCount)
 		{
+			assert(m_MaxHorizontalCount > 0 && m_MaxVerticalCount > 0);
+
+			float left = i_position.left;
+			float right = i_position.right;
+			float top = i_position.top;
+			float bottom = i_position.bottom;
+
+			float Texcoordleft = i_texcoords.left / i_MaxHorizontalCount;
+			float Texcoordright = i_texcoords.right / i_MaxHorizontalCount;
+			float Texcoordtop = i_texcoords.top / i_MaxVerticalCount;
+			float Texcoordbottom = i_texcoords.bottom / i_MaxVerticalCount;
+
+			//Adjust the Sprite height and width based on aspect ratio
+			float AspectRatio = static_cast<float>(UserSettings::GetWidth()) / static_cast<float>(UserSettings::GetHeight());
+
+			if (AspectRatio > 0.0f)
+			{
+				left = left / AspectRatio;
+				right = right / AspectRatio;
+			}
+			else
+			{
+				top = top * AspectRatio;
+				bottom = bottom * AspectRatio;
+			}
+
 			memset(m_pVerticesData, 0, sizeof(Engine::sVertexData) * m_NumOfVertices);
 			
-			FillSingleVertexData(i_position.left, i_position.bottom, i_texcoords.left, i_texcoords.bottom, m_pVerticesData[0]);
-			FillSingleVertexData(i_position.left, i_position.top, i_texcoords.left, i_texcoords.top, m_pVerticesData[1]);
-			FillSingleVertexData(i_position.right, i_position.bottom, i_texcoords.right, i_texcoords.bottom, m_pVerticesData[2]);
-			FillSingleVertexData(i_position.right, i_position.top, i_texcoords.right, i_texcoords.top, m_pVerticesData[3]);
-
+			FillSingleVertexData(left, bottom, Texcoordleft, Texcoordbottom, m_pVerticesData[0]);
+			FillSingleVertexData(left, top, Texcoordleft, Texcoordtop, m_pVerticesData[1]);
+			FillSingleVertexData(right, bottom, Texcoordright, Texcoordbottom, m_pVerticesData[2]);
+			FillSingleVertexData(right, top, Texcoordright, Texcoordtop, m_pVerticesData[3]);
 		}
 
 		void FillSingleVertexData(const float ix, const float iy, const float iU, const float iV, Engine::sVertexData & m_pVerticesData)
@@ -50,7 +84,6 @@ namespace Engine
 			m_pVerticesData.color = D3DCOLOR_XRGB(0, 0, 0);
 		}
 	};
-
 }
 
 namespace Engine
@@ -96,7 +129,7 @@ namespace Engine
 			);
 
 	public:
-		SpriteDrawInfo m_spriteDrawIfo;
+		SpriteDrawInfo m_spriteDrawInfo;
 
 		Sprite(const char *iTextureName, IDirect3DDevice9 *i_direct3dDevice, IDirect3DVertexBuffer9* i_vertexBuffer, const SpriteDrawInfo i_spriteDrawInfo);
 
@@ -114,14 +147,18 @@ namespace Engine
 #endif
 			);
 
-		static bool CreateSpriteInfo(const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect, SpriteDrawInfo &i_spriteDrawIfo);
 
+		bool DrawFromSpriteSheet(unsigned int i_HorizontalCount = 0, unsigned int i_VerticalCount = 0);
+
+		static bool CreateSpriteInfo(const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect,
+			SpriteDrawInfo &i_spriteDrawIfo, unsigned int i_MaxHorizontalCount = 1, unsigned int i_MaxVerticalCount = 1);
 
 		HRESULT Set(IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif
 			);
+
 	};
 }
 

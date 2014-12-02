@@ -14,6 +14,8 @@ namespace Engine
 		void Initilize(void);
 		void CalculateFrameTime(void);
 		double GetLastFrameMS(void);
+		LONGLONG GetCurrentTimeStamp(void) const;
+		double GetTimeDifferenceinMS(const LONGLONG i_FromTimeStamp) const;
 	};
 	
 	class Tick

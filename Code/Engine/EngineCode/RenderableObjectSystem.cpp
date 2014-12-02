@@ -157,14 +157,15 @@ namespace Engine
 		m3DRenderableObjects.push_back(new Renderable3DObject(i_Object, NewMaterial, NewMesh));
 	}
 
-	void RenderableObjectSystem::CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect)
+	void RenderableObjectSystem::CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect,
+		const sRectangle *i_texcoordsRect, unsigned int i_MaxHorizontalCount, unsigned int i_MaxVerticalCount)
 	{
 		assert(i_TexturePath && i_positionRect && i_texcoordsRect);
 
 		SharedPointer<Sprite> NewSprite;
 		{
 			//create new mesh and insert into mesh cache eventually
-			NewSprite = GraphicsSystem::GetInstance()->CreateSprite(i_TexturePath, i_positionRect, i_texcoordsRect);
+			NewSprite = GraphicsSystem::GetInstance()->CreateSprite(i_TexturePath, i_positionRect, i_texcoordsRect, i_MaxHorizontalCount, i_MaxVerticalCount);
 		}
 
 		if (NewSprite == NULL)
@@ -264,6 +265,21 @@ namespace Engine
 		}
 
 		return false;
+	}
+
+	RenderableObjectSystem::RenderableSprites * RenderableObjectSystem::FindSpriteGameObjectByName(const char * iName)
+	{
+
+		//Find Sprite
+		for (unsigned long ulCount = 0; ulCount < mSpriteRenderableObjects.size(); ulCount++)
+		{
+			if (mSpriteRenderableObjects.at(ulCount)->GetSprite()->GetName() == (iName))
+			{
+				return mSpriteRenderableObjects.at(ulCount);
+			}
+		}
+
+		return NULL;
 	}
 
 	/******************************************************************************

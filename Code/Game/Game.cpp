@@ -125,10 +125,16 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	Light::CreateController();
 	LightingSystem::GetInstance()->m_WorldObject->SetController(Light::GetController());
 
-	const Engine::sRectangle position = Engine::sRectangle(-1.0f, 0.0f, 1.0f, 0.0f);
+	const Engine::sRectangle Spriteposition = Engine::sRectangle(-1.0f, 0.0f, 1.0f, 0.0f);
+	const Engine::sRectangle Spritetextcoord = Engine::sRectangle(0.0f, 1.0f, 0.0f, 1.0f);
+
+	Engine::RenderableObjectSystem::GetInstance()->CreateSprite("data/logo.dds", &Spriteposition, &Spritetextcoord);
+
+	const Engine::sRectangle position = Engine::sRectangle(0.5f, 1.0f, 1.0f, 0.5f);
 	const Engine::sRectangle textcoord = Engine::sRectangle(0.0f, 1.0f, 0.0f, 1.0f);
 
-	Engine::RenderableObjectSystem::GetInstance()->CreateSprite("data/logo.dds", &position, &textcoord);
+	const unsigned int MaxHorizontalCount = 10;
+	Engine::RenderableObjectSystem::GetInstance()->CreateSprite("data/numbers.dds", &position, &textcoord, MaxHorizontalCount);
 
 	return mInitilized;
 }
@@ -140,6 +146,9 @@ int MainGame::Run(void)
 	
 	Engine::HighResTimer GameTimer;
 	GameTimer.Initilize();
+	LONGLONG PreviousTimeStamp = GameTimer.GetCurrentTimeStamp();
+	const unsigned int MaxHorizontalCount = 10;
+	unsigned int SpriteCount = 0;
 
 	//Game Loop
 	if (mInitilized)
@@ -155,6 +164,18 @@ int MainGame::Run(void)
 			Engine::RenderableObjectSystem::GetInstance()->Render();
 			Win32Management::WindowsManager::GetInstance()->UpdateMainWindow(exitCode, QuitRequested);
 			
+			Engine::RenderableObjectSystem::RenderableSprites * NumbersSprite = Engine::RenderableObjectSystem::GetInstance()->FindSpriteGameObjectByName("data/numbers.dds");
+			
+			
+			double TimePast = GameTimer.GetTimeDifferenceinMS(PreviousTimeStamp);
+
+			if (TimePast > 2000)
+			{
+				PreviousTimeStamp = GameTimer.GetCurrentTimeStamp();
+				NumbersSprite->GetSprite()->DrawFromSpriteSheet(SpriteCount);
+				SpriteCount = (SpriteCount + 1) % MaxHorizontalCount;
+			}
+
 		} while (QuitRequested == false);
 	}
 

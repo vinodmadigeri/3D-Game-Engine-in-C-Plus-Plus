@@ -19,7 +19,7 @@ namespace Engine
 		m_texture(NULL),
 		m_samplerRegister(NULL),
 		m_vertexBuffer(i_vertexBuffer),
-		m_spriteDrawIfo(i_spriteDrawInfo)
+		m_spriteDrawInfo(i_spriteDrawInfo)
 	{
 		assert(i_vertexBuffer);
 	}
@@ -339,7 +339,59 @@ namespace Engine
 	}
 
 
-	bool Sprite::CreateSpriteInfo(const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect, SpriteDrawInfo &i_spriteDrawIfo)
+	bool Sprite::DrawFromSpriteSheet(unsigned int i_HorizontalCount, unsigned int i_VerticalCount)
+	{
+		assert((i_HorizontalCount >= 0) && (i_VerticalCount >= 0) && (i_HorizontalCount < m_spriteDrawInfo.m_MaxHorizontalCount)
+			&& (i_VerticalCount < m_spriteDrawInfo.m_MaxVerticalCount));
+
+		// Fill the vertex buffer with the Mesh's vertices
+		{
+			// Before the vertex buffer can be changed it must be "locked"
+			sVertexData* vertexData;
+			{
+				const unsigned int lockEntireBuffer = 0;
+				const DWORD useDefaultLockingBehavior = 0;
+				HRESULT result = m_vertexBuffer->Lock(lockEntireBuffer, lockEntireBuffer,
+					reinterpret_cast<void**>(&vertexData), useDefaultLockingBehavior);
+				if (FAILED(result))
+				{
+					MessageBox(NULL, "DirectX failed to lock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+					return false;
+				}
+			}
+
+			// Fill the buffer
+				{
+					//memcpy(vertexData, i_SpriteDrawInfo.m_pVerticesData, i_SpriteDrawInfo.m_VertexStride * i_SpriteDrawInfo.m_NumOfVertices);
+					vertexData[0].U = m_spriteDrawInfo.m_pVerticesData[0].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
+					vertexData[0].V = m_spriteDrawInfo.m_pVerticesData[0].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
+
+					vertexData[1].U = m_spriteDrawInfo.m_pVerticesData[1].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
+					vertexData[1].V = m_spriteDrawInfo.m_pVerticesData[1].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
+
+					vertexData[2].U = m_spriteDrawInfo.m_pVerticesData[2].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
+					vertexData[2].V = m_spriteDrawInfo.m_pVerticesData[2].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
+
+					vertexData[3].U = m_spriteDrawInfo.m_pVerticesData[3].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
+					vertexData[3].V = m_spriteDrawInfo.m_pVerticesData[3].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
+				}
+
+				// The buffer must be "unlocked" before it can be used
+				{
+					HRESULT result = m_vertexBuffer->Unlock();
+					if (FAILED(result))
+					{
+						MessageBox(NULL, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+						return false;
+					}
+				}
+		}
+
+		return true;
+	}
+
+	bool Sprite::CreateSpriteInfo(const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect,
+		SpriteDrawInfo &i_spriteDrawIfo, unsigned int i_MaxHorizontalCount, unsigned int i_MaxVerticalCount)
 	{
 		sRectangle positionRect(-1.0f, 0.0f, 1.0f, 0.0f);
 		sRectangle texcoordsRect(0.0f, 1.0f, 0.0f, 1.0f);
@@ -354,7 +406,7 @@ namespace Engine
 			texcoordsRect = *i_texcoordsRect;
 		}
 
-		i_spriteDrawIfo = SpriteDrawInfo(positionRect, texcoordsRect);
+		i_spriteDrawIfo = SpriteDrawInfo(positionRect, texcoordsRect, i_MaxHorizontalCount, i_MaxVerticalCount);
 
 		return true;
 	}

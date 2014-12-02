@@ -53,6 +53,7 @@ namespace Engine
 			}
 		};
 
+	public:
 		class RenderableSprites
 		{
 			//float				mRotation;
@@ -61,7 +62,7 @@ namespace Engine
 		public:
 
 			static MemoryPool *SpriteMemoryPool;
-			
+
 			RenderableSprites(SharedPointer<Sprite> &i_Sprite);
 
 			~RenderableSprites();
@@ -84,6 +85,7 @@ namespace Engine
 			}
 		};
 
+	private:
 		RenderableObjectSystem();
 		~RenderableObjectSystem();
 		RenderableObjectSystem(const RenderableObjectSystem & i_Other);
@@ -104,14 +106,14 @@ namespace Engine
 			const char *pcMaterialPath,
 			const char *pcMeshPath);
 
-		void CreateSprite(const char* i_TexturePath, 
-			const sRectangle *i_positionRect, 
-			const sRectangle *i_texcoordsRect);
+		void CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect,
+			const sRectangle *i_texcoordsRect, unsigned int i_MaxHorizontalCount = 1, unsigned int i_MaxVerticalCount = 1);
 
 		void Render();
 
 		bool Delete3DGameObjectByName(const char * iName);
 		bool DeleteSpriteGameObjectByName(const char * iName);
+		RenderableSprites * FindSpriteGameObjectByName(const char * iName);
 		void DeleteMarkedToDeathGameObjects(void);
 		void DeleteAllRenderableObjects(void);
 

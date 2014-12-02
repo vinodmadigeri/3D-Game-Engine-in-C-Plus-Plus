@@ -340,7 +340,7 @@ namespace Engine
 				// It's possible to start streaming data in the middle of a vertex buffer
 				const unsigned int bufferOffset = 0;
 				// The "stride" defines how large a single vertex is in the stream of data
-				const unsigned int bufferStride = i_Sprite->m_spriteDrawIfo.m_VertexStride;
+				const unsigned int bufferStride = i_Sprite->m_spriteDrawInfo.m_VertexStride;
 				HRESULT result = m_direct3dDevice->SetStreamSource(streamIndex, i_Sprite->GetVertexBuffer(), bufferOffset, bufferStride);
 				assert(SUCCEEDED(result));
 			}
@@ -350,12 +350,12 @@ namespace Engine
 				// We are using triangles as the "primitive" type,
 				// and we have defined the vertex buffer as a triangle list
 				// (meaning that every triangle is defined by three vertices)
-				const D3DPRIMITIVETYPE primitiveType = i_Sprite->m_spriteDrawIfo.m_PrimitiveType;
+				const D3DPRIMITIVETYPE primitiveType = i_Sprite->m_spriteDrawInfo.m_PrimitiveType;
 				// It's possible to start rendering primitives in the middle of the stream
-				const unsigned int indexOfFirstVertexToRender = i_Sprite->m_spriteDrawIfo.m_indexOfFirstVertexToRender;
+				const unsigned int indexOfFirstVertexToRender = i_Sprite->m_spriteDrawInfo.m_indexOfFirstVertexToRender;
 				
-				const unsigned int primitiveCountToRender = i_Sprite->m_spriteDrawIfo.m_PrimitiveCount;
-				const unsigned int vertexCountToRender = i_Sprite->m_spriteDrawIfo.m_NumOfVertices;
+				const unsigned int primitiveCountToRender = i_Sprite->m_spriteDrawInfo.m_PrimitiveCount;
+				const unsigned int vertexCountToRender = i_Sprite->m_spriteDrawInfo.m_NumOfVertices;
 
 				//HRESULT result = m_direct3dDevice->DrawIndexedPrimitive(primitiveType, indexOfFirstVertexToRender, indexOfFirstVertexToRender, vertexCountToRender, indexOfFirstIndexToUse, primitiveCountToRender);
 				HRESULT result = m_direct3dDevice->DrawPrimitive(primitiveType, indexOfFirstVertexToRender, primitiveCountToRender);
@@ -457,6 +457,14 @@ namespace Engine
 		{
 			if (AntiAliasingEnabled)
 				m_direct3dDevice->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
+
+			//linear filtering for textures
+			for (DWORD i = 0; i < 8; ++i)
+			{
+				m_direct3dDevice->SetSamplerState(i, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+				m_direct3dDevice->SetSamplerState(i, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+				m_direct3dDevice->SetSamplerState(i, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+			}
 
 			return true;
 		}
@@ -766,8 +774,8 @@ namespace Engine
 		return true;
 	}
 
-
-	SharedPointer<Sprite> GraphicsSystem::CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect)
+	SharedPointer<Sprite> GraphicsSystem::CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect, 
+		const sRectangle *i_texcoordsRect, unsigned int i_MaxHorizontalCount, unsigned int i_MaxVerticalCount)
 	{
 		std::string errorMessage;
 		std::map<unsigned int, SharedPointer<Sprite>>::iterator it;
@@ -782,7 +790,7 @@ namespace Engine
 			{
 				SpriteDrawInfo io_SpriteDrawInfo;
 
-				if (!Sprite::CreateSpriteInfo(i_positionRect, i_texcoordsRect, io_SpriteDrawInfo))
+				if (!Sprite::CreateSpriteInfo(i_positionRect, i_texcoordsRect, io_SpriteDrawInfo, i_MaxHorizontalCount, i_MaxVerticalCount))
 				{
 					goto OnError;
 				}

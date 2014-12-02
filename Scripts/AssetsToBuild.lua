@@ -72,6 +72,7 @@ return
 			"amd",
 			"stripes",
 			"logo",
+			"numbers"
 		},
 	},
 	

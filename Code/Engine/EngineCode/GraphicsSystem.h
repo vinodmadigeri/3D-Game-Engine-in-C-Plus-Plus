@@ -84,7 +84,8 @@ namespace Engine
 		bool EndFrame(void);
 		SharedPointer<Mesh> CreateMesh(const char* i_MeshPath);
 		SharedPointer<Material> CreateMaterial(const char *i_MaterialPath);
-		SharedPointer<Sprite> CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect);
+		SharedPointer<Sprite> CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect,
+			const sRectangle *i_texcoordsRect, unsigned int i_MaxHorizontalCount = 1, unsigned int i_MaxVerticalCount = 1);
 
 		static void Destroy();
 	};
