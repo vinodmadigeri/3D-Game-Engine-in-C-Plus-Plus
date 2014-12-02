@@ -237,7 +237,7 @@ namespace Engine
 		assert(mInitilized == true);
 
 		//Only render when in frame
-		if (CanSubmit() && Begin3D())
+		if (CanSubmit())
 		{
 			// Set the shaders
 			{
@@ -307,7 +307,7 @@ namespace Engine
 		assert(mInitilized == true);
 
 		//Only render when in frame
-		if (CanSubmit() && Begin2D())
+		if (CanSubmit())
 		{
 			// Set the shaders
 			{

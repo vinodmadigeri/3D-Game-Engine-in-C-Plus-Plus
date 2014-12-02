@@ -303,18 +303,34 @@ namespace Engine
 		DeleteMarkedToDeathGameObjects();
 		GraphicsSystem::GetInstance()->BeingFrame();
 		
-		//Render Logic
-		for (unsigned long ulCount = 0; ulCount < m3DRenderableObjects.size(); ulCount++)
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_BeginEvent(0, L"Mesh Drawing");
+#endif
+		if (GraphicsSystem::GetInstance()->Begin3D())
 		{
-			GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh(), m3DRenderableObjects[ulCount]->m_WorldObject);
+			//Render Logic
+			for (unsigned long ulCount = 0; ulCount < m3DRenderableObjects.size(); ulCount++)
+			{
+				GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh(), m3DRenderableObjects[ulCount]->m_WorldObject);
+			}
 		}
-
-		//Render sprites
-		for (unsigned long ulCount = 0; ulCount < mSpriteRenderableObjects.size(); ulCount++)
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_EndEvent();
+#endif
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_BeginEvent(0, L"Sprite Drawing");
+#endif
+		if (GraphicsSystem::GetInstance()->Begin2D())
 		{
-			GraphicsSystem::GetInstance()->RenderSprite(mSpriteRenderableObjects.at(ulCount)->GetSprite());
+			//Render sprites
+			for (unsigned long ulCount = 0; ulCount < mSpriteRenderableObjects.size(); ulCount++)
+			{
+				GraphicsSystem::GetInstance()->RenderSprite(mSpriteRenderableObjects.at(ulCount)->GetSprite());
+			}
 		}
-
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+		D3DPERF_EndEvent();
+#endif
 		GraphicsSystem::GetInstance()->EndFrame();
 		return;
 	}

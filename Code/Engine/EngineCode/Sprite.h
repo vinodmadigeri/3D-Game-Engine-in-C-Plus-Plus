@@ -42,15 +42,15 @@ namespace Engine
 		{
 			assert(m_MaxHorizontalCount > 0 && m_MaxVerticalCount > 0);
 
-			float left = i_position.left;
-			float right = i_position.right;
-			float top = i_position.top;
-			float bottom = i_position.bottom;
-
 			float Texcoordleft = i_texcoords.left / i_MaxHorizontalCount;
 			float Texcoordright = i_texcoords.right / i_MaxHorizontalCount;
 			float Texcoordtop = i_texcoords.top / i_MaxVerticalCount;
 			float Texcoordbottom = i_texcoords.bottom / i_MaxVerticalCount;
+
+			float left = i_position.left;
+			float right = i_position.right;
+			float top = i_position.top;
+			float bottom = i_position.bottom;
 
 			//Adjust the Sprite height and width based on aspect ratio
 			float AspectRatio = static_cast<float>(UserSettings::GetWidth()) / static_cast<float>(UserSettings::GetHeight());
