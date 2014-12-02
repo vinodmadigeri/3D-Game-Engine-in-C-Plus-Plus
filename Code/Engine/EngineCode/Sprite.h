@@ -55,7 +55,7 @@ namespace Engine
 			//Adjust the Sprite height and width based on aspect ratio
 			float AspectRatio = static_cast<float>(UserSettings::GetWidth()) / static_cast<float>(UserSettings::GetHeight());
 
-			if (AspectRatio > 0.0f)
+			if (AspectRatio > 1.0f)
 			{
 				left = left / AspectRatio;
 				right = right / AspectRatio;
