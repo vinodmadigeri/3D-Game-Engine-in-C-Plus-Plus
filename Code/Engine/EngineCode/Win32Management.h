@@ -42,7 +42,8 @@ namespace Win32Management
 		// The window's "caption"
 		// (The text that is displayed in the title bar)
 		const std::string m_windowCaption;
-
+		const unsigned int m_IDI_GAME;
+		const unsigned int m_IDI_SMALL;
 		const unsigned int m_windowWidth;
 		const unsigned int m_windowHeight;
 		const bool m_shouldRenderFullScreen;
@@ -51,6 +52,8 @@ namespace Win32Management
 						const int i_initialWindowDisplayState,
 						const std::string& i_MainWindowClassName,
 						const std::string& i_windowCaption,
+						const unsigned int i_IDI_GAME,
+						const unsigned int i_IDI_SMALL,
 						const unsigned int i_windowWidth,
 						const unsigned int i_windowHeight, 
 						const bool i_shouldRenderFullScreen);
@@ -82,7 +85,9 @@ namespace Win32Management
 		static bool CreateInstance(const HINSTANCE i_thisInstanceOfTheProgram,
 			const int i_initialWindowDisplayState,
 			const std::string& i_MainWindowClassName,
-			const std::string& i_windowCaption);
+			const std::string& i_windowCaption,
+			const unsigned int i_iconGame,
+			const unsigned int i_iconSmall);
 
 		static WindowsManager* GetInstance();
 		static void Destroy();

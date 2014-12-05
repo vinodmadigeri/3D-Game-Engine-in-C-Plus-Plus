@@ -116,12 +116,6 @@
     <ClInclude Include="Win32Management.h">
       <Filter>Windows</Filter>
     </ClInclude>
-    <ClInclude Include="Resources\Resource.h">
-      <Filter>Windows\Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\targetver.h">
-      <Filter>Windows\Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Util\Actor.h">
       <Filter>Actor</Filter>
     </ClInclude>
@@ -214,17 +208,11 @@
     <Filter Include="Windows">
       <UniqueIdentifier>{b82e0c15-b623-4c23-b785-8230fda93024}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Windows\Resource Files">
-      <UniqueIdentifier>{382b6cd6-ae6c-49d7-a87f-1065d3e83e56}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Util\Math">
       <UniqueIdentifier>{a121a01d-d754-4a3a-8662-238a65d968a2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Game.aps">
-      <Filter>Windows\Resource Files</Filter>
-    </None>
     <None Include="..\Util\Vector3.inl">
       <Filter>Util\Vector3</Filter>
     </None>
@@ -246,18 +234,5 @@
     <None Include="..\Util\SharedPointer.inl">
       <Filter>Util</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Resources\Game.ico">
-      <Filter>Windows\Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\small.ico">
-      <Filter>Windows\Resource Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Resources\Game.rc">
-      <Filter>Windows\Resource Files</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

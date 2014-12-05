@@ -3,7 +3,7 @@
 // Header Files
 //=============
 #include "PreCompiled.h"
-
+#include "Resources\Resource.h"
 #include "Debug.h"
 #include "Game.h"
 #include "RenderableObjectSystem.h"
@@ -43,7 +43,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	std::string sWindowCaption = "EAE2014: Vinod's Game";
 	
 	mInitilized = Win32Management::WindowsManager::CreateInstance(i_thisInstanceOfTheProgram, i_initialWindowDisplayState, 
-																	sMainWindowClassName, sWindowCaption);
+																sMainWindowClassName, sWindowCaption, IDI_GAME, IDI_SMALL);
 	if (mInitilized == false)
 	{
 		Engine::DebugPrint("Failed to Create Windows Loop Instance");

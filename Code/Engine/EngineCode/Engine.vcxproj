@@ -56,8 +56,6 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshData.h" />
     <ClInclude Include="PreCompiled.h" />
-    <ClInclude Include="Resources\Resource.h" />
-    <ClInclude Include="Resources\targetver.h" />
     <ClInclude Include="..\Util\Actor.h" />
     <ClInclude Include="..\Util\ActorController.h" />
     <ClInclude Include="..\Util\BitArray.h" />
@@ -80,7 +78,6 @@
     <ClInclude Include="WorldSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Game.aps" />
     <None Include="..\Util\HashedString.inl" />
     <None Include="..\Util\NamedBitSet.inl" />
     <None Include="..\Util\RandomNumber.inl" />
@@ -88,13 +85,6 @@
     <None Include="..\Util\SharedPointer.inl" />
     <None Include="..\Util\Vector3.inl" />
     <None Include="..\Util\Vector4.inl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Resources\Game.ico" />
-    <Image Include="Resources\small.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Resources\Game.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8A456F4F-DAB4-4C14-A9F8-87E4ECB9B50F}</ProjectGuid>

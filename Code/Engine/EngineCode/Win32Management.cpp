@@ -9,9 +9,6 @@
 #include "Win32Management.h"
 #include "../UserSettings/UserSettings.h"
 
-// Resource.h contains the #defines for the icon resources
-// that the main window will use
-#include "Resources/Resource.h"
 
 // Static Data Initialization
 //===========================
@@ -24,12 +21,14 @@ namespace Win32Management
 	bool WindowsManager::CreateInstance(const HINSTANCE i_thisInstanceOfTheProgram,
 										const int i_initialWindowDisplayState,
 										const std::string& i_MainWindowClassName,
-										const std::string& i_windowCaption)
+										const std::string& i_windowCaption,
+										const unsigned int i_iconGame,
+										const unsigned int i_iconSmall)
 	{
 		if (m_Instance == NULL)
 		{
 			m_Instance = new WindowsManager(i_thisInstanceOfTheProgram, i_initialWindowDisplayState, i_MainWindowClassName,
-				i_windowCaption, UserSettings::GetWidth(), UserSettings::GetHeight(), UserSettings::IsFullScreenModeEnabled());
+				i_windowCaption, i_iconGame, i_iconSmall, UserSettings::GetWidth(), UserSettings::GetHeight(), UserSettings::IsFullScreenModeEnabled());
 			assert(m_Instance != NULL);
 		}
 
@@ -64,6 +63,8 @@ namespace Win32Management
 		const int i_initialWindowDisplayState,
 		const std::string& i_MainWindowClassName,
 		const std::string& i_windowCaption,
+		const unsigned int i_IDI_GAME,
+		const unsigned int i_IDI_SMALL,
 		const unsigned int i_windowWidth,
 		const unsigned int i_windowHeight,
 		const bool i_shouldRenderFullScreen) :
@@ -71,6 +72,8 @@ namespace Win32Management
 		m_initialWindowDisplayState(i_initialWindowDisplayState),
 		m_mainWindowClass_name(i_MainWindowClassName),
 		m_windowCaption(i_windowCaption),
+		m_IDI_GAME(i_IDI_GAME),
+		m_IDI_SMALL(i_IDI_SMALL),
 		m_windowWidth(i_windowWidth),
 		m_windowHeight(i_windowHeight),
 		m_shouldRenderFullScreen(i_shouldRenderFullScreen)
@@ -327,8 +330,8 @@ namespace Win32Management
 		wndClassEx.cbWndExtra = 0;
 		// The large and small icons that windows of this class should use
 		// (These can be found in the Resources folder; feel free to change them)
-		wndClassEx.hIcon = LoadIcon(i_thisInstanceOfTheProgram, MAKEINTRESOURCE(IDI_GAME));
-		wndClassEx.hIconSm = LoadIcon( i_thisInstanceOfTheProgram, MAKEINTRESOURCE( IDI_SMALL ) );
+		wndClassEx.hIcon = LoadIcon(i_thisInstanceOfTheProgram, MAKEINTRESOURCE(m_IDI_GAME));
+		wndClassEx.hIconSm = LoadIcon(i_thisInstanceOfTheProgram, MAKEINTRESOURCE(m_IDI_SMALL));
 		// The cursor that should display when the mouse pointer is over windows of this class
 		wndClassEx.hCursor = LoadCursor( NULL, IDC_ARROW );
 		// The "brush" that windows of this class should use as a background

@@ -6,6 +6,12 @@
     <ClInclude Include="PlayerController.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="LightController.h" />
+    <ClInclude Include="Resources\Resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\targetver.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -13,5 +19,28 @@
     <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="LightController.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{0708fcdc-e4a0-4a10-8141-211db9f842c9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Game.aps">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Game.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="Resources\small.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\Game.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
