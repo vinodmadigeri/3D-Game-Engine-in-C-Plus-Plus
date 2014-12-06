@@ -10,12 +10,13 @@
 #include "MeshData.h"
 #include "Sprite.h"
 #include "../UserSettings/UserSettings.h"
+#include "DebugLineRenderer.h"
 
 // Static Data Initialization
 //===========================
 namespace Engine
 {
-	static D3DVERTEXELEMENT9 s_vertexElements[] =
+	D3DVERTEXELEMENT9 GraphicsSystem::s_vertexElements[] =
 	{
 		// Stream 0
 		//---------
@@ -51,6 +52,7 @@ namespace Engine
 		m_mainWindow(i_mainWindow),
 		m_direct3dInterface(NULL),
 		m_direct3dDevice(NULL),
+		m_pvertexDeclaration(NULL),
 		mInitilized(false)
 	{
 		if (true == Initialize())
@@ -116,6 +118,11 @@ namespace Engine
 		}
 		// Create an interface to a Direct3D device
 		if (!CreateDevice(m_mainWindow))
+		{
+			goto OnError;
+		}
+
+		if (!CreateAndSetVertexDecleration())
 		{
 			goto OnError;
 		}
@@ -357,7 +364,6 @@ namespace Engine
 				const unsigned int primitiveCountToRender = i_Sprite->m_spriteDrawInfo.m_PrimitiveCount;
 				const unsigned int vertexCountToRender = i_Sprite->m_spriteDrawInfo.m_NumOfVertices;
 
-				//HRESULT result = m_direct3dDevice->DrawIndexedPrimitive(primitiveType, indexOfFirstVertexToRender, indexOfFirstVertexToRender, vertexCountToRender, indexOfFirstIndexToUse, primitiveCountToRender);
 				HRESULT result = m_direct3dDevice->DrawPrimitive(primitiveType, indexOfFirstVertexToRender, primitiveCountToRender);
 				
 				assert(SUCCEEDED(result));
@@ -389,6 +395,11 @@ namespace Engine
 				if (mSpriteCache.size() > 0)
 				{
 					mSpriteCache.clear();
+				}
+
+				if (m_pvertexDeclaration)
+				{
+					m_pvertexDeclaration->Release();
 				}
 
 				m_direct3dDevice->SetVertexDeclaration(NULL);
@@ -565,6 +576,17 @@ namespace Engine
 		return true;
 	}
 
+	bool GraphicsSystem::CreateDebugLineRenderer(const char *iName, unsigned int iMaxLines)
+	{
+		DebugLineRenderer::CreateInstance(iName, m_direct3dDevice, iMaxLines);
+
+		if (DebugLineRenderer::GetInstance())
+		{
+			return true;
+		}
+
+		return false;
+	}
 
 	SharedPointer<Mesh> GraphicsSystem::CreateMesh(const char* i_MeshPath)
 	{
@@ -591,10 +613,9 @@ namespace Engine
 							goto OnError;
 						}
 
-						IDirect3DVertexDeclaration9* vertexDeclaration = NULL;
 						IDirect3DVertexBuffer9* vertexBuffer = NULL;
 						{
-							if (!CreateVertexBuffer(usage, &vertexDeclaration, &vertexBuffer, iO_DrawInfo))
+							if (!CreateVertexBuffer(usage, &vertexBuffer, iO_DrawInfo))
 							{
 								errorMessage = "DirectX Failed to create Vertex Buffer";
 								goto OnError;
@@ -612,7 +633,7 @@ namespace Engine
 
 						SharedPointer<Mesh> pMesh = NULL;
 						{
-							pMesh = new Mesh(i_MeshPath, iO_DrawInfo, vertexDeclaration, vertexBuffer, indexBuffer);
+							pMesh = new Mesh(i_MeshPath, iO_DrawInfo, vertexBuffer, indexBuffer);
 
 							if (pMesh == NULL)
 							{
@@ -644,13 +665,14 @@ namespace Engine
 		return NULL;
 	}
 
-	bool GraphicsSystem::CreateVertexBuffer(DWORD i_usage, IDirect3DVertexDeclaration9** i_ppvertexDeclaration, IDirect3DVertexBuffer9** i_ppvertexBuffer, const DrawInfo &i_DrawInfo)
+	bool GraphicsSystem::CreateAndSetVertexDecleration()
 	{
+		IDirect3DVertexDeclaration9* i_pvertexDeclaration;
 		// Initialize the vertex format
-		HRESULT result = m_direct3dDevice->CreateVertexDeclaration(s_vertexElements, i_ppvertexDeclaration);
+		HRESULT result = m_direct3dDevice->CreateVertexDeclaration(s_vertexElements, &i_pvertexDeclaration);
 		if (SUCCEEDED(result))
 		{
-			result = m_direct3dDevice->SetVertexDeclaration(*i_ppvertexDeclaration);
+			result = m_direct3dDevice->SetVertexDeclaration(i_pvertexDeclaration);
 			if (FAILED(result))
 			{
 				MessageBox(m_mainWindow, "DirectX failed to set the vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR);
@@ -663,6 +685,12 @@ namespace Engine
 			return false;
 		}
 
+		return true;
+	}
+
+	bool GraphicsSystem::CreateVertexBuffer(DWORD i_usage, IDirect3DVertexBuffer9** i_ppvertexBuffer, const DrawInfo &i_DrawInfo)
+	{
+		HRESULT result;
 		// Create a vertex buffer
 		{
 			// We are drawing a mesh
@@ -683,7 +711,7 @@ namespace Engine
 				return false;
 			}
 		}
-
+		
 		// Fill the vertex buffer with the Mesh's vertices
 		{
 			// Before the vertex buffer can be changed it must be "locked"
@@ -795,10 +823,9 @@ namespace Engine
 					goto OnError;
 				}
 
-				IDirect3DVertexDeclaration9* vertexDeclaration = NULL;
 				IDirect3DVertexBuffer9* vertexBuffer = NULL;
 				{
-					if (!CreateVertexBufferForSprite(&vertexDeclaration, &vertexBuffer, io_SpriteDrawInfo))
+					if (!CreateVertexBufferForSprite(&vertexBuffer, io_SpriteDrawInfo))
 					{
 						errorMessage = "DirectX Failed to create Vertex Buffer";
 						goto OnError;
@@ -846,7 +873,7 @@ namespace Engine
 	}
 
 
-	bool GraphicsSystem::CreateVertexBufferForSprite(IDirect3DVertexDeclaration9** i_ppvertexDeclaration, IDirect3DVertexBuffer9** i_ppvertexBuffer, const SpriteDrawInfo &i_SpriteDrawInfo)
+	bool GraphicsSystem::CreateVertexBufferForSprite(IDirect3DVertexBuffer9** i_ppvertexBuffer, const SpriteDrawInfo &i_SpriteDrawInfo)
 	{
 		DWORD usage = 0;
 		// The usage tells Direct3D how this vertex buffer will be used
@@ -870,23 +897,7 @@ namespace Engine
 			}
 		}
 
-		// Initialize the vertex format
-		HRESULT result = m_direct3dDevice->CreateVertexDeclaration(s_vertexElements, i_ppvertexDeclaration);
-		if (SUCCEEDED(result))
-		{
-			result = m_direct3dDevice->SetVertexDeclaration(*i_ppvertexDeclaration);
-			if (FAILED(result))
-			{
-				MessageBox(m_mainWindow, "DirectX failed to set the vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR);
-				return false;
-			}
-		}
-		else
-		{
-			MessageBox(m_mainWindow, "DirectX failed to create a Direct3D9 vertex declaration", "No Vertex Declaration", MB_OK | MB_ICONERROR);
-			return false;
-		}
-
+		HRESULT result;
 		// Create a vertex buffer
 		{
 			// We are drawing a mesh

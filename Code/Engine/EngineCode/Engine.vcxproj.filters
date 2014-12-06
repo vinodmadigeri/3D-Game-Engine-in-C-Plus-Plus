@@ -74,6 +74,15 @@
     <ClCompile Include="..\Util\WindowsError.cpp">
       <Filter>Util</Filter>
     </ClCompile>
+    <ClCompile Include="DebugLineRenderer.cpp">
+      <Filter>GraphicsSystem\LineRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ILine.cpp">
+      <Filter>GraphicsSystem\LineRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="LineRenderer.cpp">
+      <Filter>GraphicsSystem\LineRenderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PreCompiled.h" />
@@ -173,6 +182,15 @@
     <ClInclude Include="..\Util\WindowsError.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="DebugLineRenderer.h">
+      <Filter>GraphicsSystem\LineRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ILine.h">
+      <Filter>GraphicsSystem\LineRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="LineRenderer.h">
+      <Filter>GraphicsSystem\LineRenderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GraphicsSystem">
@@ -210,6 +228,9 @@
     </Filter>
     <Filter Include="Util\Math">
       <UniqueIdentifier>{a121a01d-d754-4a3a-8662-238a65d968a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsSystem\LineRenderer">
+      <UniqueIdentifier>{3f0c459b-4cd2-47cb-8cb1-139f7b4aaf27}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

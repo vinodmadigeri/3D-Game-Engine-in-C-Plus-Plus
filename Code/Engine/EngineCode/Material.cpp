@@ -47,7 +47,6 @@ namespace Engine
 			delete m_perFrameConstantDatas[i];
 		}
 
-
 		if (m_vertexShader)
 		{
 			m_vertexShader->Release();
@@ -96,41 +95,47 @@ namespace Engine
 		// Set the shaders
 		result = i_direct3dDevice->SetVertexShader(m_vertexShader);
 		assert(SUCCEEDED(result));
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+
 		if (FAILED(result))
 		{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			if (o_errorMessage)
 			{
 				*o_errorMessage = "Direct3D failed to set the vertex shader";
 			}
+#endif
 			return result;
 		}
-#endif
+
 		result = i_direct3dDevice->SetPixelShader(m_fragmentShader);
 		assert(SUCCEEDED(result));
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+
 		if (FAILED(result))
 		{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			if (o_errorMessage)
 			{
 				*o_errorMessage = "Direct3D failed to set the fragment shader";
 			}
+#endif
 			return result;
 		}
-#endif
+
 
 		result = i_direct3dDevice->SetTexture(m_samplerRegister, m_texture);
 		assert(SUCCEEDED(result));
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+
 		if (FAILED(result))
 		{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			if (o_errorMessage)
 			{
 				*o_errorMessage = "Direct3D failed to set the texture";
 			}
+#endif
 			return result;
 		}
-#endif
+
 
 		//Create a D3DMATRIX
 		D3DXMATRIX LocalToWorld;
@@ -243,7 +248,6 @@ namespace Engine
 		return result;
 	}
 
-
 	// Load material file from path
 	bool Material::Load(const char* i_MaterialFilepath, IDirect3DDevice9* i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
@@ -299,7 +303,6 @@ namespace Engine
 
 		return !wereThereErrors;
 	}
-
 
 	//Load Fragment and Vertex Shader Path.
 	//Load Texture and Sampler path.

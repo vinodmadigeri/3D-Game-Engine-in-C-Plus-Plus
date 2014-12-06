@@ -6,9 +6,9 @@
 
 namespace Engine
 {
-	static const char *s_VertexShaderPath = "data/vertexShaderSprite.shd";
-	static const char *s_FragmentShaderPath = "data/fragmentShaderSprite.shd";
-	static const char* s_SamplerName = "g_color_sampler";
+	const char * Sprite::s_VertexShaderPath = "data/vertexShaderSprite.shd";
+	const char * Sprite::s_FragmentShaderPath = "data/fragmentShaderSprite.shd";
+	const char* Sprite::s_SamplerName = "g_color_sampler";
 
 	Sprite::Sprite(const char *iTextureName, IDirect3DDevice9 *i_direct3dDevice, IDirect3DVertexBuffer9* i_vertexBuffer, const SpriteDrawInfo i_spriteDrawInfo) :
 		m_name(iTextureName),
@@ -338,7 +338,6 @@ namespace Engine
 		return result;
 	}
 
-
 	bool Sprite::DrawFromSpriteSheet(unsigned int i_HorizontalCount, unsigned int i_VerticalCount)
 	{
 		assert((i_HorizontalCount >= 0) && (i_VerticalCount >= 0) && (i_HorizontalCount < m_spriteDrawInfo.m_MaxHorizontalCount)
@@ -361,30 +360,30 @@ namespace Engine
 			}
 
 			// Fill the buffer
+			{
+				//memcpy(vertexData, i_SpriteDrawInfo.m_pVerticesData, i_SpriteDrawInfo.m_VertexStride * i_SpriteDrawInfo.m_NumOfVertices);
+				vertexData[0].U = m_spriteDrawInfo.m_pVerticesData[0].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
+				vertexData[0].V = m_spriteDrawInfo.m_pVerticesData[0].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
+
+				vertexData[1].U = m_spriteDrawInfo.m_pVerticesData[1].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
+				vertexData[1].V = m_spriteDrawInfo.m_pVerticesData[1].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
+
+				vertexData[2].U = m_spriteDrawInfo.m_pVerticesData[2].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
+				vertexData[2].V = m_spriteDrawInfo.m_pVerticesData[2].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
+
+				vertexData[3].U = m_spriteDrawInfo.m_pVerticesData[3].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
+				vertexData[3].V = m_spriteDrawInfo.m_pVerticesData[3].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
+			}
+
+			// The buffer must be "unlocked" before it can be used
+			{
+				HRESULT result = m_vertexBuffer->Unlock();
+				if (FAILED(result))
 				{
-					//memcpy(vertexData, i_SpriteDrawInfo.m_pVerticesData, i_SpriteDrawInfo.m_VertexStride * i_SpriteDrawInfo.m_NumOfVertices);
-					vertexData[0].U = m_spriteDrawInfo.m_pVerticesData[0].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
-					vertexData[0].V = m_spriteDrawInfo.m_pVerticesData[0].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
-
-					vertexData[1].U = m_spriteDrawInfo.m_pVerticesData[1].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
-					vertexData[1].V = m_spriteDrawInfo.m_pVerticesData[1].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
-
-					vertexData[2].U = m_spriteDrawInfo.m_pVerticesData[2].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
-					vertexData[2].V = m_spriteDrawInfo.m_pVerticesData[2].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
-
-					vertexData[3].U = m_spriteDrawInfo.m_pVerticesData[3].U + static_cast<float>(i_HorizontalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxHorizontalCount);
-					vertexData[3].V = m_spriteDrawInfo.m_pVerticesData[3].V + static_cast<float>(i_VerticalCount) / static_cast<float>(m_spriteDrawInfo.m_MaxVerticalCount);
+					MessageBox(NULL, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+					return false;
 				}
-
-				// The buffer must be "unlocked" before it can be used
-				{
-					HRESULT result = m_vertexBuffer->Unlock();
-					if (FAILED(result))
-					{
-						MessageBox(NULL, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
-						return false;
-					}
-				}
+			}
 		}
 
 		return true;

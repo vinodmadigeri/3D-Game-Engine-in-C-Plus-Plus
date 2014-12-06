@@ -38,7 +38,8 @@ namespace Engine
 		HWND m_mainWindow;
 		IDirect3D9* m_direct3dInterface;
 		IDirect3DDevice9* m_direct3dDevice;
-		
+		IDirect3DVertexDeclaration9* m_pvertexDeclaration;
+
 		static std::map<unsigned int, SharedPointer<Material>> mMaterialCache; //Shared materials
 		static std::map<unsigned int, SharedPointer<Mesh>> mMeshCache; //Shared meshes
 		static std::map<unsigned int, SharedPointer<Sprite>> mSpriteCache; //Shared meshes
@@ -58,23 +59,22 @@ namespace Engine
 		~GraphicsSystem();
 		bool CreateDevice(const HWND i_mainWindow);
 		bool CreateInterface(const HWND i_mainWindow);
-		
-		bool CreateVertexBuffer(DWORD i_usage, IDirect3DVertexDeclaration9** i_ppvertexDeclaration, IDirect3DVertexBuffer9** i_ppvertexBuffer, const DrawInfo &i_DrawInfo);
+		bool CreateAndSetVertexDecleration();
+
+		bool CreateVertexBuffer(DWORD i_usage, IDirect3DVertexBuffer9** i_ppvertexBuffer, const DrawInfo &i_DrawInfo);
 		bool CreateIndexBuffer(DWORD i_usage, IDirect3DIndexBuffer9** i_ppindexBuffer, const DrawInfo &i_DrawInfo);
-		bool CreateVertexBufferForSprite(IDirect3DVertexDeclaration9** i_ppvertexDeclaration, IDirect3DVertexBuffer9** i_ppvertexBuffer, const SpriteDrawInfo &i_SpriteDrawInfo);
+		bool CreateVertexBufferForSprite(IDirect3DVertexBuffer9** i_ppvertexBuffer, const SpriteDrawInfo &i_SpriteDrawInfo);
 		
 		bool Initialize();
 		bool ShutDown();
 
-
 		bool ComputeUsage(DWORD &o_usage);
 		static bool s_bInFrame;
-		bool CanSubmit(void);
 		
-
 	public:
+		bool CanSubmit(void);
 		static bool CreateInstance(const HWND i_mainWindow);
-
+		static D3DVERTEXELEMENT9 s_vertexElements[];
 		static GraphicsSystem * GetInstance();
 		bool BeingFrame(const ColorRGBA & i_ClearColor = ColorRGBA(0, 0, 0, 0));
 		bool GraphicsSystem::Begin2D(void);
@@ -82,6 +82,7 @@ namespace Engine
 		void Render(SharedPointer<Material> i_Material, SharedPointer<Mesh> i_Mesh, SharedPointer<Actor> ThisObject);
 		void RenderSprite(SharedPointer<Sprite> i_Sprite);
 		bool EndFrame(void);
+		bool CreateDebugLineRenderer(const char *iName, unsigned int iMaxLines);
 		SharedPointer<Mesh> CreateMesh(const char* i_MeshPath);
 		SharedPointer<Material> CreateMaterial(const char *i_MaterialPath);
 		SharedPointer<Sprite> CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect,

@@ -9,12 +9,10 @@ namespace Engine
 {
 	Mesh::Mesh(const char * iName, 
 		const DrawInfo &i_DrawInfo,
-		IDirect3DVertexDeclaration9* i_vertexDeclaration,
 		IDirect3DVertexBuffer9* i_vertexBuffer,
 		IDirect3DIndexBuffer9* i_indexBuffer) :
 		mName(iName),
 		mHashedName(iName),
-		m_vertexDeclaration(i_vertexDeclaration),
 		m_vertexBuffer(i_vertexBuffer),
 		m_indexBuffer(i_indexBuffer)
 	{
@@ -31,12 +29,6 @@ namespace Engine
 
 	Mesh::~Mesh()
 	{
-		if (m_vertexDeclaration)
-		{
-			m_vertexDeclaration->Release();
-			m_vertexDeclaration = NULL;
-		}
-
 		if (m_vertexBuffer)
 		{
 			m_vertexBuffer->Release();
@@ -48,12 +40,6 @@ namespace Engine
 			m_indexBuffer->Release();
 			m_indexBuffer = NULL;
 		}
-	}
-
-	IDirect3DVertexDeclaration9* Mesh::GetVertexDeclaration() const
-	{
-		assert(m_vertexDeclaration);
-		return m_vertexDeclaration;
 	}
 
 	IDirect3DVertexBuffer9* Mesh::GetVertexBuffer() const

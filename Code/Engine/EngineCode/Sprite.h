@@ -104,6 +104,10 @@ namespace Engine
 		DWORD m_samplerRegister;
 
 		IDirect3DVertexBuffer9* m_vertexBuffer;
+		
+		static const char *s_VertexShaderPath;
+		static const char *s_FragmentShaderPath;
+		static const char* s_SamplerName;
 
 		bool LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED

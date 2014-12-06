@@ -12,7 +12,6 @@ namespace Engine
 	class Mesh
 	{
 	private:
-		IDirect3DVertexDeclaration9* m_vertexDeclaration;
 		IDirect3DVertexBuffer9* m_vertexBuffer;
 		IDirect3DIndexBuffer9* m_indexBuffer;
 		
@@ -23,13 +22,11 @@ namespace Engine
 
 		Mesh(const char * iName,
 			const DrawInfo &i_DrawInfo,
-			IDirect3DVertexDeclaration9* i_vertexDeclaration,
 			IDirect3DVertexBuffer9* i_vertexBuffer,
 			IDirect3DIndexBuffer9* i_indexBuffer);
 
 		~Mesh();
 
-		IDirect3DVertexDeclaration9* GetVertexDeclaration() const;
 		IDirect3DVertexBuffer9* GetVertexBuffer() const;
 		IDirect3DIndexBuffer9* GetIndexBuffer() const;
 		inline std::string GetName() const{ return mName; }
