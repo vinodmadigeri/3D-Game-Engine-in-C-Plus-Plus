@@ -18,9 +18,22 @@ namespace Engine
 		return (keyState & isKeyDownMask) != 0;
 	}
 
+	bool UserInput::IsVirtualKeyReleased(const int i_virtualKeyCode)
+	{
+		short keyState = GetAsyncKeyState(i_virtualKeyCode);
+		const short isKeyDownMask = 1;
+		return (keyState & isKeyDownMask) != 0;
+	}
+
 	bool UserInput::IsKeyPressed(const int i_virtualKeyCode)
 	{
 		return IsVirtualKeyPressed(i_virtualKeyCode);
+	}
+
+	bool UserInput::IsKeyReleased(const int i_virtualKeyCode)
+	{
+		return IsVirtualKeyReleased(i_virtualKeyCode);
+
 	}
 
 	bool UserInput::IsMouseButtonPressed(const int i_virtualButtonCode)

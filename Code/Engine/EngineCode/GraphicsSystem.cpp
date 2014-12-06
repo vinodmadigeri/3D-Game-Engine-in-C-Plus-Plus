@@ -578,14 +578,29 @@ namespace Engine
 
 	bool GraphicsSystem::CreateDebugLineRenderer(const char *iName, unsigned int iMaxLines)
 	{
+		bool wereThereErrors = false;
+#ifdef EAE2014_DEBUGLINE_SHOULDDRAW
 		DebugLineRenderer::CreateInstance(iName, m_direct3dDevice, iMaxLines);
 
 		if (DebugLineRenderer::GetInstance())
 		{
-			return true;
-		}
+			if (!DebugLineRenderer::GetInstance()->CreateVertexBuffer())
+			{
+				DebugPrint("Couldnot create Vertex Buffer for Line Renderer");
 
-		return false;
+				wereThereErrors = true;
+			}
+
+
+			if (!DebugLineRenderer::GetInstance()->LoadShaders())
+			{
+				DebugPrint("Couldnot create Vertex Buffer for Line Renderer");
+
+				wereThereErrors = true;
+			}
+		}
+#endif
+		return !wereThereErrors;
 	}
 
 	SharedPointer<Mesh> GraphicsSystem::CreateMesh(const char* i_MeshPath)

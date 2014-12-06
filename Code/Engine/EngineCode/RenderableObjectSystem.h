@@ -14,6 +14,8 @@
 
 namespace Engine
 {
+	struct sLine;
+
 	class RenderableObjectSystem
 	{
 	private:
@@ -109,6 +111,9 @@ namespace Engine
 		void CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect,
 			const sRectangle *i_texcoordsRect, unsigned int i_MaxHorizontalCount = 1, unsigned int i_MaxVerticalCount = 1);
 
+		bool CreateDebugLines(const char * iName, const unsigned int iMaxlines);
+		void AddDebugLines(const sLine &iLine);
+		
 		void Render();
 
 		bool Delete3DGameObjectByName(const char * iName);

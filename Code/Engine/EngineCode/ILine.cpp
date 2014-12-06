@@ -6,15 +6,16 @@
 
 namespace Engine
 {
-	const char * ILine::s_VertexShaderPath = "data/vertexShaderSprite.shd";
-	const char * ILine::s_FragmentShaderPath = "data/fragmentShaderSprite.shd";
+	const char * ILine::s_VertexShaderPath = "data/vertexShaderLine.shd";
+	const char * ILine::s_FragmentShaderPath = "data/fragmentShaderLine.shd";
 	unsigned int ILine::s_MaxLines = 1;
 
 	ILine::ILine(const char *iName, IDirect3DDevice9 *i_direct3dDevice, unsigned int iMaxLines) :
 		m_name(iName),
 		m_direct3dDevice(i_direct3dDevice),
 		m_vertexShader(NULL),
-		m_fragmentShader(NULL)
+		m_fragmentShader(NULL),
+		m_vertexBuffer(NULL)
 	{
 		s_MaxLines = iMaxLines;
 	}
@@ -38,6 +39,33 @@ namespace Engine
 			m_fragmentShader->Release();
 			m_fragmentShader = NULL;
 		}
+	}
+
+	bool ILine::Load(IDirect3DDevice9 * i_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		if (!LoadFragmentShader(s_FragmentShaderPath, i_direct3dDevice,
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			o_errorMessage
+#endif
+			))
+		{
+			return false;
+		}
+
+		if (!LoadVertexShader(s_VertexShaderPath, i_direct3dDevice,
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			o_errorMessage
+#endif
+			))
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	bool ILine::LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
@@ -309,10 +337,8 @@ namespace Engine
 		return result;
 	}
 
-	bool ILine::CreateVertexBufferForLine(const std::vector<sLine> &i_LineInfo)
+	bool ILine::CreateVertexBufferForLine()
 	{
-		assert(i_LineInfo.size() <= s_MaxLines); //Line vertex data should be less than the max lines allowed / vertex buffer size
-
 		IDirect3DVertexDeclaration9* vertexDeclaration = NULL;
 
 		DWORD usage = 0;
@@ -338,35 +364,35 @@ namespace Engine
 		}
 
 		// Create a vertex buffer
+		{
+			// We are drawing a mesh
+			const unsigned int vertexCount = s_MaxLines * 2;
+			const unsigned int bufferSize = vertexCount * sizeof(sVertexData);
+
+			// We will define our own vertex format
+			const DWORD useSeparateVertexDeclaration = 0;
+			// Place the vertex buffer into memory that Direct3D thinks is the most appropriate
+			const D3DPOOL useDefaultPool = D3DPOOL_DEFAULT;
+			HANDLE* const notUsed = NULL;
+
+			HRESULT result = m_direct3dDevice->CreateVertexBuffer(bufferSize, usage, useSeparateVertexDeclaration, useDefaultPool,
+				&m_vertexBuffer, notUsed);
+			if (FAILED(result))
 			{
-				// We are drawing a mesh
-				const unsigned int vertexCount = s_MaxLines;
-				const unsigned int bufferSize = vertexCount * sizeof(sVertexData);
-
-				// We will define our own vertex format
-				const DWORD useSeparateVertexDeclaration = 0;
-				// Place the vertex buffer into memory that Direct3D thinks is the most appropriate
-				const D3DPOOL useDefaultPool = D3DPOOL_DEFAULT;
-				HANDLE* const notUsed = NULL;
-
-				HRESULT result = m_direct3dDevice->CreateVertexBuffer(bufferSize, usage, useSeparateVertexDeclaration, useDefaultPool,
-					&m_vertexBuffer, notUsed);
-				if (FAILED(result))
-				{
-					MessageBox(NULL, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
-					return false;
-				}
+				MessageBox(NULL, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+				return false;
 			}
+		}
 
-			FillVertexBuffer(i_LineInfo);
-
-			return true;
+		return true;
 	}
 
 	bool ILine::FillVertexBuffer(const std::vector<sLine> &i_LineInfo)
 	{
-		assert(i_LineInfo.size() <= s_MaxLines);
+		assert(i_LineInfo.size() <= s_MaxLines); //Line vertex data should be less than the max lines allowed / vertex buffer size
+
 		assert(m_vertexBuffer);
+
 		// Fill the vertex buffer with the Mesh's vertices
 		{
 			// Before the vertex buffer can be changed it must be "locked"
@@ -383,19 +409,23 @@ namespace Engine
 				}
 			}
 
-			const unsigned int vertexCount = s_MaxLines;
-			const unsigned int bufferSize = vertexCount * sizeof(sVertexData);
+			//const unsigned int vertexCount = s_MaxLines;
+			//const unsigned int bufferSize = vertexCount * sizeof(sVertexData);
 
-			memset(vertexData, 0, bufferSize * vertexCount);
+			//memset(vertexData, 0, bufferSize * vertexCount);
 
 			// Fill the buffer
 			{
-				for (unsigned int i = 0; i < i_LineInfo.size(); i++)
+				for (unsigned int i = 0, j = 0; i < i_LineInfo.size(); ++i, j = j + 2)
 				{
-					vertexData[i].color = i_LineInfo[i].mColor;
-					vertexData[i].x = i_LineInfo[i].mBegin.x();
-					vertexData[i].y = i_LineInfo[i].mBegin.y();
-					vertexData[i].z = i_LineInfo[i].mBegin.z();
+					vertexData[j].color = i_LineInfo[i].mColor;
+					vertexData[j].x = i_LineInfo[i].mBegin.x();
+					vertexData[j].y = i_LineInfo[i].mBegin.y();
+					vertexData[j].z = i_LineInfo[i].mBegin.z();
+					vertexData[j + 1].color = i_LineInfo[i].mColor;
+					vertexData[j + 1].x = i_LineInfo[i].mEnd.x();
+					vertexData[j + 1].y = i_LineInfo[i].mEnd.y();
+					vertexData[j + 1].z = i_LineInfo[i].mEnd.z();
 				}
 			}
 

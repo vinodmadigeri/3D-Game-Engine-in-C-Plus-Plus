@@ -15,8 +15,11 @@ namespace Engine
 		UserInput & operator=(const UserInput & i_rhs);
 		UserInput(const UserInput & i_Other);
 		bool IsVirtualKeyPressed(const int i_virtualKeyCode);
+		bool IsVirtualKeyReleased(const int i_virtualKeyCode);
 	public:
 		bool IsKeyPressed(const int i_virtualKeyCode);
+		bool IsKeyReleased(const int i_virtualKeyCode);
+
 		bool IsMouseButtonPressed(const int i_virtualButtonCode);
 
 		static bool CreateInstance();

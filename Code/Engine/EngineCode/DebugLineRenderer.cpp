@@ -2,12 +2,24 @@
 #include "PreCompiled.h"
 #include "DebugLineRenderer.h"
 #include "GraphicsSystem.h"
+#include "UserInput.h"
 
 namespace Engine
 {
+#ifdef EAE2014_DEBUGLINE_SHOULDDRAW
 	DebugLineRenderer * DebugLineRenderer::mInstance = NULL;
 
+	DebugLineRenderer::DebugLineRenderer(const char *iName, IDirect3DDevice9 *i_direct3dDevice, unsigned int iMaxLines) :
+		ILine(iName, i_direct3dDevice, iMaxLines),
+		mShouldDraw(false),
+		mShouldRenderDebugLinesThisFrame(false)
+	{
+		mLines.reserve(iMaxLines);
+		assert(iName && i_direct3dDevice);
+	}
+
 	bool DebugLineRenderer::CreateInstance(const char *iName, IDirect3DDevice9 *i_direct3dDevice, unsigned int iMaxLines)
+		
 	{
 		if (mInstance == NULL)
 		{
@@ -41,12 +53,17 @@ namespace Engine
 		assert(false);
 	}
 
-	void DebugLineRenderer::Render(const std::vector<sLine> & iLines)
+	void DebugLineRenderer::Render()
 	{
-		//Only render when in frame
-		if (GraphicsSystem::GetInstance()->CanSubmit() && iLines.size() > 0)
+		if (UserInput::GetInstance() && (UserInput::GetInstance()->IsKeyReleased('O')))
 		{
-			FillVertexBuffer(iLines);
+			mShouldDraw = !mShouldDraw;
+		}
+
+		//Only render when in frame
+		if (mShouldRenderDebugLinesThisFrame && mShouldDraw && GraphicsSystem::GetInstance()->CanSubmit() && mLines.size() > 0)
+		{
+			FillVertexBuffer(mLines);
 			// Set the shaders
 			{
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
@@ -61,14 +78,14 @@ namespace Engine
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				if (FAILED(result))
 				{
-					MessageBox(NULL, errorMessage.c_str(), "Error Setting Material", MB_OK | MB_ICONERROR);
+					MessageBox(NULL, errorMessage.c_str(), "Error Setting Line renderer", MB_OK | MB_ICONERROR);
 				}
 #endif
 			}
 
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
 			std::wstringstream EventMessage;
-			EventMessage << "Draw Sprite " << (GetName().c_str());
+			EventMessage << "Draw Line " << (GetName().c_str());
 			D3DPERF_BeginEvent(0, EventMessage.str().c_str());
 #endif
 			// Bind a specific vertex buffer to the device as a data source
@@ -92,7 +109,7 @@ namespace Engine
 				// It's possible to start rendering primitives in the middle of the stream
 				const unsigned int indexOfFirstVertexToRender = 0;
 
-				const unsigned int primitiveCountToRender = iLines.size();
+				const unsigned int primitiveCountToRender = mLines.size();
 
 				HRESULT result = m_direct3dDevice->DrawPrimitive(primitiveType, indexOfFirstVertexToRender, primitiveCountToRender);
 
@@ -102,5 +119,11 @@ namespace Engine
 			D3DPERF_EndEvent();
 #endif
 		}
+
+
+		//Only render the lines one frame and clear
+		mShouldRenderDebugLinesThisFrame = false;
+		mLines.clear();
 	}
+#endif
 }

@@ -22,6 +22,7 @@
 #include "LevelLoadHelper.h"
 #include "LightController.h"
 #include "Win32Management.h"
+#include "DebugLineRenderer.h"
 #include "../Engine/UserSettings/UserSettings.h"
 
 #ifdef _DEBUG
@@ -136,6 +137,8 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	const unsigned int MaxHorizontalCount = 10;
 	Engine::RenderableObjectSystem::GetInstance()->CreateSprite("data/numbers.dds", &position, &textcoord, MaxHorizontalCount);
 
+	RenderableObjectSystem::GetInstance()->CreateDebugLines("ActorDebugLine", 30);
+
 	return mInitilized;
 }
 
@@ -149,6 +152,11 @@ int MainGame::Run(void)
 	LONGLONG PreviousTimeStamp = GameTimer.GetCurrentTimeStamp();
 	const unsigned int MaxHorizontalCount = 10;
 	unsigned int SpriteCount = 0;
+	
+	using namespace Engine;
+	std::vector< SharedPointer<Actor>> CubeActorsList = WorldSystem::GetInstance()->FindActorsByType("Cube");
+	std::vector< SharedPointer<Actor>> TorusActorsList = WorldSystem::GetInstance()->FindActorsByType("Torus");
+	std::vector< SharedPointer<Actor>> HelixActorsList = WorldSystem::GetInstance()->FindActorsByType("Helix");
 
 	//Game Loop
 	if (mInitilized)
@@ -161,6 +169,16 @@ int MainGame::Run(void)
 			Engine::PhysicsSystem::GetInstance()->ApplyEulerPhysics(static_cast<float>(GameTimer.GetLastFrameMS()));
 			Engine::CameraSystem::GetInstance()->Update(static_cast<float>(GameTimer.GetLastFrameMS()));
 			Engine::LightingSystem::GetInstance()->Update(static_cast<float>(GameTimer.GetLastFrameMS()));
+			
+			sLine MovingNewLine(CubeActorsList[0]->GetPosition(), CubeActorsList[1]->GetPosition());
+			RenderableObjectSystem::GetInstance()->AddDebugLines(MovingNewLine);
+
+			sLine OneEdgeMovingLine(CubeActorsList[0]->GetPosition(), TorusActorsList[0]->GetPosition());
+			RenderableObjectSystem::GetInstance()->AddDebugLines(OneEdgeMovingLine);
+
+			OneEdgeMovingLine = sLine(CubeActorsList[1]->GetPosition(), HelixActorsList[0]->GetPosition());
+			RenderableObjectSystem::GetInstance()->AddDebugLines(OneEdgeMovingLine);
+
 			Engine::RenderableObjectSystem::GetInstance()->Render();
 			Win32Management::WindowsManager::GetInstance()->UpdateMainWindow(exitCode, QuitRequested);
 			

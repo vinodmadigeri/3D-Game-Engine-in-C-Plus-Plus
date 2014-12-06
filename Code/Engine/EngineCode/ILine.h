@@ -13,10 +13,11 @@ namespace Engine
 		Vector3 mEnd;
 		D3DCOLOR mColor;
 
-		sLine(const Vector3 & iBegin, const Vector3 &iEnd)
+		sLine(const Vector3 & iBegin, const Vector3 &iEnd, const D3DCOLOR i_color = D3DCOLOR_XRGB(255, 255, 255))
 		{
 			mBegin = iBegin;
 			mEnd = iEnd;
+			mColor = i_color;
 		}
 	};
 
@@ -39,6 +40,7 @@ namespace Engine
 		static const char *s_VertexShaderPath;
 		static const char *s_FragmentShaderPath;
 		static unsigned int s_MaxLines;
+
 		bool LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
@@ -74,17 +76,23 @@ namespace Engine
 			return m_vertexBuffer;
 		}
 
+		bool Load(IDirect3DDevice9 * i_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
 		HRESULT Set(IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif
 			);
 
-		bool CreateVertexBufferForLine(const std::vector<sLine> &i_LineInfo);
+		bool CreateVertexBufferForLine();
 
 		bool FillVertexBuffer(const std::vector<sLine> &i_LineInfo);
 
-		virtual void Render(const std::vector<sLine> & iLines) = 0;
+		virtual void Render() = 0;
 	};
 }
 

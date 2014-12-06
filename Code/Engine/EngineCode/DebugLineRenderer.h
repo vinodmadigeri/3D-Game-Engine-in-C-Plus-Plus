@@ -6,18 +6,17 @@
 #include <d3d9.h>
 #include "Vector3.h"
 #include "ILine.h"
+#include "Debug.h"
 
 namespace Engine
 {
+#ifdef EAE2014_DEBUGLINE_SHOULDDRAW
 	class DebugLineRenderer: private ILine
 	{
 		std::vector<sLine> mLines;
-		
-		DebugLineRenderer(const char *iName, IDirect3DDevice9 *i_direct3dDevice, unsigned int iMaxLines) :
-			ILine(iName, i_direct3dDevice, iMaxLines)
-		{
-			assert(iName && i_direct3dDevice);
-		}
+		bool mShouldDraw;
+		bool mShouldRenderDebugLinesThisFrame;
+		DebugLineRenderer(const char *iName, IDirect3DDevice9 *i_direct3dDevice, unsigned int iMaxLines);
 
 		~DebugLineRenderer()
 		{
@@ -33,11 +32,45 @@ namespace Engine
 		
 		bool AddLines(const sLine &iLine)
 		{
+			if (mLines.size() >= s_MaxLines)
+			{
+				return false;
+			}
 			mLines.push_back(iLine);
+			mShouldRenderDebugLinesThisFrame = true;
+			return true;
+			
 		}
 
-		void Render(const std::vector<sLine> & iLines);
+		inline bool LoadShaders()
+		{
+#ifdef EAE2014_DEBUGLINE_SHOULDDRAW
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			std::string ErrorMessage;
+#endif
+			if (!Load(m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, &ErrorMessage
+#endif
+				))
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				DebugPrint(ErrorMessage.c_str());
+#endif
+				return false;
+			}
+#endif
+			return true;
+		}
+
+		inline bool CreateVertexBuffer()
+		{
+			return CreateVertexBufferForLine();
+		}
+
+		void Render();
 	};
+#endif
 }
 
 #endif //__DEBUG_LINE_RENDERER_H

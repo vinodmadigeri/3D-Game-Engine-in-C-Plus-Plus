@@ -17,7 +17,7 @@ return
 		{
 			"fragmentShader",
 			"fragmentShaderSprite",
-			"fragmentShaderLines",
+			"fragmentShaderLine",
 		},
 	},
 
@@ -34,7 +34,7 @@ return
 		{
 			"vertexShader",
 			"vertexShaderSprite",
-			"vertexShaderLines",
+			"vertexShaderLine",
 		},
 	},
 	

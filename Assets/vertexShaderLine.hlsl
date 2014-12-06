@@ -21,7 +21,7 @@ void main( in const float3 i_position_world : POSITION, in const float3 i_color 
 {
 	// Calculate position
 	{
-		float4 position_view = mul( i_position_world, g_transform_worldToView );
+		float4 position_view = mul(float4(i_position_world, 1.0), g_transform_worldToView);
 		o_position_screen = mul( position_view, g_transform_viewToScreen );
 	}
 

@@ -7,6 +7,7 @@
 #include "GraphicsSystem.h"
 #include "Vector3.h"
 #include "HashedString.h"
+#include "DebugLineRenderer.h"
 
 namespace Engine
 {
@@ -282,6 +283,28 @@ namespace Engine
 		return NULL;
 	}
 
+	bool RenderableObjectSystem::CreateDebugLines(const char * iName, const unsigned int iMaxlines)
+	{
+#ifdef EAE2014_DEBUGLINE_SHOULDDRAW
+		assert(GraphicsSystem::GetInstance());
+
+		if (!GraphicsSystem::GetInstance()->CreateDebugLineRenderer(iName, iMaxlines))
+		{
+			return false;
+		}
+#endif
+		return true;
+	}
+
+	void RenderableObjectSystem::AddDebugLines(const sLine &iLine)
+	{
+#ifdef EAE2014_DEBUGLINE_SHOULDDRAW
+		assert(DebugLineRenderer::GetInstance());
+
+		DebugLineRenderer::GetInstance()->AddLines(iLine);
+#endif
+	}
+
 	/******************************************************************************
 		Function     : Render
 		Description  : Function to render #D, 2D, Text objects
@@ -301,11 +324,12 @@ namespace Engine
 		Vector3 CurrentFriction;
 		
 		DeleteMarkedToDeathGameObjects();
-		GraphicsSystem::GetInstance()->BeingFrame();
-		
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
 		D3DPERF_BeginEvent(0, L"Mesh Drawing");
 #endif
+		GraphicsSystem::GetInstance()->BeingFrame();
+		
+
 		if (GraphicsSystem::GetInstance()->Begin3D())
 		{
 			//Render Logic
@@ -313,10 +337,20 @@ namespace Engine
 			{
 				GraphicsSystem::GetInstance()->Render(m3DRenderableObjects.at(ulCount)->GetMaterial(), m3DRenderableObjects.at(ulCount)->GetMesh(), m3DRenderableObjects[ulCount]->m_WorldObject);
 			}
-		}
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
-		D3DPERF_EndEvent();
+			D3DPERF_EndEvent();
 #endif
+#ifdef EAE2014_DEBUGLINE_SHOULDDRAW
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+			D3DPERF_BeginEvent(0, L"DebugLine Drawing");
+#endif
+			DebugLineRenderer::GetInstance()->Render();
+#ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
+			D3DPERF_EndEvent();
+#endif
+#endif
+		}
+
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
 		D3DPERF_BeginEvent(0, L"Sprite Drawing");
 #endif
