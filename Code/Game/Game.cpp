@@ -71,23 +71,6 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		return mInitilized;
 	}
 
-	Engine::Vector3 eyeLocation(0.0f, 0.0f, -11.0f);
-	Engine::Vector3 LookAtLocation(0.0f, 0.0f, 1.0f);
-	Engine::Vector3 Up(0.0f, 1.0f, 0.0f);
-	float FieldOfView = static_cast<float>(Engine::Get_PI_Value() / 3); //60 degrees
-	float NearPlane = 0.1f;
-	float FarPlane = 100.0f;
-	
-	mInitilized = Engine::CameraSystem::CreateInstance(UserSettings::GetWidth(),UserSettings::GetHeight(), FieldOfView, 
-														NearPlane, FarPlane, eyeLocation, LookAtLocation, Up);
-
-	if (mInitilized == false)
-	{
-		Engine::DebugPrint("Failed to Create WorldSystem Instance");
-		return mInitilized;
-	}
-
-
 	mInitilized = Engine::WorldSystem::CreateInstance();
 
 	if (mInitilized == false)

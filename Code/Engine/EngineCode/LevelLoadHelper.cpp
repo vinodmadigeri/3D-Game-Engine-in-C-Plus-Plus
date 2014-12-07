@@ -9,6 +9,7 @@
 #include "PhysicsSystem.h"
 #include "RenderableObjectSystem.h"
 #include "CollisionSystem.h"
+#include "CameraSystem.h"
 
 namespace Engine
 {
@@ -68,6 +69,16 @@ namespace Engine
 		}
 
 		if (!CreateLightingInstance(LightingDatas
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, &errorMessage
+#endif
+			))
+		{
+			WereThereErrors = true;
+			goto OnExit;
+		}
+
+		if (!LoadCameraDataAndCreate(*luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, &errorMessage
 #endif
@@ -289,6 +300,493 @@ namespace Engine
 		LuaHelper::UnLoad_LuaTable(io_luaState);
 		return !wereThereErrors;
 
+	}
+
+
+	//******************************************************************************
+	bool LoadCameraDataAndCreate(lua_State &io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		bool wereThereErrors = false;
+		if (!LuaHelper::Load_LuaTable(io_luaState, "CameraData"
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif
+			))
+		{
+			wereThereErrors = true;
+			goto OnExit;
+		}
+		
+		{
+			//Default value for camera settings
+			float InitialVelocity[3] = { 0.0f, 0.0f, 0.0f };
+			float InitialAccln[3] = { 0.0f, 0.0f, 0.0f };
+			float Size[3] = { 0.4f, 0.4f, 0.4f };
+			float Rotation = 0.0f;
+
+			float eyeLocation[3] = { 0.0f, 0.0f, -11.0f };
+			float lookAtLocation[3] = { 0.0f, 0.0f, 1.0f };
+			float up[3] = { 0.0f, 1.0f, 0.0f };
+			float fieldOfView = 60.0f; //
+			float nearPlane = { 0.1f };
+			float farPlane = { 100.0f };
+			char * iType = "Camera";
+			std::vector<std::string> o_CollidesWith;
+			bool IsCollidable = false;
+
+			//Iterating through the lightingdata key value pairs
+			lua_pushnil(&io_luaState);
+			int CurrentIndexOfConstantTable = -2;
+			while (lua_next(&io_luaState, CurrentIndexOfConstantTable))
+			{
+				//Current Table is at -3 inside the while loop
+				int IndexOfKey = -2; int IndexOfValue = -1;
+				if (lua_type(&io_luaState, IndexOfKey) != LUA_TSTRING)
+				{
+					wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					if (o_errorMessage)
+					{
+						std::stringstream errorMessage;
+						errorMessage << "key must be a string (instead of a " <<
+							luaL_typename(&io_luaState, IndexOfKey) << ")\n";
+
+						*o_errorMessage = errorMessage.str();
+					}
+		#endif
+					// Pop the returned key value pair on error
+					lua_pop(&io_luaState, 2);
+					goto OnExit;
+				}
+
+				//Store the valid key in a variable
+				const char * CameraDataTableName = lua_tostring(&io_luaState, IndexOfKey);
+
+
+				//------------------Velocity-------------------------
+				if ((strcmp(CameraDataTableName, "velocity") == 0))
+				{
+					if (!lua_istable(&io_luaState, IndexOfValue))
+					{
+						//********HANDLE ERRRRROR **************
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "Actor velocity must be a table (instead of a " <<
+								luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+
+					const unsigned int VelocityCount = 3;
+					if (!LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, InitialVelocity, VelocityCount
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, o_errorMessage
+		#endif
+						))
+					{
+						//********HANDLE ERRRRROR **************
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "Could not read Actor velocity data";
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+				}
+
+				//------------------Acceleration---------------------------
+				if ((strcmp(CameraDataTableName, "acceleration") == 0))
+				{
+					if (!lua_istable(&io_luaState, IndexOfValue))
+					{
+						//********HANDLE ERRRRROR **************
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "Actor acceleration must be a table (instead of a " <<
+								luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+
+					const unsigned int accelerationCount = 3;
+					if (!LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, InitialAccln, accelerationCount
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, o_errorMessage
+		#endif
+						))
+					{
+						//********HANDLE ERRRRROR **************
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "Could not read Actor acceleration data";
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+				}
+
+
+				//------------------Size-------------------------
+				if ((strcmp(CameraDataTableName, "size") == 0))
+				{
+					if (!lua_istable(&io_luaState, IndexOfValue))
+					{
+						//********HANDLE ERRRRROR **************
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "Actor size must be a table (instead of a " <<
+								luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+
+					const unsigned int sizeCount = 3;
+					if (!LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, Size, sizeCount
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, o_errorMessage
+		#endif
+						))
+					{
+						//********HANDLE ERRRRROR **************
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "Could not read Actor size data";
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+				}
+
+
+				//------------------Rotation-------------------------
+				if ((strcmp(CameraDataTableName, "rotation") == 0))
+				{
+
+					if (lua_type(&io_luaState, IndexOfValue) != LUA_TNUMBER)
+					{
+						//********HANDLE ERRRRROR **************
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "Name of actor must be a String (instead of a " <<
+								luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+
+					Rotation = static_cast<float>(lua_tonumber(&io_luaState, IndexOfValue));
+				}
+
+
+				if (strcmp(CameraDataTableName, "EyeLocation") == 0)
+				{
+					if (!lua_istable(&io_luaState, IndexOfValue))
+					{
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "value of each EyeLocation data must be a table (instead of a " <<
+								luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+
+
+					const unsigned int DataCountPerVar = 3;
+					if (!LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, eyeLocation, DataCountPerVar
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, o_errorMessage
+		#endif
+						))
+					{
+						wereThereErrors = true;
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+				}
+
+				if (strcmp(CameraDataTableName, "LookAtLocation") == 0)
+				{
+					if (!lua_istable(&io_luaState, IndexOfValue))
+					{
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "value of each LookAtLocation data must be a table (instead of a " <<
+								luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+
+
+					const unsigned int DataCountPerVar = 3;
+					if (!LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, lookAtLocation, DataCountPerVar
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, o_errorMessage
+		#endif
+						))
+					{
+						wereThereErrors = true;
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+				}
+
+				if (strcmp(CameraDataTableName, "FieldOfView") == 0)
+				{
+					if (lua_type(&io_luaState, IndexOfValue) != LUA_TNUMBER)
+					{
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "value of FieldOfView data must be a number (instead of a " <<
+								luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+
+
+					fieldOfView = static_cast<float>(lua_tonumber(&io_luaState, IndexOfValue));
+				}
+
+				if (strcmp(CameraDataTableName, "class") == 0)
+				{
+					if (lua_type(&io_luaState, IndexOfValue) != LUA_TSTRING)
+					{
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "value of FieldOfView data must be a number (instead of a " <<
+								luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+
+
+					iType = const_cast<char *>((lua_tostring(&io_luaState, IndexOfValue)));
+				}
+
+				if (strcmp(CameraDataTableName, "Up") == 0)
+				{
+					if (!lua_istable(&io_luaState, IndexOfValue))
+					{
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "value of each Up data must be a table (instead of a " <<
+								luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+
+
+					const unsigned int DataCountPerVar = 3;
+					if (!LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, up, DataCountPerVar
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, o_errorMessage
+		#endif
+						))
+					{
+						wereThereErrors = true;
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+				}
+
+				if (strcmp(CameraDataTableName, "NearPlane") == 0)
+				{
+					if (lua_type(&io_luaState, IndexOfValue) != LUA_TNUMBER)
+					{
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "value of NearPlane data must be a number (instead of a " <<
+								luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+
+					nearPlane = static_cast<float>(lua_tonumber(&io_luaState, IndexOfValue));
+				}
+
+				if (strcmp(CameraDataTableName, "FarPlane") == 0)
+				{
+					if (lua_type(&io_luaState, IndexOfValue) != LUA_TNUMBER)
+					{
+						wereThereErrors = true;
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						if (o_errorMessage)
+						{
+							std::stringstream errorMessage;
+							errorMessage << "value of FarPlane data must be a number (instead of a " <<
+								luaL_typename(&io_luaState, IndexOfValue) << ")\n";
+
+							*o_errorMessage = errorMessage.str();
+						}
+		#endif
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+
+					farPlane = static_cast<float>(lua_tonumber(&io_luaState, IndexOfValue));
+				}
+
+
+				//------------------RenderSettings-------------------------
+				if ((strcmp(CameraDataTableName, "collisionSettings") == 0))
+				{
+					if (!LoadPhysicsSettings(io_luaState, o_CollidesWith, IsCollidable
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, o_errorMessage
+		#endif
+						))
+					{
+						wereThereErrors = true;
+						// Pop the returned key value pair on error
+						lua_pop(&io_luaState, 2);
+						goto OnExit;
+					}
+				}
+
+				//Pop the value, but leave the key
+				lua_pop(&io_luaState, 1);
+			}
+
+			SharedPointer<Actor> NewActor = Actor::Create(Vector3(eyeLocation[0], eyeLocation[1], eyeLocation[2]),
+				Vector3(InitialVelocity[0], InitialVelocity[1], InitialVelocity[2]),
+				Vector3(InitialAccln[0], InitialAccln[1], InitialAccln[2]),
+				"Camera", iType, Vector3(Size[0], Size[1], Size[2]), Rotation, o_CollidesWith);
+
+			assert(NewActor != NULL);
+
+			fieldOfView = fieldOfView * static_cast<float>(Engine::Get_PI_Value() / 180.0f); //60 degrees to radians
+			if (!Engine::CameraSystem::CreateInstance(NewActor, UserSettings::GetWidth(), UserSettings::GetHeight(), fieldOfView,
+				nearPlane, farPlane, Vector3(lookAtLocation[0], lookAtLocation[1], lookAtLocation[2]),
+				Vector3(up[0], up[1], up[2])))
+			{
+		#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					*o_errorMessage = "Could not create Camera instance";
+				}
+		#endif
+				return false;
+			}
+
+
+			assert(PhysicsSystem::GetInstance());
+
+			PhysicsSystem::GetInstance()->AddActorGameObject(NewActor);
+
+			if (IsCollidable)
+			{
+				assert(CollisionSystem::GetInstance());
+				CollisionSystem::GetInstance()->AddActorGameObject(NewActor);
+			}
+		}
+	OnExit:
+
+		LuaHelper::UnLoad_LuaTable(io_luaState);
+		return !wereThereErrors;
 	}
 
 	//******************************************************************************

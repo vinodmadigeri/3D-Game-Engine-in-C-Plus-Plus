@@ -108,27 +108,17 @@ namespace Engine
 		return s_viewToScreen;
 	}
 
-	bool CameraSystem::CreateInstance(const unsigned int i_windowWidth,
+	bool CameraSystem::CreateInstance(SharedPointer<Actor> &iNewActor,
+									const unsigned int i_windowWidth,
 									const unsigned int i_windowHeight,
 									const float i_YFOV, const float i_ZNear,
 									const float i_ZFar,
-									const Vector3 & i_Eye,
 									const Vector3 & i_LookAt,
 									const Vector3 & i_Up)
 	{
 		if (mInstance == NULL)
 		{
-			Vector3 InitialVelocity(0.0f, 0.0f, 0.0f);
-			Vector3 InitialAccln(0.0f, 0.0f, 0.0f);
-			Vector3 Size(0.4f, 0.4f, 0.4f);
-			float Rotation = 0.0f;
-
-			const std::vector<std::string> iCollidesWith; //Collides with none
-
-			SharedPointer<Actor> NewActor = Actor::Create(i_Eye, InitialVelocity, InitialAccln, "Camera", "Camera", Size, Rotation, iCollidesWith);
-			assert(NewActor != NULL);
-
-			mInstance = new CameraSystem(NewActor, i_windowWidth, i_windowHeight, i_YFOV, i_ZNear, i_ZFar, i_LookAt, i_Up);
+			mInstance = new CameraSystem(iNewActor, i_windowWidth, i_windowHeight, i_YFOV, i_ZNear, i_ZFar, i_LookAt, i_Up);
 
 			if (mInstance == NULL)
 			{
@@ -140,10 +130,6 @@ namespace Engine
 				delete mInstance;
 				return false;
 			}
-
-			assert(PhysicsSystem::GetInstance());
-
-			PhysicsSystem::GetInstance()->AddActorGameObject(NewActor);
 		}
 
 		return true;

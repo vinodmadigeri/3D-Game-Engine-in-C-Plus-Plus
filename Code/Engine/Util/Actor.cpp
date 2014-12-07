@@ -61,15 +61,15 @@ namespace Engine
 		const std::vector<std::string> &iCollidesWith
 	)
 	{
-		assert(i_ActorType != NULL);
-		assert(i_GameObjectName != NULL);
+		assert(i_ActorType && i_GameObjectName);
+		
 		char *pGameObjName = _strdup(i_GameObjectName);
 
 		int ClassBitIndex = 0;
 		if (false == mActorTypeNamedBitSet.FindBitMask(i_ActorType, ClassBitIndex))
 		{
 			CONSOLE_PRINT("Actor type is not present in global class types");
-			//assert(false); ToDo Fix the camera parse
+			assert(false);
 		}
 
 		unsigned int CollidesWithBitIndex = 0;

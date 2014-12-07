@@ -20,6 +20,7 @@ namespace Engine
 			const float i_ZFar,
 			const Vector3 & i_LookAt,
 			const Vector3 & i_Up);
+
 		~CameraSystem();
 		CameraSystem(const CameraSystem & i_Other);
 		CameraSystem & operator=(const CameraSystem & i_rhs);
@@ -48,14 +49,13 @@ namespace Engine
 		const D3DXMATRIXA16 GetWorldToView() const;
 		const D3DXMATRIXA16 GetViewToScreen() const;
 
-		static bool CreateInstance(const unsigned int i_windowWidth,
+		static bool CreateInstance(SharedPointer<Actor> &iNewActor, 
+			const unsigned int i_windowWidth,
 			const unsigned int i_windowHeight,
 			const float i_YFOV, const float i_ZNear,
 			const float i_ZFar,
-			const Vector3 & i_Eye,
 			const Vector3 & i_LookAt,
 			const Vector3 & i_Up);
-		
 		
 		static CameraSystem * GetInstance();
 		static void Destroy();

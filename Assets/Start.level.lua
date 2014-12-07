@@ -5,6 +5,7 @@ return
 	ClassTypes = 
 	{
 		"Camera",
+		"Light",
 		"Cube",
 		"Plane",
 		"Torus",
@@ -18,15 +19,26 @@ return
 		LightDirection = {0.0, -1.0, 0.0}
 	},
 	
-	--ToDo Parse and create Camera instance from level
 	CameraData = 
 	{
+		class = "Camera", --For collision
+		velocity  = { 0.0, 0.0, 0.0 },
+		acceleration  = { 0.0, 0.0, 0.0 },
+		size = {2.0, 2.0, 2.0},
+		rotation = 0.0,
 		EyeLocation = {0.0, 0.0, -11.0},
 		LookAtLocation = {0.0, 0.0, 1.0},
 		Up = {0.0, 1.0, 0.0},
 		FieldOfView = 60.0, --degrees
 		NearPlane = 0.1,
 		FarPlane = 100.0,
+		collisionSettings = 
+		{
+			canCollideWith = 
+			{
+				--"Cube",
+			}
+		}
 	},
 	
 	--Default values for actors that can be spawned

@@ -28,6 +28,12 @@ namespace Engine
 #endif
 		);
 
+	bool LoadCameraDataAndCreate(lua_State &io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		);
+
 	bool LoadActorsData(lua_State &io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
