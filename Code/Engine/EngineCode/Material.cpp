@@ -175,7 +175,7 @@ namespace Engine
 		assert(CameraSystem::GetInstance());
 
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
-		D3DPERF_BeginEvent(0, L"Set Material Constants (Per-View \"g_transform_worldToView, g_transform_viewToScreen\")");
+		D3DPERF_BeginEvent(0, L"Set Material Constants (Per-View \"g_transform_worldToView, g_transform_viewToScreen, g_camera_position\")");
 #endif
 		//Set per-view constants
 		if (!SetPerViewConstantDataByName("WorldToView", &CameraSystem::GetInstance()->GetWorldToView(), count))
@@ -188,6 +188,16 @@ namespace Engine
 		{
 			assert(false);
 		}
+
+		//Set per-view constants
+		float Data[3];
+		int Datacount;
+		CameraSystem::GetInstance()->m_WorldObject->GetPosition().GetAsFloatArray(Data, Datacount);
+		if (!SetPerViewConstantDataByName("CameraPosition", Data, Datacount))
+		{
+			assert(false);
+		}
+
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
 		D3DPERF_EndEvent();
 #endif
@@ -215,8 +225,8 @@ namespace Engine
 	D3DPERF_BeginEvent(0, L"Set Material Constant (Per-Frame \"g_lighting_ambient, g_lighting, g_light_direction\")");
 #endif
 		//Set per-Instance constants
-		float Data[3];
-		int Datacount;
+		Data[3];
+		Datacount;
 		LightingSystem::GetInstance()->GetAmbientLight().GetAsFloatArray(Data, Datacount);
 
 		if (!SetPerFrameConstantDataByName("AmbientLight", Data, Datacount))
@@ -400,10 +410,9 @@ namespace Engine
 			//Store the valid key in a variable
 			const char * ConstantDataTableName = lua_tostring(&io_luaState, IndexOfKey);
 
-			const unsigned int DataCountOfValue = luaL_len(&io_luaState, IndexOfValue);
-
-			if (DataCountOfValue > 1) //If it is a table
+			if (lua_istable(&io_luaState, IndexOfValue)) //If it is a table
 			{
+				const unsigned int DataCountOfValue = luaL_len(&io_luaState, IndexOfValue);
 				float *EachDataOfValue = new float[DataCountOfValue];
 				if (!LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, EachDataOfValue, DataCountOfValue
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
@@ -458,49 +467,46 @@ namespace Engine
 
 				delete[] EachDataOfValue;
 			}
-			else if (DataCountOfValue == 1)
+			else if (lua_type(&io_luaState, IndexOfValue) == LUA_TNUMBER)
 			{
-				if (lua_type(&io_luaState, IndexOfValue) == LUA_TNUMBER)
+				//store the constant
+				//At this point both constant name and value are stored,
+				//Get reference to per-instance constant
+				D3DXHANDLE ConstHandle = m_pvertexShaderConsts->GetConstantByName(NULL, ConstantDataTableName);
+				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
+
+				if (ConstHandle == NULL)
 				{
-					//store the constant
-					//At this point both constant name and value are stored,
-					//Get reference to per-instance constant
-					D3DXHANDLE ConstHandle = m_pvertexShaderConsts->GetConstantByName(NULL, ConstantDataTableName);
-					BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
+					ConstHandle = m_pfragmentShaderConsts->GetConstantByName(NULL, ConstantDataTableName);
+					iBelongsTo = BelongsToenum::FRAGMENT_SHADER;
+				}
 
-					if (ConstHandle == NULL)
-					{
-						ConstHandle = m_pfragmentShaderConsts->GetConstantByName(NULL, ConstantDataTableName);
-						iBelongsTo = BelongsToenum::FRAGMENT_SHADER;
-					}
-
-					if (ConstHandle == NULL)
-					{
-						wereThereErrors = true;
+				if (ConstHandle == NULL)
+				{
+					wereThereErrors = true;
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-						if (o_errorMessage)
-						{
-							std::stringstream errorMessage;
-							errorMessage << "ConstHandle for " << ConstantDataTableName << " is NULL";
-							*o_errorMessage = errorMessage.str();
-						}
-#endif
-						iBelongsTo = BelongsToenum::NONE;
-					}
-
-					const unsigned int dataCount = DataCountOfValue;
-					IsAenum::IsA iIsA = IsAenum::IsA::FLOAT;
-					float ConstantValue = static_cast<float>(lua_tonumber(&io_luaState, IndexOfValue));
-
-					if (ConstHandle != NULL)
+					if (o_errorMessage)
 					{
-						MaterialConstantData<float> *PerMaterialConstant = new MaterialConstantData<float>(ConstantDataTableName, &ConstantValue, dataCount, ConstHandle, iBelongsTo, iIsA);
-						assert(PerMaterialConstant);
-
-						IMaterialConstant * BaseClassPointer = PerMaterialConstant;
-
-						m_perMaterialConstantDatas.push_back(BaseClassPointer);
+						std::stringstream errorMessage;
+						errorMessage << "ConstHandle for " << ConstantDataTableName << " is NULL";
+						*o_errorMessage = errorMessage.str();
 					}
+#endif
+					iBelongsTo = BelongsToenum::NONE;
+				}
+
+				const unsigned int dataCount = 1;
+				IsAenum::IsA iIsA = IsAenum::IsA::FLOAT;
+				float ConstantValue = static_cast<float>(lua_tonumber(&io_luaState, IndexOfValue));
+
+				if (ConstHandle != NULL)
+				{
+					MaterialConstantData<float> *PerMaterialConstant = new MaterialConstantData<float>(ConstantDataTableName, &ConstantValue, dataCount, ConstHandle, iBelongsTo, iIsA);
+					assert(PerMaterialConstant);
+
+					IMaterialConstant * BaseClassPointer = PerMaterialConstant;
+
+					m_perMaterialConstantDatas.push_back(BaseClassPointer);
 				}
 			}
 			else
@@ -687,8 +693,6 @@ namespace Engine
 				constNameMap.insert(std::pair<std::string, std::string>("AmbientLight", AmbientLightConstantName));
 			}
 
-			
-
 			std::string DiffuseLightConstantName;
 			{
 				if (!LuaHelper::GetStringValueFromKey(io_luaState, "DiffuseLight", DiffuseLightConstantName
@@ -717,6 +721,18 @@ namespace Engine
 				}
 
 				constNameMap.insert(std::pair<std::string, std::string>("LightDirection", LightDirectionConstantName));
+			}
+
+			std::string CameraPositionConstantName;
+			{
+				if (LuaHelper::GetStringValueFromKey(io_luaState, "CameraPosition", CameraPositionConstantName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					constNameMap.insert(std::pair<std::string, std::string>("CameraPosition", CameraPositionConstantName));
+				}
 			}
 
 			//Load the shader itself from the path
@@ -1322,10 +1338,10 @@ namespace Engine
 			BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
 			IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
 
-			MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cGlobalConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
-			assert(PerViewMaterialConstant);
+			MaterialConstantData<float> *PerFrameFragmentShaderConstant = new MaterialConstantData<float>(cGlobalConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
+			assert(PerFrameFragmentShaderConstant);
 
-			IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+			IMaterialConstant * BaseClassPointer = PerFrameFragmentShaderConstant;
 
 			m_perFrameConstantDatas.push_back(BaseClassPointer);
 
@@ -1377,10 +1393,10 @@ namespace Engine
 			BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
 			IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
 
-			MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cGlobalConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
-			assert(PerViewMaterialConstant);
+			MaterialConstantData<float> *PerFrameFragmentShaderConstant = new MaterialConstantData<float>(cGlobalConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
+			assert(PerFrameFragmentShaderConstant);
 
-			IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+			IMaterialConstant * BaseClassPointer = PerFrameFragmentShaderConstant;
 
 			m_perFrameConstantDatas.push_back(BaseClassPointer);
 
@@ -1432,12 +1448,54 @@ namespace Engine
 			BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
 			IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
 
-			MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cGlobalConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
-			assert(PerViewMaterialConstant);
+			MaterialConstantData<float> *PerFrameFragmentShaderConstant = new MaterialConstantData<float>(cGlobalConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
+			assert(PerFrameFragmentShaderConstant);
 
-			IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+			IMaterialConstant * BaseClassPointer = PerFrameFragmentShaderConstant;
 
 			m_perFrameConstantDatas.push_back(BaseClassPointer);
+		}
+
+
+		//-----------------------g_camera_position-------------
+		{
+			const char * cGlobalConstantName = "CameraPosition";
+			std::map<std::string, std::string>::iterator it;
+
+			//Find the actual constant name 
+			it = i_constantNameMap.find(cGlobalConstantName);
+
+			if (it != i_constantNameMap.end())
+			{
+				D3DXHANDLE Handle = i_pfragmentShaderConsts->GetConstantByName(NULL, it->second.c_str());
+				if (Handle == NULL)
+				{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					if (o_errorMessage)
+					{
+						std::stringstream errorMessage;
+						errorMessage << "Could not find constant " << it->second.c_str() << " in " << i_FragmentShaderpath << " fragment shader for " << cGlobalConstantName;
+						*o_errorMessage = errorMessage.str();
+					}
+
+					return false;
+				}
+#endif
+				assert(LightingSystem::GetInstance());
+				float FloatDataArray[3];
+				int dataCount;
+				LightingSystem::GetInstance()->GetLightDirection().GetAsFloatArray(FloatDataArray, dataCount);
+
+				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::FRAGMENT_SHADER;
+				IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
+
+				MaterialConstantData<float> *PerViewFragmentShaderConstant = new MaterialConstantData<float>(cGlobalConstantName, FloatDataArray, dataCount, Handle, iBelongsTo, iIsA);
+				assert(PerViewFragmentShaderConstant);
+
+				IMaterialConstant * BaseClassPointer = PerViewFragmentShaderConstant;
+
+				m_perViewConstantDatas.push_back(BaseClassPointer);
+			}
 		}
 
 		return true;

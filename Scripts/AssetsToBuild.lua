@@ -18,6 +18,7 @@ return
 			"fragmentShader",
 			"fragmentShaderSprite",
 			"fragmentShaderLine",
+			"fragmentShaderSpecular",
 		},
 	},
 
@@ -35,6 +36,7 @@ return
 			"vertexShader",
 			"vertexShaderSprite",
 			"vertexShaderLine",
+			"vertexShaderSpecular",
 		},
 	},
 	
