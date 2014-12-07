@@ -362,37 +362,115 @@ namespace Engine
 	{
 		bool wereThereErrors = false;
 
-		if (LuaHelper::Load_LuaTable(io_luaState, "Constants"
+		if (!LuaHelper::Load_LuaTable(io_luaState, "Constants"
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
 #endif
 			))
 		{
-			//Load each Constant Value lua table
-			const char * ConstantName = "g_color_perMaterial";
-			if (LuaHelper::Load_LuaTable(io_luaState, ConstantName
-#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-				, o_errorMessage
-#endif
-				))
+			wereThereErrors = true;
+			goto OnExit;
+		}
+
+		//Iterating through the constants key value pairs
+		lua_pushnil(&io_luaState);
+		int CurrentIndexOfConstantTable = -2;
+		while (lua_next(&io_luaState, CurrentIndexOfConstantTable))
+		{
+			//Current Table is at -3 inside the while loop
+			int IndexOfKey = -2; int IndexOfValue = -1;
+			if (lua_type(&io_luaState, IndexOfKey) != LUA_TSTRING)
 			{
-				const unsigned int DataCount = 3;
-				//Get the value of constant form the constant lua table
-				float ConstantValue[DataCount];
-				if (LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, ConstantValue, DataCount
+				wereThereErrors = true;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "key must be a string (instead of a " <<
+						luaL_typename(&io_luaState, IndexOfKey) << ")\n";
+
+					*o_errorMessage = errorMessage.str();
+				}
+#endif
+				// Pop the returned key value pair on error
+				lua_pop(&io_luaState, 2);
+				goto OnExit;
+			}
+
+			//Store the valid key in a variable
+			const char * ConstantDataTableName = lua_tostring(&io_luaState, IndexOfKey);
+
+			const unsigned int DataCountOfValue = luaL_len(&io_luaState, IndexOfValue);
+
+			if (DataCountOfValue > 1) //If it is a table
+			{
+				float *EachDataOfValue = new float[DataCountOfValue];
+				if (!LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, EachDataOfValue, DataCountOfValue
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 					, o_errorMessage
 #endif
 					))
 				{
+					wereThereErrors = true;
+					// Pop the returned key value pair on error
+					lua_pop(&io_luaState, 2);
+					goto OnExit;
+				}
+
+				//Store the constant
+				//At this point both constant name and value are stored,
+				//Get reference to per-instance constant
+				D3DXHANDLE ConstHandle = m_pvertexShaderConsts->GetConstantByName(NULL, ConstantDataTableName);
+				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
+
+				if (ConstHandle == NULL)
+				{
+					ConstHandle = m_pfragmentShaderConsts->GetConstantByName(NULL, ConstantDataTableName);
+					iBelongsTo = BelongsToenum::FRAGMENT_SHADER;
+				}
+
+				if (ConstHandle == NULL)
+				{
+					wereThereErrors = true;
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					if (o_errorMessage)
+					{
+						std::stringstream errorMessage;
+						errorMessage << "ConstHandle for " << ConstantDataTableName << " is NULL";
+						*o_errorMessage = errorMessage.str();
+					}
+#endif
+					iBelongsTo = BelongsToenum::NONE;
+				}
+
+				const unsigned int dataCount = DataCountOfValue;
+				IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
+
+				if (ConstHandle != NULL)
+				{
+					MaterialConstantData<float> *PerMaterialConstant = new MaterialConstantData<float>(ConstantDataTableName, EachDataOfValue, dataCount, ConstHandle, iBelongsTo, iIsA);
+					assert(PerMaterialConstant);
+
+					IMaterialConstant * BaseClassPointer = PerMaterialConstant;
+
+					m_perMaterialConstantDatas.push_back(BaseClassPointer);
+				}
+
+				delete[] EachDataOfValue;
+			}
+			else if (DataCountOfValue == 1)
+			{
+				if (lua_type(&io_luaState, IndexOfValue) == LUA_TNUMBER)
+				{
+					//store the constant
 					//At this point both constant name and value are stored,
 					//Get reference to per-instance constant
-					D3DXHANDLE ConstHandle = m_pvertexShaderConsts->GetConstantByName(NULL, ConstantName);
+					D3DXHANDLE ConstHandle = m_pvertexShaderConsts->GetConstantByName(NULL, ConstantDataTableName);
 					BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
 
 					if (ConstHandle == NULL)
 					{
-						ConstHandle = m_pfragmentShaderConsts->GetConstantByName(NULL, ConstantName);
+						ConstHandle = m_pfragmentShaderConsts->GetConstantByName(NULL, ConstantDataTableName);
 						iBelongsTo = BelongsToenum::FRAGMENT_SHADER;
 					}
 
@@ -403,19 +481,20 @@ namespace Engine
 						if (o_errorMessage)
 						{
 							std::stringstream errorMessage;
-							errorMessage << "ConstHandle for " << ConstantName << " is NULL";
+							errorMessage << "ConstHandle for " << ConstantDataTableName << " is NULL";
 							*o_errorMessage = errorMessage.str();
 						}
 #endif
 						iBelongsTo = BelongsToenum::NONE;
 					}
 
-					const unsigned int dataCount = DataCount;
-					IsAenum::IsA iIsA = IsAenum::IsA::FLOAT_ARRAY;
+					const unsigned int dataCount = DataCountOfValue;
+					IsAenum::IsA iIsA = IsAenum::IsA::FLOAT;
+					float ConstantValue = static_cast<float>(lua_tonumber(&io_luaState, IndexOfValue));
 
 					if (ConstHandle != NULL)
 					{
-						MaterialConstantData<float> *PerMaterialConstant = new MaterialConstantData<float>(ConstantName, ConstantValue, dataCount, ConstHandle, iBelongsTo, iIsA);
+						MaterialConstantData<float> *PerMaterialConstant = new MaterialConstantData<float>(ConstantDataTableName, &ConstantValue, dataCount, ConstHandle, iBelongsTo, iIsA);
 						assert(PerMaterialConstant);
 
 						IMaterialConstant * BaseClassPointer = PerMaterialConstant;
@@ -423,26 +502,27 @@ namespace Engine
 						m_perMaterialConstantDatas.push_back(BaseClassPointer);
 					}
 				}
-				else
-				{
-					wereThereErrors = true;
-				}
 			}
 			else
 			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					std::stringstream errorMessage;
+					errorMessage << "value must have atleast one value";
+
+					*o_errorMessage = errorMessage.str();
+				}
+#endif
 				wereThereErrors = true;
+				goto OnExit;
 			}
-			
-			// Pop the each constant value table on error
-			LuaHelper::UnLoad_LuaTable(io_luaState);
-		}
-		else
-		{
-			wereThereErrors = true;
+
+			//Pop the value, but leave the key
+			lua_pop(&io_luaState, 1);
 		}
 
-		//Add More Get functions if more in the table
-
+	OnExit:
 		// Pop the constant table
 		LuaHelper::UnLoad_LuaTable(io_luaState);
 
