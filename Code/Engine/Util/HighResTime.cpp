@@ -7,7 +7,7 @@ namespace Engine
 {
 
 	static const double SEC_TO_MILLISEC = 1000.0f;
-	static const double CONSTANT_TIME_FRAME = 1000.0f / 600.0f;
+	static const double CONSTANT_TIME_FRAME = 1000.0f / 60.0f;
 
 	/******************************************************************************
 	Function     : Initilize

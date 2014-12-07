@@ -175,7 +175,7 @@ namespace Engine
 		assert(CameraSystem::GetInstance());
 
 #ifdef EAE2014_GRAPHICS_AREPIXEVENTSENABLED
-		D3DPERF_BeginEvent(0, L"Set Material Constants (Per-View \"g_transform_worldToView, g_transform_viewToScreen, g_camera_position\")");
+		D3DPERF_BeginEvent(0, L"Set Material Constants (Per-View \"g_transform_worldToView, g_transform_viewToScreen, g_camera_position, g_totalSecondsElapsed \")");
 #endif
 		//Set per-view constants
 		if (!SetPerViewConstantDataByName("WorldToView", &CameraSystem::GetInstance()->GetWorldToView(), count))
@@ -190,10 +190,21 @@ namespace Engine
 		}
 
 		//Set per-view constants
-		float Data[3];
-		int Datacount;
-		CameraSystem::GetInstance()->m_WorldObject->GetPosition().GetAsFloatArray(Data, Datacount);
-		if (!SetPerViewConstantDataByName("CameraPosition", Data, Datacount))
+		static float TimeElapsed;
+		{
+			TimeElapsed += ThisObject->GetDeltaTime();
+		}
+
+		if (!SetPerViewConstantDataByName("TimeElapsed", &TimeElapsed, count))
+		{
+			assert(false);
+		}
+
+		//Set per-view constants
+		float CameraPosition[3];
+		int PosotionDatacount;
+		CameraSystem::GetInstance()->m_WorldObject->GetPosition().GetAsFloatArray(CameraPosition, PosotionDatacount);
+		if (!SetPerViewConstantDataByName("CameraPosition", CameraPosition, PosotionDatacount))
 		{
 			assert(false);
 		}
@@ -225,8 +236,8 @@ namespace Engine
 	D3DPERF_BeginEvent(0, L"Set Material Constant (Per-Frame \"g_lighting_ambient, g_lighting, g_light_direction\")");
 #endif
 		//Set per-Instance constants
-		Data[3];
-		Datacount;
+		float Data[3];
+		int Datacount;
 		LightingSystem::GetInstance()->GetAmbientLight().GetAsFloatArray(Data, Datacount);
 
 		if (!SetPerFrameConstantDataByName("AmbientLight", Data, Datacount))
@@ -617,6 +628,18 @@ namespace Engine
 				}
 
 				constNameMap.insert(std::pair<std::string, std::string>("ViewToScreen", ViewToScreenConstantName));
+			}
+
+			std::string TimeElapsedConstantName;
+			{
+				if (LuaHelper::GetStringValueFromKey(io_luaState, "TimeElapsed", TimeElapsedConstantName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					constNameMap.insert(std::pair<std::string, std::string>("TimeElapsed", TimeElapsedConstantName));
+				}
 			}
 
 			//Load the shader itself from the path
@@ -1725,6 +1748,47 @@ namespace Engine
 
 			m_perViewConstantDatas.push_back(BaseClassPointer);
 		}
+
+		//-----------------------g_totalSecondsElapsed-------------
+		{
+			const char * cGlobalConstantName = "TimeElapsed";
+			std::map<std::string, std::string>::iterator it;
+
+			//Find the actual constant name 
+			it = i_constantNameMap.find(cGlobalConstantName);
+
+			if (it != i_constantNameMap.end())
+			{
+				D3DXHANDLE Handle = i_pvertexShaderConsts->GetConstantByName(NULL, it->second.c_str());
+
+				if (Handle == NULL)
+				{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					if (o_errorMessage)
+					{
+						std::stringstream errorMessage;
+						errorMessage << "Could not find constant " << it->second.c_str() << " in " << i_VertexShaderpath << " vertex shader for " << cGlobalConstantName;
+						*o_errorMessage = errorMessage.str();
+					}
+
+					return false;
+#endif
+				}
+
+				const unsigned int dataCount = 1;
+				const float constantTimeFrame = 1000.0f / 60.0f;
+				BelongsToenum::BELONGSTO iBelongsTo = BelongsToenum::BELONGSTO::VERTEX_SHADER;
+				IsAenum::IsA iIsA = IsAenum::IsA::FLOAT;
+
+				MaterialConstantData<float> *PerViewMaterialConstant = new MaterialConstantData<float>(cGlobalConstantName, &constantTimeFrame, dataCount, Handle, iBelongsTo, iIsA);
+				assert(PerViewMaterialConstant);
+
+				IMaterialConstant * BaseClassPointer = PerViewMaterialConstant;
+
+				m_perViewConstantDatas.push_back(BaseClassPointer);
+			}
+		}
+
 		return true;
 	}
 }

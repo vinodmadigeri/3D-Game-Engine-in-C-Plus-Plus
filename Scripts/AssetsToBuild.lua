@@ -37,6 +37,7 @@ return
 			"vertexShaderSprite",
 			"vertexShaderLine",
 			"vertexShaderSpecular",
+			"vertexShaderScroll",
 		},
 	},
 	

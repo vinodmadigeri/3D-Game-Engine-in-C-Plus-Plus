@@ -27,8 +27,5 @@ namespace Engine
 		void CalcCurrentTick(void);
 		double GetTickDifferenceinMS(void) const;
 	};
-
-
-
 }
 #endif //__HIGH_RES_TIMER

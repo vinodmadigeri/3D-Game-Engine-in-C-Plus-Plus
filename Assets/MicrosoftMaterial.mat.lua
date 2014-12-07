@@ -5,14 +5,16 @@ return
 	Constants =
 	{
 		g_color_perMaterial = { 1.0, 1.0, 1.0 },
+		g_uv_speed = {0.0001, 0.0},
 	},
 	
 	VertexShader =
 	{
-		Path = "data/vertexShader.shd",
+		Path = "data/vertexShaderScroll.shd",
 		ModelToWorld = "g_transform_modelToWorld",
 		WorldToView = "g_transform_worldToView",
 		ViewToScreen = "g_transform_viewToScreen",
+		TimeElapsed = "g_totalSecondsElapsed",
 	},
 
 	FragmentShader =
