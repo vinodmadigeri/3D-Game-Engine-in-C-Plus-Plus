@@ -67,11 +67,12 @@ namespace Engine
 		const Vector3 & i_Size,
 		const float i_Rotation,
 		const char *pcMaterialPath,
-		const char *pcMeshPath)
+		const char *pcMeshPath,
+		const std::vector<std::string> &iCollidesWith)
 	{
 		assert(pcMaterialPath && i_GameObjectName && i_ActorType);
 
-		SharedPointer<Actor> NewActor = Actor::Create(i_vInitialPosition, i_InitialVelocity, i_vInitialAcceleration, i_GameObjectName, i_ActorType, i_Size, i_Rotation);
+		SharedPointer<Actor> NewActor = Actor::Create(i_vInitialPosition, i_InitialVelocity, i_vInitialAcceleration, i_GameObjectName, i_ActorType, i_Size, i_Rotation, iCollidesWith);
 
 		//Add actor in world system
 		AddActorGameObject(NewActor);

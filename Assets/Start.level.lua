@@ -51,9 +51,12 @@ return
 				meshPath = "data/cube.dat",
 				materialPath = "data/NvidiaMaterial.mat",
 			},
-			physicsSettings = 
+			collisionSettings = 
 			{
-				
+				canCollideWith = 
+				{
+					"Torus",
+				}
 			}
 		} ,
 		{
@@ -69,7 +72,7 @@ return
 				meshPath = "data/cube.dat",
 				materialPath = "data/AMDMaterial.mat",
 			},
-			physicsSettings = 
+			collisionSettings = 
 			{
 				
 			}
@@ -89,11 +92,10 @@ return
 			},
 			collisionSettings = 
 			{
-				--canCollideWith = 
-				--{
-				--	"Cube", 
-				--	"Plane",
-				--}
+				canCollideWith = 
+				{
+					"Cube",
+				}
 			}
 		} ,
 		{
@@ -109,7 +111,7 @@ return
 				meshPath = "data/helix.dat",
 				materialPath = "data/StripesMaterial.mat",
 			},
-			physicsSettings = 
+			collisionSettings = 
 			{
 				
 			}
@@ -127,8 +129,7 @@ return
 				meshPath = "data/plane.dat",
 				materialPath = "data/MicrosoftMaterial.mat",
 			},
-			
-			physicsSettings = 
+			collisionSettings = 
 			{
 				
 			}

@@ -8,6 +8,7 @@
 #include "Actor.h"
 #include "PhysicsSystem.h"
 #include "RenderableObjectSystem.h"
+#include "CollisionSystem.h"
 
 namespace Engine
 {
@@ -654,7 +655,6 @@ namespace Engine
 			}
 
 
-
 			//------------------Rotation-------------------------
 			if ((strcmp(EachActorDataName, "rotation") == 0))
 			{
@@ -727,7 +727,7 @@ namespace Engine
 			assert(RenderableObjectSystem::GetInstance());
 			assert(PhysicsSystem::GetInstance());
 			//-----------------------------Actor Creation and adding to systems-----------------------------
-			SharedPointer<Actor> NewActor = Actor::Create(Position, Velocity, Acceleration, ActorName.c_str(), ActorClass.c_str(), Size, Rotation);
+			SharedPointer<Actor> NewActor = Actor::Create(Position, Velocity, Acceleration, ActorName.c_str(), ActorClass.c_str(), Size, Rotation, o_CollidesWith);
 			WorldSystem::GetInstance()->AddActorGameObject(NewActor);
 
 			PhysicsSystem::GetInstance()->AddActorGameObject(NewActor);
@@ -739,7 +739,7 @@ namespace Engine
 
 			if (IsCollidable)
 			{
-				//CollisionSystem::GetInstance()->AddActorGameObject(NewActor);
+				CollisionSystem::GetInstance()->AddActorGameObject(NewActor);
 			}
 		}
 	OnExit:

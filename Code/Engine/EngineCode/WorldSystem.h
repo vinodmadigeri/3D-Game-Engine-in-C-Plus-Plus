@@ -63,7 +63,8 @@ namespace Engine
 			const Vector3 & i_Size,
 			const float i_Rotation,
 			const char *pcMaterialPath,
-			const char *pcMeshPath);
+			const char *pcMeshPath,
+			const std::vector<std::string> &iCollidesWith);
 
 		void AddActorGameObject(SharedPointer<Actor> &i_Object);
 		std::vector< SharedPointer<Actor>> FindActorsByType(const char *i_ActorType);

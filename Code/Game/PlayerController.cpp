@@ -13,6 +13,7 @@ using namespace Engine;
 namespace Player
 {
 	static PlayerController *mpPlayerController = NULL;
+	static PlayerCollisionHandler *mpPlayerCollisionHandler = NULL;
 	
 	/******************************************************************************
 	Function     : PlayerController
@@ -165,10 +166,15 @@ namespace Player
 	Author       : Vinod VM
 	Modification : Created function
 	******************************************************************************/
-	void CreateController(void)
+	void CreateControllerAndCollisionHandler(void)
 	{
 		if(mpPlayerController == NULL)
 			mpPlayerController = new PlayerController;
+
+		if (!mpPlayerCollisionHandler)
+		{
+			mpPlayerCollisionHandler = new PlayerCollisionHandler;
+		}
 	}
 
 	/******************************************************************************
@@ -190,6 +196,25 @@ namespace Player
 	}
 
 	/******************************************************************************
+	Function     : GetCollisionHandler
+	Description  : Function to get controller
+	Input        :
+	Output       : Player Controller pointer
+	Return Value : PlayerController *
+
+	History      :
+	Author       : Vinod VM
+	Modification : Created function
+	******************************************************************************/
+	PlayerCollisionHandler * GetCollisionHandler(void)
+	{
+		assert(mpPlayerCollisionHandler);
+
+		return mpPlayerCollisionHandler;
+	}
+
+
+	/******************************************************************************
 	Function     : Shutdown
 	Description  : Function to free player controller
 	Input        : 
@@ -204,5 +229,8 @@ namespace Player
 	{
 		if(mpPlayerController)
 			delete mpPlayerController;
+
+		if (mpPlayerCollisionHandler)
+			delete mpPlayerCollisionHandler;
 	}
 }

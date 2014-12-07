@@ -12,12 +12,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Util\WindowsError.cpp" />
+    <ClCompile Include="AABB.cpp" />
     <ClCompile Include="CameraSystem.cpp" />
+    <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="DebugLineRenderer.cpp" />
     <ClCompile Include="ILine.cpp" />
     <ClCompile Include="LevelLoadHelper.cpp" />
     <ClCompile Include="LightingSystem.cpp" />
     <ClCompile Include="LineRenderer.cpp" />
+    <ClCompile Include="MessagingSystem.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="RenderableObjectSystem.cpp" />
     <ClCompile Include="GraphicsSystem.cpp" />
@@ -47,7 +50,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Util\WindowsError.h" />
+    <ClInclude Include="AABB.h" />
     <ClInclude Include="CameraSystem.h" />
+    <ClInclude Include="CollisionHandler.h" />
+    <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="DebugLineRenderer.h" />
     <ClInclude Include="ILine.h" />
     <ClInclude Include="LevelLoadHelper.h" />
@@ -55,6 +61,7 @@
     <ClInclude Include="LightingSystem.h" />
     <ClInclude Include="LineRenderer.h" />
     <ClInclude Include="MaterialConstantData.h" />
+    <ClInclude Include="MessagingSystem.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="RenderableObjectSystem.h" />
     <ClInclude Include="GraphicsSystem.h" />

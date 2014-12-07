@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="PreCompiled.cpp" />
     <ClCompile Include="GraphicsSystem.cpp">
       <Filter>GraphicsSystem</Filter>
     </ClCompile>
@@ -83,9 +82,20 @@
     <ClCompile Include="LineRenderer.cpp">
       <Filter>GraphicsSystem\LineRenderer</Filter>
     </ClCompile>
+    <ClCompile Include="PreCompiled.cpp">
+      <Filter>Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="AABB.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="MessagingSystem.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PreCompiled.h" />
     <ClInclude Include="GraphicsSystem.h">
       <Filter>GraphicsSystem</Filter>
     </ClInclude>
@@ -190,6 +200,21 @@
     </ClInclude>
     <ClInclude Include="LineRenderer.h">
       <Filter>GraphicsSystem\LineRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="PreCompiled.h">
+      <Filter>Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="AABB.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionHandler.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="MessagingSystem.h">
+      <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

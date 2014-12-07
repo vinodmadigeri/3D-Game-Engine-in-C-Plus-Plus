@@ -15,6 +15,7 @@
 #include "PhysicsSystem.h"
 #include "CameraSystem.h"
 #include "LightingSystem.h"
+#include "CollisionSystem.h"
 #include "Sprite.h"
 #include "MathUtil.h"
 #include "PlayerController.h"
@@ -103,6 +104,14 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		return mInitilized;
 	}
 
+	mInitilized = Engine::CollisionSystem::CreateInstance();
+
+	if (mInitilized == false)
+	{
+		Engine::DebugPrint("Failed to Create CollisionSystem Instance");
+		return mInitilized;
+	}
+
 	using namespace Engine;
 	
 	//Load the first level
@@ -113,11 +122,12 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 
 	std::vector< SharedPointer<Actor>> CubeActorsList = WorldSystem::GetInstance()->FindActorsByType("Cube");
 	
-	Player::CreateController();
+	Player::CreateControllerAndCollisionHandler();
 
 	for (unsigned int i = 0; i < CubeActorsList.size(); i++)
 	{
 		CubeActorsList.at(i)->SetController(Player::GetController());
+		CubeActorsList.at(i)->SetCollisionHandler(Player::GetCollisionHandler());
 	}
 
 	Camera::CreateController();
@@ -165,10 +175,12 @@ int MainGame::Run(void)
 		do
 		{
 			GameTimer.CalculateFrameTime();
-			Engine::WorldSystem::GetInstance()->ActorsUpdate(static_cast<float>(GameTimer.GetLastFrameMS()));
-			Engine::PhysicsSystem::GetInstance()->ApplyEulerPhysics(static_cast<float>(GameTimer.GetLastFrameMS()));
-			Engine::CameraSystem::GetInstance()->Update(static_cast<float>(GameTimer.GetLastFrameMS()));
-			Engine::LightingSystem::GetInstance()->Update(static_cast<float>(GameTimer.GetLastFrameMS()));
+			float DeltaTime = static_cast<float>(GameTimer.GetLastFrameMS());
+			Engine::WorldSystem::GetInstance()->ActorsUpdate(DeltaTime);
+			Engine::CollisionSystem::GetInstance()->Update(DeltaTime);
+			Engine::PhysicsSystem::GetInstance()->ApplyEulerPhysics(DeltaTime);
+			Engine::CameraSystem::GetInstance()->Update(DeltaTime);
+			Engine::LightingSystem::GetInstance()->Update(DeltaTime);
 			
 			sLine MovingNewLine(CubeActorsList[0]->GetPosition(), CubeActorsList[1]->GetPosition());
 			RenderableObjectSystem::GetInstance()->AddDebugLines(MovingNewLine);

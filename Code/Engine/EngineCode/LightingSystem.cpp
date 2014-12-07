@@ -35,8 +35,10 @@ namespace Engine
 			Vector3 InitialAccln(0.0f, 0.0f, 0.0f);
 			Vector3 Size(0.4f, 0.4f, 0.4f);
 			float Rotation = 0.0f;
+			
+			const std::vector<std::string> iCollidesWith; //Collides with none
 
-			SharedPointer<Actor> NewActor = Actor::Create(InitialPosition, InitialVelocity, InitialAccln, "DiffuseLight", "Light", Size, Rotation);
+			SharedPointer<Actor> NewActor = Actor::Create(InitialPosition, InitialVelocity, InitialAccln, "DiffuseLight", "Light", Size, Rotation, iCollidesWith);
 			assert(NewActor != NULL);
 
 			mInstance = new LightingSystem(NewActor, iAmbientLight, iDiffuseLight, iLightDirection);

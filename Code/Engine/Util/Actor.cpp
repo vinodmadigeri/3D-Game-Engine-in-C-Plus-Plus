@@ -6,6 +6,8 @@
 #include "Debug.h"
 #include "Vector3.h"
 #include "NamedBitSet.h"
+#include "CollisionHandler.h"
+#include "CollisionSystem.h"
 
 namespace Engine
 {
@@ -22,6 +24,7 @@ namespace Engine
 		char *i_GameObjectName,
 		const Matrix4x4 &i_LocalToWorld,
 		const unsigned int i_ClassBitIndex,
+		const unsigned int i_CollidesWithBitIndex,
 		const char *i_Type
 	):
 		mPosition(i_Position),
@@ -37,8 +40,10 @@ namespace Engine
 		mDeltaTime(static_cast<float>(CONSTANT_TIME_FRAME)),
 		mLocalToWorld(i_LocalToWorld),
 		m_pController(NULL),
+		m_pCollisionHandler(NULL),
 		mType(i_Type),
 		mClassBitIndex(i_ClassBitIndex),
+		mCollidesWithBitIndex(i_CollidesWithBitIndex),
 		mHashedName(i_GameObjectName)
 	{
 
@@ -52,7 +57,8 @@ namespace Engine
 		const char *i_GameObjectName, 
 		const char *i_ActorType,
 		const Vector3 & i_Size,
-		const float i_Rotation
+		const float i_Rotation,
+		const std::vector<std::string> &iCollidesWith
 	)
 	{
 		assert(i_ActorType != NULL);
@@ -66,6 +72,20 @@ namespace Engine
 			//assert(false); ToDo Fix the camera parse
 		}
 
+		unsigned int CollidesWithBitIndex = 0;
+		int EachBitIndex = 0;
+
+		for (unsigned int i = 0; i < iCollidesWith.size(); i++)
+		{
+			if (false == mActorTypeNamedBitSet.FindBitMask(iCollidesWith[i].c_str(), EachBitIndex))
+			{
+				CONSOLE_PRINT("Collides with type is not present in global class types");
+				assert(false);
+			}
+
+			CollidesWithBitIndex |= EachBitIndex;
+		}
+
 		Matrix4x4 Translation, Rotation, LocalToWorld;
 
 		Translation.CreateTranslation(i_Position);
@@ -73,7 +93,7 @@ namespace Engine
 
 		LocalToWorld = Translation * Rotation;
 
-		return SharedPointer<Actor>(new Actor(i_Position, i_Size, i_Velocity, i_Acceleration, i_Rotation, pGameObjName, LocalToWorld, ClassBitIndex, i_ActorType));
+		return SharedPointer<Actor>(new Actor(i_Position, i_Size, i_Velocity, i_Acceleration, i_Rotation, pGameObjName, LocalToWorld, ClassBitIndex, CollidesWithBitIndex, i_ActorType));
 	}
 
 	Actor::~Actor()
@@ -251,6 +271,29 @@ namespace Engine
 		//Set Local to world matrix of actor for 3D rendering to use
 		SetLocalToWorldMatrix(ObjToWorld);
 
+	}
+
+	void Actor::SetCollisionHandler(ICollisionHandlerInterface *i_pCollisionHandler)
+	{
+		assert(i_pCollisionHandler != NULL);
+
+		m_pCollisionHandler = i_pCollisionHandler;
+	}
+
+	bool Actor::IsCollisionHandlerSet(void) const
+	{
+		if (m_pCollisionHandler)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	void Actor::HandleCollision(CollisionObject *ThisCollisionObject, CollisionObject *OtherCollisionObject)
+	{
+		if (m_pCollisionHandler)
+			m_pCollisionHandler->Handler(ThisCollisionObject, OtherCollisionObject);
 	}
 
 	void Actor::CreateActorMemoryPool()

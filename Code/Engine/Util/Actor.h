@@ -20,6 +20,9 @@ namespace Engine
 	
 	template<class T> 
 	class NamedBitSet;
+
+	class ICollisionHandlerInterface;
+	class CollisionObject;
 }
 
 namespace Engine
@@ -40,6 +43,7 @@ namespace Engine
 		Matrix4x4			mLocalToWorld;
 		static MemoryPool	*m_pActorMemoryPool;
 		static NamedBitSet<int>	mActorTypeNamedBitSet;
+		ICollisionHandlerInterface *m_pCollisionHandler;
 
 		IActorController	*m_pController;
 		HashedString		mType;
@@ -52,12 +56,14 @@ namespace Engine
 			char *i_GameObjectName,
 			const Matrix4x4 &i_LocalToWorld,
 			const unsigned int i_ClassBitIndex,
+			const unsigned int i_CollidesWithBitIndex,
 			const char * i_Type);
 
 		static void CreateActorMemoryPool();
 
 	public:
 		unsigned int		mClassBitIndex;
+		unsigned int		mCollidesWithBitIndex;
 		HashedString		mHashedName;
 		~Actor();
 		static SharedPointer<Actor> Create
@@ -68,7 +74,8 @@ namespace Engine
 			const char *i_GameObjectName, 
 			const char *i_ActorType,
 			const Vector3 & i_Size,
-			const float i_Rotation
+			const float i_Rotation,
+			const std::vector<std::string> &iCollidesWith
 		);
 
 		static void DeleteActorMemoryPool();
@@ -103,6 +110,9 @@ namespace Engine
 		void SetController(IActorController * i_pController);
 		bool IsControllerSet(void) const;
 		void Update(const float i_DeltaTime);
+		void SetCollisionHandler(ICollisionHandlerInterface *i_pCollisionHandler);
+		bool IsCollisionHandlerSet(void) const;
+		void HandleCollision(CollisionObject *ThisCollisionObject, CollisionObject *OtherCollisionObject);
 		void * operator new(const size_t i_size);
 		void operator delete(void * i_ptr);
 	} ;

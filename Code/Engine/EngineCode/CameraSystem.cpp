@@ -123,7 +123,9 @@ namespace Engine
 			Vector3 Size(0.4f, 0.4f, 0.4f);
 			float Rotation = 0.0f;
 
-			SharedPointer<Actor> NewActor = Actor::Create(i_Eye, InitialVelocity, InitialAccln, "Camera", "Camera", Size, Rotation);
+			const std::vector<std::string> iCollidesWith; //Collides with none
+
+			SharedPointer<Actor> NewActor = Actor::Create(i_Eye, InitialVelocity, InitialAccln, "Camera", "Camera", Size, Rotation, iCollidesWith);
 			assert(NewActor != NULL);
 
 			mInstance = new CameraSystem(NewActor, i_windowWidth, i_windowHeight, i_YFOV, i_ZNear, i_ZFar, i_LookAt, i_Up);
