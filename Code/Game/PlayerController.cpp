@@ -6,6 +6,8 @@
 #include "RandomNumber.h"
 #include "WorldSystem.h"
 #include "UserInput.h"
+#include "RenderableObjectSystem.h"
+#include "ILine.h"
 
 using namespace std;
 using namespace Engine;
@@ -74,7 +76,7 @@ namespace Player
 
 		const float MaxVelocity = 0.01f;
 		
-		CONSOLE_PRINT("Acceleration: %f & Velocity: %f", i_Actor.GetAcceleration().z(), i_Actor.GetVelocity().z());
+		//CONSOLE_PRINT("Acceleration: %f & Velocity: %f", i_Actor.GetAcceleration().z(), i_Actor.GetVelocity().z());
 #if 1
 		if (UserInput::GetInstance()->IsKeyPressed(VK_SPACE))
 		{
@@ -85,9 +87,20 @@ namespace Player
 
 			i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, AccelerationIncrementvalue));
 			i_Actor.SetVelocity(i_Actor.GetVelocity().Truncated(MaxVelocity));
+			
+			Vector3 EndLine = i_Actor.GetPosition() + i_Actor.GetVelocity() * 200;
+			CONSOLE_PRINT("EndLIne %f, %f, %f", EndLine.x(), EndLine.y(), EndLine.z());
+			sLine NewLine(i_Actor.GetPosition(), EndLine);
+
+			RenderableObjectSystem::GetInstance()->AddDebugLines(NewLine);
 		}
 		else
 		{
+			Vector3 EndLine = i_Actor.GetPosition() + i_Actor.GetVelocity() * 200;
+			CONSOLE_PRINT("EndLIne %f, %f, %f", EndLine.x(), EndLine.y(), EndLine.z());
+			sLine NewLine(i_Actor.GetPosition(), EndLine);
+
+			RenderableObjectSystem::GetInstance()->AddDebugLines(NewLine);
 			i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, Gravity));
 			i_Actor.SetVelocity(i_Actor.GetVelocity().Truncated(MaxVelocity));
 		}
