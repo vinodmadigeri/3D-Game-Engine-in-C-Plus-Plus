@@ -149,7 +149,7 @@ namespace Engine
 	public:
 		SpriteDrawInfo m_spriteDrawInfo;
 
-		Sprite(const char *iTextureName, IDirect3DDevice9 *i_direct3dDevice, IDirect3DVertexBuffer9* i_vertexBuffer, const SpriteDrawInfo i_spriteDrawInfo);
+		Sprite(const char *iTextureName, IDirect3DDevice9 *i_direct3dDevice, IDirect3DVertexBuffer9* i_vertexBuffer);
 
 		~Sprite();
 		inline std::string GetName() const{ return m_name; }
