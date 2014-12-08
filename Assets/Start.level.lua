@@ -6,10 +6,8 @@ return
 	{
 		"Camera",
 		"Light",
-		"Cube",
+		"Player",
 		"Plane",
-		"Torus",
-		"Helix",
 	},
 
 	LightingData = 
@@ -52,7 +50,7 @@ return
 	{
 		{
 			name = "CubeNvidia",
-			class = "Cube",
+			class = "Player",
 			position  = { 3.0, 0.0, -2.0 },
 			velocity  = { 0.0, 0.0, 0.0 },
 			acceleration  = { 0.0, 0.0, 0.0 },
@@ -67,65 +65,8 @@ return
 			{
 				canCollideWith = 
 				{
-					"Torus",
+					--"Torus",
 				}
-			}
-		} ,
-		{
-			name = "CubeAMD",
-			class = "Cube",
-			position  = { -3.0, 0.0, -2.0 },
-			velocity  = { 0.0, 0.0, 0.0 },
-			acceleration  = { 0.0, 0.0, 0.0 },
-			size = {2.0, 2.0, 2.0},
-			rotation = 0.0,
-			renderSettings = 
-			{
-				meshPath = "data/cube.dat",
-				materialPath = "data/AMDMaterial.mat",
-			},
-			collisionSettings = 
-			{
-				
-			}
-		} ,
-		{
-			name = "TorusStripes",
-			class = "Torus",
-			position  = { -3.0, 0.0, 2.0 },
-			velocity  = { 0.0, 0.0, 0.0 },
-			acceleration  = { 0.0, 0.0, 0.0 },
-			size = {2.0, 2.0, 2.0},
-			rotation = 0.0,
-			renderSettings = 
-			{
-				meshPath = "data/torus.dat",
-				materialPath = "data/StripesMaterial.mat",
-			},
-			collisionSettings = 
-			{
-				canCollideWith = 
-				{
-					"Cube",
-				}
-			}
-		} ,
-		{
-			name = "HelixStripes",
-			class = "Helix",
-			position  = { 3.0, 0.0, 2.0 },
-			velocity  = { 0.0, 0.0, 0.0 },
-			acceleration  = { 0.0, 0.0, 0.0 },
-			size = {2.0, 2.0, 2.0},
-			rotation = 0.0,
-			renderSettings = 
-			{
-				meshPath = "data/helix.dat",
-				materialPath = "data/StripesMaterial.mat",
-			},
-			collisionSettings = 
-			{
-				
 			}
 		} ,
 		{

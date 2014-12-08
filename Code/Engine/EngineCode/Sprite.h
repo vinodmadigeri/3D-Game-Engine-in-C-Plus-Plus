@@ -11,6 +11,19 @@
 namespace Engine
 {
 
+	struct sSprite
+	{
+		float left, top;
+		float desiredtexturewidth;
+		unsigned int horizontalSpriteCount;
+		unsigned int verticalSpriteCount;
+		sSprite(float i_left, float i_top, float i_desiredtexturewidth, unsigned int i_horizontalSpriteCount = 1, unsigned int i_verticalSpriteCount = 1) :
+			left(i_left), top(i_top), desiredtexturewidth(i_desiredtexturewidth), horizontalSpriteCount(i_horizontalSpriteCount), verticalSpriteCount(i_verticalSpriteCount)
+		{
+
+		}
+	};
+
 	struct sRectangle
 	{
 		float left, right, top, bottom;
@@ -26,31 +39,32 @@ namespace Engine
 		UINT				m_NumOfVertices;
 		unsigned int		m_VertexStride;
 		Engine::sVertexData	m_pVerticesData[4];
-		unsigned int m_MaxHorizontalCount;
-		unsigned int m_MaxVerticalCount;
+		unsigned int		m_MaxHorizontalCount;
+		unsigned int		m_MaxVerticalCount;
 
 		SpriteDrawInfo(){}
 
-		SpriteDrawInfo(const sRectangle &i_position, const sRectangle &i_texcoords, unsigned int i_MaxHorizontalCount = 1, unsigned int i_MaxVerticalCount = 1) :
+		SpriteDrawInfo(const sSprite &i_spriteDetails, const sRectangle &i_texcoords, const float i_TextureOriginalwidth, const float i_TextureOriginalheight) :
 			m_PrimitiveType(D3DPT_TRIANGLESTRIP), 
 			m_indexOfFirstVertexToRender(0), 
 			m_PrimitiveCount(2), 
 			m_NumOfVertices(4), 
 			m_VertexStride(sizeof(Engine::sVertexData)),
-			m_MaxHorizontalCount(i_MaxHorizontalCount), 
-			m_MaxVerticalCount(i_MaxVerticalCount)
+			m_MaxHorizontalCount(i_spriteDetails.horizontalSpriteCount),
+			m_MaxVerticalCount(i_spriteDetails.verticalSpriteCount)
 		{
 			assert(m_MaxHorizontalCount > 0 && m_MaxVerticalCount > 0);
 
-			float Texcoordleft = i_texcoords.left / i_MaxHorizontalCount;
-			float Texcoordright = i_texcoords.right / i_MaxHorizontalCount;
-			float Texcoordtop = i_texcoords.top / i_MaxVerticalCount;
-			float Texcoordbottom = i_texcoords.bottom / i_MaxVerticalCount;
+			float Texcoordleft = i_texcoords.left / i_spriteDetails.horizontalSpriteCount;
+			float Texcoordright = i_texcoords.right / i_spriteDetails.horizontalSpriteCount;
+			float Texcoordtop = i_texcoords.top / i_spriteDetails.verticalSpriteCount;
+			float Texcoordbottom = i_texcoords.bottom / i_spriteDetails.verticalSpriteCount;
 
-			float left = i_position.left;
-			float right = i_position.right;
-			float top = i_position.top;
-			float bottom = i_position.bottom;
+			float left = i_spriteDetails.left;
+			float right = i_spriteDetails.left + i_spriteDetails.desiredtexturewidth; //Right is left + Desired width
+			float top = i_spriteDetails.top;
+			//Bottom is top - Adjusted height maintaining the original ratio of the texture resolution
+			float bottom = i_spriteDetails.top - i_TextureOriginalheight * i_spriteDetails.desiredtexturewidth / i_TextureOriginalwidth;
 
 			//Adjust the Sprite height and width based on aspect ratio
 			float AspectRatio = static_cast<float>(UserSettings::GetWidth()) / static_cast<float>(UserSettings::GetHeight());
@@ -126,12 +140,12 @@ namespace Engine
 			, std::string* o_errorMessage = NULL
 #endif
 			);
+
 		bool LoadTextureAndSamplerRegister(const char* iTexturePath, const char* iSamplerName, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif
 			);
-
 	public:
 		SpriteDrawInfo m_spriteDrawInfo;
 
@@ -145,17 +159,15 @@ namespace Engine
 			return m_vertexBuffer;
 		}
 
-		bool Load(const char* i_TexturePath, IDirect3DDevice9* i_direct3dDevice
+		bool Load(const char* i_TexturePath, const sRectangle &i_texcoords, const sSprite &i_spriteDetails, IDirect3DDevice9* i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage = NULL
 #endif
 			);
 
-
-		bool DrawFromSpriteSheet(unsigned int i_HorizontalCount = 0, unsigned int i_VerticalCount = 0);
-
-		static bool CreateSpriteInfo(const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect,
-			SpriteDrawInfo &i_spriteDrawIfo, unsigned int i_MaxHorizontalCount = 1, unsigned int i_MaxVerticalCount = 1);
+		bool CreateSpriteDrawInfoandFillVertexBuffer(const sSprite &i_spriteDetails, const sRectangle &i_texcoords);
+		bool FillVertexBuffer();
+		bool FillSpriteSheet(unsigned int i_HorizontalCount = 0, unsigned int i_VerticalCount = 0);
 
 		HRESULT Set(IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED

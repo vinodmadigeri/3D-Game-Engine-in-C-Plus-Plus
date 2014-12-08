@@ -10,7 +10,7 @@ namespace Engine
 	const char * Sprite::s_FragmentShaderPath = "data/fragmentShaderSprite.shd";
 	const char* Sprite::s_SamplerName = "g_color_sampler";
 
-	Sprite::Sprite(const char *iTextureName, IDirect3DDevice9 *i_direct3dDevice, IDirect3DVertexBuffer9* i_vertexBuffer, const SpriteDrawInfo i_spriteDrawInfo) :
+	Sprite::Sprite(const char *iTextureName, IDirect3DDevice9 *i_direct3dDevice, IDirect3DVertexBuffer9* i_vertexBuffer) :
 		m_name(iTextureName),
 		m_direct3dDevice(i_direct3dDevice),
 		m_vertexShader(NULL),
@@ -18,8 +18,7 @@ namespace Engine
 		m_pfragmentShaderConsts(NULL),
 		m_texture(NULL),
 		m_samplerRegister(NULL),
-		m_vertexBuffer(i_vertexBuffer),
-		m_spriteDrawInfo(i_spriteDrawInfo)
+		m_vertexBuffer(i_vertexBuffer)
 	{
 		assert(i_vertexBuffer);
 	}
@@ -57,7 +56,7 @@ namespace Engine
 		}
 	}
 
-	bool Sprite::Load(const char* i_TexturePath, IDirect3DDevice9* i_direct3dDevice
+	bool Sprite::Load(const char* i_TexturePath, const sRectangle &i_texcoords, const sSprite &i_spriteDetails, IDirect3DDevice9* i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
 #endif
@@ -97,7 +96,29 @@ namespace Engine
 			return false;
 		}
 
+		if (!CreateSpriteDrawInfoandFillVertexBuffer(i_spriteDetails, i_texcoords))
+		{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+
+#endif
+			return false;
+		}
+
 		return true;
+	}
+
+	bool Sprite::CreateSpriteDrawInfoandFillVertexBuffer(const sSprite &i_spriteDetails, const sRectangle &i_texcoords)
+	{
+		//Once we have texture we can go ahead and create the SpriteDrawInfo
+		D3DSURFACE_DESC surfaceDescription;
+		assert(m_texture);
+		HRESULT result = m_texture->GetLevelDesc(0, &surfaceDescription);
+		float TextureOriginalWidth = static_cast<float>(surfaceDescription.Width) / i_spriteDetails.horizontalSpriteCount;
+		float TextureOriginalHeight = static_cast<float>(surfaceDescription.Height) / i_spriteDetails.verticalSpriteCount;
+
+		m_spriteDrawInfo = SpriteDrawInfo(i_spriteDetails, i_texcoords, TextureOriginalWidth, TextureOriginalHeight);
+
+		return FillVertexBuffer();
 	}
 
 	bool Sprite::LoadFragmentShader(const char* i_FragmentShaderpath, IDirect3DDevice9 * i_direct3dDevice
@@ -338,9 +359,49 @@ namespace Engine
 		return result;
 	}
 
-	bool Sprite::DrawFromSpriteSheet(unsigned int i_HorizontalCount, unsigned int i_VerticalCount)
+	bool Sprite::FillVertexBuffer()
 	{
-		assert((i_HorizontalCount >= 0) && (i_VerticalCount >= 0) && (i_HorizontalCount < m_spriteDrawInfo.m_MaxHorizontalCount)
+		assert(m_vertexBuffer);
+		
+		HRESULT result;
+		// Fill the vertex buffer with the Mesh's vertices
+		{
+			// Before the vertex buffer can be changed it must be "locked"
+			sVertexData* vertexData;
+			{
+				const unsigned int lockEntireBuffer = 0;
+				const DWORD useDefaultLockingBehavior = 0;
+				result = m_vertexBuffer->Lock(lockEntireBuffer, lockEntireBuffer,
+					reinterpret_cast<void**>(&vertexData), useDefaultLockingBehavior);
+				if (FAILED(result))
+				{
+					MessageBox(NULL, "DirectX failed to lock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+					return false;
+				}
+			}
+
+			// Fill the buffer
+			{
+				memcpy(vertexData, m_spriteDrawInfo.m_pVerticesData, m_spriteDrawInfo.m_VertexStride * m_spriteDrawInfo.m_NumOfVertices);
+			}
+
+			// The buffer must be "unlocked" before it can be used
+			{
+				result = m_vertexBuffer->Unlock();
+				if (FAILED(result))
+				{
+					MessageBox(NULL, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool Sprite::FillSpriteSheet(unsigned int i_HorizontalCount, unsigned int i_VerticalCount)
+	{
+		assert(m_vertexBuffer && (i_HorizontalCount >= 0) && (i_VerticalCount >= 0) && (i_HorizontalCount < m_spriteDrawInfo.m_MaxHorizontalCount)
 			&& (i_VerticalCount < m_spriteDrawInfo.m_MaxVerticalCount));
 
 		// Fill the vertex buffer with the Mesh's vertices
@@ -385,27 +446,6 @@ namespace Engine
 				}
 			}
 		}
-
-		return true;
-	}
-
-	bool Sprite::CreateSpriteInfo(const sRectangle *i_positionRect, const sRectangle *i_texcoordsRect,
-		SpriteDrawInfo &i_spriteDrawIfo, unsigned int i_MaxHorizontalCount, unsigned int i_MaxVerticalCount)
-	{
-		sRectangle positionRect(-1.0f, 0.0f, 1.0f, 0.0f);
-		sRectangle texcoordsRect(0.0f, 1.0f, 0.0f, 1.0f);
-
-		if (i_positionRect)
-		{
-			positionRect = *i_positionRect;
-		}
-
-		if (i_texcoordsRect)
-		{
-			texcoordsRect = *i_texcoordsRect;
-		}
-
-		i_spriteDrawIfo = SpriteDrawInfo(positionRect, texcoordsRect, i_MaxHorizontalCount, i_MaxVerticalCount);
 
 		return true;
 	}

@@ -103,33 +103,35 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 		return false;
 	}
 
-	std::vector< SharedPointer<Actor>> CubeActorsList = WorldSystem::GetInstance()->FindActorsByType("Cube");
+	std::vector< SharedPointer<Actor>> PlayerActorsList = WorldSystem::GetInstance()->FindActorsByType("Player");
 	
 	Player::CreateControllerAndCollisionHandler();
 
-	for (unsigned int i = 0; i < CubeActorsList.size(); i++)
+	for (unsigned int i = 0; i < PlayerActorsList.size(); i++)
 	{
-		CubeActorsList.at(i)->SetController(Player::GetController());
-		CubeActorsList.at(i)->SetCollisionHandler(Player::GetCollisionHandler());
+		PlayerActorsList.at(i)->SetController(Player::GetController());
+		PlayerActorsList.at(i)->SetCollisionHandler(Player::GetCollisionHandler());
 	}
 
 	Camera::CreateController();
-	Camera::GetController()->SetOtherActorReference(CubeActorsList[0]);
+	Camera::GetController()->SetOtherActorReference(PlayerActorsList[0]);
 	CameraSystem::GetInstance()->m_WorldObject->SetController(Camera::GetController());
 	
 	Light::CreateController();
 	LightingSystem::GetInstance()->m_WorldObject->SetController(Light::GetController());
 
-	const Engine::sRectangle Spriteposition = Engine::sRectangle(-1.0f, 0.0f, 1.0f, 0.0f);
 	const Engine::sRectangle Spritetextcoord = Engine::sRectangle(0.0f, 1.0f, 0.0f, 1.0f);
+	float left = 0.55f;
+	float top = 1.0f;
+	float width = 0.4f;
+	Engine::RenderableObjectSystem::GetInstance()->CreateSprite("data/score.dds", Spritetextcoord, left, top, width);
 
-	Engine::RenderableObjectSystem::GetInstance()->CreateSprite("data/score.dds", &Spriteposition, &Spritetextcoord);
-
-	const Engine::sRectangle position = Engine::sRectangle(0.5f, 1.0f, 1.0f, 0.5f);
-	const Engine::sRectangle textcoord = Engine::sRectangle(0.0f, 1.0f, 0.0f, 1.0f);
-
+	left = 0.98f;
+	top = 1.0f;
+	width = 0.08f;
 	const unsigned int MaxHorizontalCount = 10;
-	Engine::RenderableObjectSystem::GetInstance()->CreateSprite("data/numbers.dds", &position, &textcoord, MaxHorizontalCount);
+	const Engine::sRectangle textcoord = Engine::sRectangle(0.0f, 1.0f, 0.0f, 1.0f);
+	Engine::RenderableObjectSystem::GetInstance()->CreateSprite("data/numbers.dds", textcoord, left, top, width, MaxHorizontalCount);
 
 	RenderableObjectSystem::GetInstance()->CreateDebugLines("ActorDebugLine", 30);
 
@@ -149,8 +151,6 @@ int MainGame::Run(void)
 	
 	using namespace Engine;
 	std::vector< SharedPointer<Actor>> CubeActorsList = WorldSystem::GetInstance()->FindActorsByType("Cube");
-	std::vector< SharedPointer<Actor>> TorusActorsList = WorldSystem::GetInstance()->FindActorsByType("Torus");
-	std::vector< SharedPointer<Actor>> HelixActorsList = WorldSystem::GetInstance()->FindActorsByType("Helix");
 
 	//Game Loop
 	if (mInitilized)
@@ -166,15 +166,6 @@ int MainGame::Run(void)
 			Engine::CameraSystem::GetInstance()->Update(DeltaTime);
 			Engine::LightingSystem::GetInstance()->Update(DeltaTime);
 			
-			sLine MovingNewLine(CubeActorsList[0]->GetPosition(), CubeActorsList[1]->GetPosition());
-			RenderableObjectSystem::GetInstance()->AddDebugLines(MovingNewLine);
-
-			sLine OneEdgeMovingLine(CubeActorsList[0]->GetPosition(), TorusActorsList[0]->GetPosition());
-			RenderableObjectSystem::GetInstance()->AddDebugLines(OneEdgeMovingLine);
-
-			OneEdgeMovingLine = sLine(CubeActorsList[1]->GetPosition(), HelixActorsList[0]->GetPosition());
-			RenderableObjectSystem::GetInstance()->AddDebugLines(OneEdgeMovingLine);
-
 			Engine::RenderableObjectSystem::GetInstance()->Render();
 			Win32Management::WindowsManager::GetInstance()->UpdateMainWindow(exitCode, QuitRequested);
 			
@@ -186,10 +177,9 @@ int MainGame::Run(void)
 			if (TimePast > 2000)
 			{
 				PreviousTimeStamp = GameTimer.GetCurrentTimeStamp();
-				NumbersSprite->GetSprite()->DrawFromSpriteSheet(SpriteCount);
+				NumbersSprite->GetSprite()->FillSpriteSheet(SpriteCount);
 				SpriteCount = (SpriteCount + 1) % MaxHorizontalCount;
 			}
-
 		} while (QuitRequested == false);
 	}
 

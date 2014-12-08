@@ -821,8 +821,7 @@ namespace Engine
 		return true;
 	}
 
-	SharedPointer<Sprite> GraphicsSystem::CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect, 
-		const sRectangle *i_texcoordsRect, unsigned int i_MaxHorizontalCount, unsigned int i_MaxVerticalCount)
+	SharedPointer<Sprite> GraphicsSystem::CreateSprite(const char* i_TexturePath, const sRectangle &i_texcoordsRect, const sSprite &i_spriteDetails)
 	{
 		std::string errorMessage;
 		std::map<unsigned int, SharedPointer<Sprite>>::iterator it;
@@ -835,16 +834,9 @@ namespace Engine
 			}
 			else
 			{
-				SpriteDrawInfo io_SpriteDrawInfo;
-
-				if (!Sprite::CreateSpriteInfo(i_positionRect, i_texcoordsRect, io_SpriteDrawInfo, i_MaxHorizontalCount, i_MaxVerticalCount))
-				{
-					goto OnError;
-				}
-
 				IDirect3DVertexBuffer9* vertexBuffer = NULL;
 				{
-					if (!CreateVertexBufferForSprite(&vertexBuffer, io_SpriteDrawInfo))
+					if (!CreateVertexBufferForSprite(&vertexBuffer))
 					{
 						errorMessage = "DirectX Failed to create Vertex Buffer";
 						goto OnError;
@@ -853,7 +845,7 @@ namespace Engine
 
 				SharedPointer<Sprite> pSprite = NULL;
 				{
-					pSprite = new Sprite(i_TexturePath, m_direct3dDevice, vertexBuffer, io_SpriteDrawInfo);
+					pSprite = new Sprite(i_TexturePath, m_direct3dDevice, vertexBuffer);
 
 					if (pSprite == NULL)
 					{
@@ -861,7 +853,7 @@ namespace Engine
 						goto OnError;
 					}
 
-					bool result = pSprite->Load(i_TexturePath, m_direct3dDevice
+					bool result = pSprite->Load(i_TexturePath, i_texcoordsRect, i_spriteDetails, m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 						, &errorMessage
 #endif
@@ -892,7 +884,7 @@ namespace Engine
 	}
 
 
-	bool GraphicsSystem::CreateVertexBufferForSprite(IDirect3DVertexBuffer9** i_ppvertexBuffer, const SpriteDrawInfo &i_SpriteDrawInfo)
+	bool GraphicsSystem::CreateVertexBufferForSprite(IDirect3DVertexBuffer9** i_ppvertexBuffer)
 	{
 		DWORD usage = 0;
 		// The usage tells Direct3D how this vertex buffer will be used
@@ -920,8 +912,10 @@ namespace Engine
 		// Create a vertex buffer
 		{
 			// We are drawing a mesh
-			const unsigned int vertexCount = i_SpriteDrawInfo.m_NumOfVertices;
-			const unsigned int bufferSize = vertexCount * i_SpriteDrawInfo.m_VertexStride;
+			unsigned int numOfVerticesForSprite = 4;
+
+			const unsigned int vertexCount = numOfVerticesForSprite;
+			const unsigned int bufferSize = vertexCount * sizeof(sVertexData);
 
 			// We will define our own vertex format
 			const DWORD useSeparateVertexDeclaration = 0;
@@ -935,38 +929,6 @@ namespace Engine
 			{
 				MessageBox(m_mainWindow, "DirectX failed to create a vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
 				return false;
-			}
-		}
-
-		// Fill the vertex buffer with the Mesh's vertices
-		{
-			// Before the vertex buffer can be changed it must be "locked"
-			sVertexData* vertexData;
-			{
-				const unsigned int lockEntireBuffer = 0;
-				const DWORD useDefaultLockingBehavior = 0;
-				result = (*i_ppvertexBuffer)->Lock(lockEntireBuffer, lockEntireBuffer,
-					reinterpret_cast<void**>(&vertexData), useDefaultLockingBehavior);
-				if (FAILED(result))
-				{
-					MessageBox(m_mainWindow, "DirectX failed to lock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
-					return false;
-				}
-			}
-
-			// Fill the buffer
-			{
-				memcpy(vertexData, i_SpriteDrawInfo.m_pVerticesData, i_SpriteDrawInfo.m_VertexStride * i_SpriteDrawInfo.m_NumOfVertices);
-			}
-
-			// The buffer must be "unlocked" before it can be used
-			{
-				result = (*i_ppvertexBuffer)->Unlock();
-				if (FAILED(result))
-				{
-					MessageBox(m_mainWindow, "DirectX failed to unlock the vertex buffer", "No Vertex Buffer", MB_OK | MB_ICONERROR);
-					return false;
-				}
 			}
 		}
 

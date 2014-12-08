@@ -69,9 +69,9 @@ namespace MayaExporter
 	MStatus ProcessAllMeshes( std::vector<const sVertex>& o_vertexBuffer, std::vector<unsigned int>& o_indexBuffer );
 	MStatus ProcessSelectedMeshes( std::vector<const sVertex>& o_vertexBuffer, std::vector<unsigned int>& o_indexBuffer );
 	MStatus ProcessSingleMesh( const MFnMesh& i_mesh,
-		std::vector<const sVertex>& o_vertexBuffer, std::vector<unsigned int>& o_indexBuffer );
+		std::vector<const sVertex>& io_vertexBuffer, std::vector<unsigned int>& io_indexBuffer );
 	MStatus FillVertexAndIndexBuffer( const MFnMesh& i_mesh,
-		std::vector<const sVertex>& o_vertexBuffer, std::vector<unsigned int>& o_indexBuffer );
+		std::vector<const sVertex>& io_vertexBuffer, std::vector<unsigned int>& io_indexBuffer );
 	MStatus WriteMeshToFile( const MString& i_fileName, std::vector<const sVertex>& i_vertexBuffer, std::vector<unsigned int>& i_indexBuffer );
 }
 
@@ -131,6 +131,8 @@ namespace MayaExporter
 
 	MStatus ProcessAllMeshes( std::vector<const sVertex>& o_vertexBuffer, std::vector<unsigned int>& o_indexBuffer )
 	{
+		o_vertexBuffer.clear();
+		o_indexBuffer.clear();
 		for ( MItDag i( MItDag::kDepthFirst, MFn::kMesh ); !i.isDone(); i.next() )
 		{
 			MFnMesh mesh( i.item() );
@@ -150,6 +152,8 @@ namespace MayaExporter
 		MStatus status = MGlobal::getActiveSelectionList( selectionList );
 		if ( status )
 		{
+			o_vertexBuffer.clear();
+			o_indexBuffer.clear();
 			for ( MItSelectionList i( selectionList, MFn::kMesh ); !i.isDone(); i.next() )
 			{
 				MDagPath dagPath;
@@ -171,18 +175,18 @@ namespace MayaExporter
 	}
 
 	MStatus ProcessSingleMesh( const MFnMesh& i_mesh,
-		std::vector<const sVertex>& o_vertexBuffer, std::vector<unsigned int>& o_indexBuffer )
+		std::vector<const sVertex>& io_vertexBuffer, std::vector<unsigned int>& io_indexBuffer )
 	{
 		if ( i_mesh.isIntermediateObject() )
 		{
 			return MStatus::kSuccess;
 		}
 
-		return FillVertexAndIndexBuffer( i_mesh, o_vertexBuffer, o_indexBuffer );
+		return FillVertexAndIndexBuffer( i_mesh, io_vertexBuffer, io_indexBuffer );
 	}
 
 	MStatus FillVertexAndIndexBuffer( const MFnMesh& i_mesh,
-		std::vector<const sVertex>& o_vertexBuffer, std::vector<unsigned int>& o_indexBuffer )
+		std::vector<const sVertex>& io_vertexBuffer, std::vector<unsigned int>& io_indexBuffer  )
 	{
 		MStatus status;
 
@@ -357,21 +361,23 @@ namespace MayaExporter
 		}
 
 		// Convert the triangle information to vertex and index buffers
-		o_vertexBuffer.clear();
-		o_indexBuffer.clear();
-		o_indexBuffer.resize( triangles.size() );
 		{
-			std::map<const std::string, unsigned int> keyToIndexMap;
-			for ( std::map<const std::string, const sVertex>::iterator i = uniqueVertices.begin(); i != uniqueVertices.end(); ++i )
+			const size_t previousTriangleCount = io_indexBuffer.size();
+			const size_t newTriangleCount = previousTriangleCount + triangles.size();
+			io_indexBuffer.resize( newTriangleCount );
 			{
-				keyToIndexMap.insert( std::make_pair( i->first, static_cast<unsigned int>( o_vertexBuffer.size() ) ) );
-				o_vertexBuffer.push_back( i->second );
-			}
-			for ( size_t i = 0; i < triangles.size(); ++i )
-			{
-				const std::string& key = triangles[i];
-				unsigned int index = keyToIndexMap.find( key )->second;
-				o_indexBuffer[i] = index;
+				std::map<const std::string, unsigned int> keyToIndexMap;
+				for ( std::map<const std::string, const sVertex>::iterator i = uniqueVertices.begin(); i != uniqueVertices.end(); ++i )
+				{
+					keyToIndexMap.insert( std::make_pair( i->first, static_cast<unsigned int>( io_vertexBuffer.size() ) ) );
+					io_vertexBuffer.push_back( i->second );
+				}
+				for ( size_t i = 0; i < triangles.size(); ++i )
+				{
+					const std::string& key = triangles[i];
+					unsigned int index = keyToIndexMap.find( key )->second;
+					io_indexBuffer[previousTriangleCount + i] = index;
+				}
 			}
 		}
 

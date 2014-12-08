@@ -26,6 +26,7 @@ namespace Engine
 	class Actor;
 	class Sprite;
 	struct sRectangle;
+	struct sSprite;
 	struct SpriteDrawInfo;
 
 	class GraphicsSystem
@@ -63,7 +64,7 @@ namespace Engine
 
 		bool CreateVertexBuffer(DWORD i_usage, IDirect3DVertexBuffer9** i_ppvertexBuffer, const DrawInfo &i_DrawInfo);
 		bool CreateIndexBuffer(DWORD i_usage, IDirect3DIndexBuffer9** i_ppindexBuffer, const DrawInfo &i_DrawInfo);
-		bool CreateVertexBufferForSprite(IDirect3DVertexBuffer9** i_ppvertexBuffer, const SpriteDrawInfo &i_SpriteDrawInfo);
+		bool CreateVertexBufferForSprite(IDirect3DVertexBuffer9** i_ppvertexBuffer);
 		
 		bool Initialize();
 		bool ShutDown();
@@ -85,8 +86,7 @@ namespace Engine
 		bool CreateDebugLineRenderer(const char *iName, unsigned int iMaxLines);
 		SharedPointer<Mesh> CreateMesh(const char* i_MeshPath);
 		SharedPointer<Material> CreateMaterial(const char *i_MaterialPath);
-		SharedPointer<Sprite> CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect,
-			const sRectangle *i_texcoordsRect, unsigned int i_MaxHorizontalCount = 1, unsigned int i_MaxVerticalCount = 1);
+		SharedPointer<Sprite> CreateSprite(const char* i_TexturePath, const sRectangle &i_texcoordsRect, const sSprite &i_spriteDetails);
 
 		static void Destroy();
 	};

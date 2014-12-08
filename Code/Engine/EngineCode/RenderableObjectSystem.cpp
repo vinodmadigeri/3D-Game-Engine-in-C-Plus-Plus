@@ -158,15 +158,17 @@ namespace Engine
 		m3DRenderableObjects.push_back(new Renderable3DObject(i_Object, NewMaterial, NewMesh));
 	}
 
-	void RenderableObjectSystem::CreateSprite(const char* i_TexturePath, const sRectangle *i_positionRect,
-		const sRectangle *i_texcoordsRect, unsigned int i_MaxHorizontalCount, unsigned int i_MaxVerticalCount)
+	void RenderableObjectSystem::CreateSprite(const char* i_TexturePath, const sRectangle &i_texcoordsRect, const float left, const float top, const float width,
+											unsigned int i_horizontalSpriteCount, unsigned int i_verticalSpriteCount)
 	{
-		assert(i_TexturePath && i_positionRect && i_texcoordsRect);
+		assert(i_TexturePath);
 
 		SharedPointer<Sprite> NewSprite;
 		{
+			sSprite spriteDetails(left, top, width, i_horizontalSpriteCount, i_verticalSpriteCount);
+
 			//create new mesh and insert into mesh cache eventually
-			NewSprite = GraphicsSystem::GetInstance()->CreateSprite(i_TexturePath, i_positionRect, i_texcoordsRect, i_MaxHorizontalCount, i_MaxVerticalCount);
+			NewSprite = GraphicsSystem::GetInstance()->CreateSprite(i_TexturePath, i_texcoordsRect, spriteDetails);
 		}
 
 		if (NewSprite == NULL)
