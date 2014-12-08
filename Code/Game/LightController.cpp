@@ -86,8 +86,35 @@ namespace Light
 		}
 
 		float singleAccelerationvalue = 0.001f;
-		
+
 		bool KeyPressed = false;
+
+#if 1
+		{
+			static bool Toggle = true;
+			Vector3 Direction = Engine::LightingSystem::GetInstance()->GetLightDirection();
+
+			if (Direction.x() < -0.9f)
+				Toggle = false;
+
+			if (Direction.x() > 0.9f)
+				Toggle = true;
+
+			if (Toggle)
+			{
+				KeyPressed = true;
+				CharID = 'H';
+			}
+			else if (!Toggle)
+			{
+
+				KeyPressed = true;
+				CharID = 'K';
+			}
+
+			singleAccelerationvalue = singleAccelerationvalue / 2.0f;
+		}
+#endif
 
 		switch (CharID)
 		{

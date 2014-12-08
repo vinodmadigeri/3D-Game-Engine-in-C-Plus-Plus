@@ -89,7 +89,7 @@ namespace Player
 			i_Actor.SetVelocity(i_Actor.GetVelocity().Truncated(MaxVelocity));
 			
 			Vector3 EndLine = i_Actor.GetPosition() + i_Actor.GetVelocity() * 200;
-			CONSOLE_PRINT("EndLIne %f, %f, %f", EndLine.x(), EndLine.y(), EndLine.z());
+			//CONSOLE_PRINT("EndLIne %f, %f, %f", EndLine.x(), EndLine.y(), EndLine.z());
 			sLine NewLine(i_Actor.GetPosition(), EndLine);
 
 			RenderableObjectSystem::GetInstance()->AddDebugLines(NewLine);
@@ -97,7 +97,7 @@ namespace Player
 		else
 		{
 			Vector3 EndLine = i_Actor.GetPosition() + i_Actor.GetVelocity() * 200;
-			CONSOLE_PRINT("EndLIne %f, %f, %f", EndLine.x(), EndLine.y(), EndLine.z());
+			//CONSOLE_PRINT("EndLIne %f, %f, %f", EndLine.x(), EndLine.y(), EndLine.z());
 			sLine NewLine(i_Actor.GetPosition(), EndLine);
 
 			RenderableObjectSystem::GetInstance()->AddDebugLines(NewLine);
