@@ -7,6 +7,7 @@
 #include "RandomNumber.h"
 #include "WorldSystem.h"
 #include "UserInput.h"
+#include "HighResTime.h"
 
 using namespace std;
 using namespace Engine;
@@ -88,17 +89,34 @@ namespace Light
 		float singleAccelerationvalue = 0.001f;
 
 		bool KeyPressed = false;
-
+		Engine::HighResTimer NightTimer;
+		NightTimer.Initilize();
+		static LONGLONG StartTick = 0;
+		static LONGLONG StartTwoTick = 0;
 #if 1
 		{
 			static bool Toggle = true;
 			Vector3 Direction = Engine::LightingSystem::GetInstance()->GetLightDirection();
 
 			if (Direction.x() < -0.9f)
-				Toggle = false;
+			{
+				if (NightTimer.GetTimeDifferenceinMS(StartTick) > 1000.0)
+					Toggle = false;
+			}
+			else if (Toggle)
+			{
+				StartTick = NightTimer.GetCurrentTimeStamp();
+			}
 
 			if (Direction.x() > 0.9f)
-				Toggle = true;
+			{
+				if (NightTimer.GetTimeDifferenceinMS(StartTick) > 1000.0)
+					Toggle = true;
+			}
+			else if (!Toggle)
+			{
+				StartTick = NightTimer.GetCurrentTimeStamp();
+			}
 
 			if (Toggle)
 			{
@@ -112,7 +130,7 @@ namespace Light
 				CharID = 'K';
 			}
 
-			singleAccelerationvalue = singleAccelerationvalue / 2.0f;
+			singleAccelerationvalue = singleAccelerationvalue / 4.0f;
 		}
 #endif
 
