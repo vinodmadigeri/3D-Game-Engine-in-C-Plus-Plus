@@ -48,7 +48,8 @@ namespace Engine
 		void Update(float i_deltaTime);
 		const D3DXMATRIXA16 GetWorldToView() const;
 		const D3DXMATRIXA16 GetViewToScreen() const;
-
+		void SetLookAt(const D3DXVECTOR3 &i_LookAt);
+		D3DXVECTOR3 GetLookAt() const;
 		static bool CreateInstance(SharedPointer<Actor> &iNewActor, 
 			const unsigned int i_windowWidth,
 			const unsigned int i_windowHeight,

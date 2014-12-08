@@ -26,9 +26,9 @@ return
 		acceleration  = { 0.0, 0.0, 0.0 },
 		size = {2.0, 2.0, 2.0},
 		rotation = 0.0,
-		EyeLocation = {0.0, 0.0, -11.0},
-		LookAtLocation = {0.0, 0.0, 1.0},
-		Up = {0.0, 1.0, 0.0},
+		EyeLocation = {0.0, 11.0, 0.0},
+		LookAtLocation = {0.0, -1.0, 0.0},
+		Up = {0.0, 0.0, 1.0},
 		FieldOfView = 60.0, --degrees
 		NearPlane = 0.1,
 		FarPlane = 100.0,

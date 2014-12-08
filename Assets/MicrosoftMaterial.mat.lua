@@ -5,21 +5,21 @@ return
 	Constants =
 	{
 		g_color_perMaterial = { 1.0, 1.0, 1.0 },
-		g_uv_speed = {0.0001, 0.0},
+		--g_uv_speed = {0.0, 0.0},
 	},
 	
 	VertexShader =
 	{
-		Path = "data/vertexShaderScroll.shd",
+		Path = "data/vertexShaderBumpmap.shd",
 		ModelToWorld = "g_transform_modelToWorld",
 		WorldToView = "g_transform_worldToView",
 		ViewToScreen = "g_transform_viewToScreen",
-		TimeElapsed = "g_totalSecondsElapsed",
+		--TimeElapsed = "g_totalSecondsElapsed",
 	},
 
 	FragmentShader =
 	{
-		Path = "data/fragmentShader.shd",
+		Path = "data/fragmentShaderBumpmap.shd",
 		AmbientLight = "g_lighting_ambient",
 		DiffuseLight = "g_lighting",
 		LightDirection = "g_light_direction",
@@ -29,5 +29,11 @@ return
 	{
 		Path = "data/microsoftWindows.dds",
 		Sampler = "g_color_sampler"
+	},
+	
+	NormalTexture =
+	{
+		Path = "data/bricknormals.dds",
+		Sampler = "g_normal_sampler"
 	},
 }

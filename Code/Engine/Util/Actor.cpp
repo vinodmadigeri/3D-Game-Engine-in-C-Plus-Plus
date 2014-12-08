@@ -129,6 +129,28 @@ namespace Engine
 		mAcceleration = i_Acceleration;
 	}
 
+	void Actor::SetPosition(const float i_x, const float i_y, const float i_z)
+	{
+		mPosition.x(i_x);
+		mPosition.y(i_y);
+		mPosition.z(i_z);
+	}
+
+	void Actor::SetVelocity(const float i_x, const float i_y, const float i_z)
+	{
+		mVelocity.x(i_x);
+		mVelocity.y(i_y);
+		mVelocity.z(i_z);
+	}
+
+	void Actor::SetAcceleration(const float i_x, const float i_y, const float i_z)
+	{
+		mAcceleration.x(i_x);
+		mAcceleration.y(i_y);
+		mAcceleration.z(i_z);
+	}
+
+
 	void Actor::SetRotation(const float i_Rotation)
 	{
 		mRotation = i_Rotation;

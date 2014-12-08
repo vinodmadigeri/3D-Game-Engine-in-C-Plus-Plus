@@ -3,6 +3,7 @@
 
 #include "Game.h"
 #include "CameraController.h"
+#include "CameraSystem.h"
 #include "RandomNumber.h"
 #include "WorldSystem.h"
 #include "UserInput.h"
@@ -25,7 +26,8 @@ namespace Camera
 	Author       : Vinod VM
 	Modification : Created function
 	******************************************************************************/
-	CameraController::CameraController()
+	CameraController::CameraController(unsigned int i_UpdateFrequency):
+		IActorControllerWithReference(i_UpdateFrequency)
 	{
 
 	}
@@ -61,7 +63,33 @@ namespace Camera
 	******************************************************************************/
 	void CameraController::UpdateActor(Actor &i_Actor, const float i_DeltaTime)
 	{
+		if (++m_TicksSinceUpdate < m_UpdateFrequency)
+			return;
 
+		m_TicksSinceUpdate = 0;
+
+
+		if (UserInput::GetInstance()->IsKeyPressed('C'))
+		{
+			CameraShake(i_Actor, i_DeltaTime, 0.01f);
+		}
+		else
+		{
+			if (m_pOtherActor != NULL && !m_pOtherActor->IsMarkedForDeath())
+			{
+				float OtherActorsXLocation = m_pOtherActor->GetPosition().x();
+				float OtherActorsZLocation = m_pOtherActor->GetPosition().z();
+				// I'm looking at someone
+				if (Engine::CameraSystem::GetInstance())
+				{
+					const D3DXVECTOR3 CurrentLookAt = Engine::CameraSystem::GetInstance()->GetLookAt();
+					Engine::CameraSystem::GetInstance()->SetLookAt(D3DXVECTOR3(OtherActorsXLocation, CurrentLookAt.y, OtherActorsZLocation));
+					i_Actor.SetPosition(OtherActorsXLocation, i_Actor.GetPosition().y(), OtherActorsZLocation);
+				}
+			}
+		}
+
+#if 0
 		Vector3 Friction = Vector3(0.0f, 0.0f, 0.0f);
 
 		i_Actor.SetFriction(Friction);
@@ -151,7 +179,7 @@ namespace Camera
 				i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
 			}
 		}
-
+#endif
 		return;
 	}
 
@@ -188,6 +216,31 @@ namespace Camera
 		assert(mpCameraController);
 
 		return mpCameraController;
+	}
+
+	/******************************************************************************
+	Function     : CameraShake
+	Description  :
+	Input        :
+	Output       :
+	Return Value :
+
+	History      :
+	Author       : Vinod VM
+	Modification : Created function
+	******************************************************************************/
+	void Camera::CameraShake(Engine::Actor &i_Actor, const float i_DeltaTime, float iShakeAmount)
+	{
+		using namespace Engine;
+
+		float xRandomUnit = Engine::GenerateRandomNumber(-1.0f, 1.0f) * iShakeAmount * i_DeltaTime;
+		float zRandomUnit = Engine::GenerateRandomNumber(-1.0f, 1.0f) * iShakeAmount * i_DeltaTime;
+
+		float XCurrentPosition = i_Actor.GetPosition().x();
+		float ZCurrentPosition = i_Actor.GetPosition().z();
+		float YCurrrentPosition = i_Actor.GetPosition().y();
+		i_Actor.SetPosition(XCurrentPosition + xRandomUnit, YCurrrentPosition, ZCurrentPosition + zRandomUnit);
+
 	}
 
 	/******************************************************************************

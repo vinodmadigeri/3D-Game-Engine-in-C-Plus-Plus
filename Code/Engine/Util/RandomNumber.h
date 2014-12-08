@@ -19,7 +19,7 @@ namespace Engine
 	 Author       : Vinod VM
 	 Modification : Created function
 	******************************************************************************/
-	inline float GenerateRandomNumber(const int iMinRange, const int iMaxRange);
+	inline float GenerateRandomNumber(const float iMinRange, const float iMaxRange);
 }
 
 #include "RandomNumber.inl"

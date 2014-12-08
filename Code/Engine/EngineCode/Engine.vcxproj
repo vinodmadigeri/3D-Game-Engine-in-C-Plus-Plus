@@ -49,8 +49,10 @@
     <ClCompile Include="WorldSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Util\RandomNumber.h" />
     <ClInclude Include="..\Util\WindowsError.h" />
     <ClInclude Include="AABB.h" />
+    <ClInclude Include="ActorReference.h" />
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="CollisionHandler.h" />
     <ClInclude Include="CollisionSystem.h" />
@@ -82,7 +84,6 @@
     <ClInclude Include="..\Util\MathUtil.h" />
     <ClInclude Include="..\Util\Matrix4x4.h" />
     <ClInclude Include="..\Util\MemoryPool.h" />
-    <ClInclude Include="..\Util\RandomNumber.h" />
     <ClInclude Include="..\Util\SharedPointer.h" />
     <ClInclude Include="..\Util\Vector3.h" />
     <ClInclude Include="..\Util\Vector4.h" />

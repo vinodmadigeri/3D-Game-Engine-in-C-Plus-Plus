@@ -162,9 +162,6 @@
     <ClInclude Include="..\Util\MathUtil.h">
       <Filter>Util\Math</Filter>
     </ClInclude>
-    <ClInclude Include="..\Util\RandomNumber.h">
-      <Filter>Util\Math</Filter>
-    </ClInclude>
     <ClInclude Include="..\Util\HashedString.h">
       <Filter>Util</Filter>
     </ClInclude>
@@ -215,6 +212,12 @@
     </ClInclude>
     <ClInclude Include="MessagingSystem.h">
       <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="ActorReference.h">
+      <Filter>Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\RandomNumber.h">
+      <Filter>Util\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

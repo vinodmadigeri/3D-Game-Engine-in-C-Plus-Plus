@@ -85,6 +85,10 @@ namespace Engine
 		void SetPosition(const Vector3 & i_Position);
 		void SetVelocity(const Vector3 & i_Velocity);
 		void SetAcceleration(const Vector3 & i_Acceleration);
+		void SetPosition(const float i_x, const float i_y, const float i_z);
+		void SetVelocity(const float i_x, const float i_y, const float i_z);
+		void SetAcceleration(const float i_x, const float i_y, const float i_z);
+
 		void SetRotation(const float i_Rotation);
 		void SetProjectedPosition(const Vector3 & i_Velocity);
 		void SetProjectedVelocity(const Vector3 & i_Velocity);

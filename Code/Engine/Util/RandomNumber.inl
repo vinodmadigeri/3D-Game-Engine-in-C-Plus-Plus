@@ -1,9 +1,9 @@
 namespace Engine
 {
-	inline float GenerateRandomNumber(const int iMinRange, const int iMaxRange)
+	inline float GenerateRandomNumber(const float iMinRange, const float iMaxRange)
 	{
-		int iRandomNumber;
- 		iRandomNumber = ((rand() % (iMaxRange - iMinRange + 1) ) + iMinRange);
-		return static_cast<float> (iRandomNumber);
+		float iRandomNumber;
+ 		iRandomNumber = ((rand() % static_cast<int>(iMaxRange - iMinRange + 1) ) + iMinRange);
+		return (iRandomNumber);
 	}
 }

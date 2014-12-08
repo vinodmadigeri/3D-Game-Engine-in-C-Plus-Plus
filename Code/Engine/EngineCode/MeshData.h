@@ -23,9 +23,17 @@ namespace Engine
 	// The vertex information that is sent to the display adaptor must match what the vertex shader expects
 	typedef struct _sVertexData
 	{
+		// Position
 		float x, y, z;
+		// Texture coordinates
 		float U, V;
+		// Normal
 		float nx, ny, nz;
+		// Tangent
+		float tx, ty, tz;
+		// Bitangent
+		float btx, bty, btz;
+		// Color
 		D3DCOLOR color; // D3DCOLOR = 4 bytes, or 8 bits [0,255] per RGBA channel
 	}sVertexData;
 

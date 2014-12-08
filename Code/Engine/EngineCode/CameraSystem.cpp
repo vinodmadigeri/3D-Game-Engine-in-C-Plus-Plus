@@ -83,7 +83,7 @@ namespace Engine
 		//D3DXMatrixInverse( &transform_worldToView, NULL, &transform_viewToWorld );
 		// But it can be calculated more cheaply since we know a camera can only have
 		// rotation and translation:
-#if 1
+#if 0
 		s_worldToView = D3DXMATRIX(
 			transform_viewToWorld._11, transform_viewToWorld._21, transform_viewToWorld._31, 0.0f,
 			transform_viewToWorld._12, transform_viewToWorld._22, transform_viewToWorld._32, 0.0f,
@@ -106,6 +106,16 @@ namespace Engine
 	const D3DXMATRIXA16 CameraSystem::GetViewToScreen() const
 	{
 		return s_viewToScreen;
+	}
+
+	void CameraSystem::SetLookAt(const D3DXVECTOR3 &i_LookAt)
+	{
+		m_LookAt = i_LookAt;
+	}
+
+	D3DXVECTOR3 CameraSystem::GetLookAt() const
+	{
+		return m_LookAt;
 	}
 
 	bool CameraSystem::CreateInstance(SharedPointer<Actor> &iNewActor,

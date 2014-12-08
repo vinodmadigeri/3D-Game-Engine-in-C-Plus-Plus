@@ -93,6 +93,9 @@ namespace Engine
 		IDirect3DTexture9* m_texture;
 		DWORD m_samplerRegister;
 
+		IDirect3DTexture9* m_normal_texture;
+		DWORD m_normalsamplerRegister;
+
 		std::vector<IMaterialConstant *> m_perMaterialConstantDatas; //optional
 		std::vector<IMaterialConstant *> m_perInstanceConstantDatas; //optional
 		std::vector<IMaterialConstant *> m_perViewConstantDatas; 
@@ -150,13 +153,21 @@ namespace Engine
 			, std::string* o_errorMessage
 #endif
 			);
+
+		bool LoadTableValues_NormalTextureIfPresent(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, std::string* o_errorMessage
+#endif
+			);
+
 		bool LoadTableValues_TexturePathAndSampler(lua_State& io_luaState, std::string& o_PathTexture, std::string& o_NameSampler
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif
 			);
 
-		bool LoadTextureAndSamplerRegister(const char* iTexturePath, const char* iSamplerName, IDirect3DDevice9 * i_direct3dDevice
+		bool LoadTextureAndSamplerRegister(const char* iTexturePath, const char* iSamplerName,
+			IDirect3DTexture9* & o_texture, DWORD &o_samplerRegister, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif
@@ -180,7 +191,7 @@ namespace Engine
 #endif
 			);
 			
-		bool Material::LoadVertexShaderConstants(const char* i_VertexShaderpath, ID3DXConstantTable* i_pvertexShaderConsts, std::map<std::string, std::string> & i_constantNameMap, IDirect3DDevice9 * i_direct3dDevice
+		bool LoadVertexShaderConstants(const char* i_VertexShaderpath, ID3DXConstantTable* i_pvertexShaderConsts, std::map<std::string, std::string> & i_constantNameMap, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, std::string* o_errorMessage
 #endif

@@ -19,7 +19,8 @@ namespace Engine
 		m_fragmentShader(NULL),
 		m_pvertexShaderConsts(NULL),
 		m_pfragmentShaderConsts(NULL),
-		m_texture(NULL)
+		m_texture(NULL),
+		m_normal_texture(NULL)
 
 	{
 		assert(m_direct3dDevice);
@@ -75,6 +76,12 @@ namespace Engine
 		{
 			m_texture->Release();
 			m_texture = NULL;
+		}
+		
+		if (m_normal_texture)
+		{
+			m_normal_texture->Release();
+			m_normal_texture = NULL;
 		}
 	}
 
@@ -136,6 +143,22 @@ namespace Engine
 			return result;
 		}
 
+		if (m_normal_texture)
+		{
+			result = i_direct3dDevice->SetTexture(m_normalsamplerRegister, m_normal_texture);
+			assert(SUCCEEDED(result));
+
+			if (FAILED(result))
+			{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				if (o_errorMessage)
+				{
+					*o_errorMessage = "Direct3D failed to set the m_normal_texture";
+				}
+#endif
+				return result;
+			}
+		}
 
 		//Create a D3DMATRIX
 		D3DXMATRIX LocalToWorld;
@@ -326,7 +349,6 @@ namespace Engine
 	}
 
 	//Load Fragment and Vertex Shader Path.
-	//Load Texture and Sampler path.
 	bool Material::LoadTableValues(lua_State& io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
@@ -352,7 +374,18 @@ namespace Engine
 			return false;
 		}
 
+		//Load Texture and Sampler path.
 		if (!LoadTableValues_Texture(io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif
+			))
+		{
+			return false;
+		}
+
+		//Load Normal Texture and Sampler path.
+		if (!LoadTableValues_NormalTextureIfPresent(io_luaState
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 			, o_errorMessage
 #endif
@@ -815,7 +848,7 @@ namespace Engine
 						))
 					{
 
-						if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_direct3dDevice
+						if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_texture, m_samplerRegister, m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 							, o_errorMessage
 #endif
@@ -830,6 +863,11 @@ namespace Engine
 					else
 					{
 						//Could not find the sampler name for a valid texture
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						std::stringstream errorMessage;
+						errorMessage << "Could not find the sampler name for a valid texture: " << o_errorMessage;
+						MessageBox(NULL, errorMessage.str().c_str(), SamplerName.c_str(), MB_OK | MB_ICONERROR);
+#endif
 						wereThereErrors = true;
 						goto OnExit;
 					}
@@ -838,7 +876,9 @@ namespace Engine
 				{
 
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
-					MessageBox(NULL, o_errorMessage->c_str(), PathTexture.c_str(), MB_OK | MB_ICONERROR);
+					std::stringstream errorMessage;
+					errorMessage << "Could not find the texture path for a valid texture table: " << o_errorMessage;
+					MessageBox(NULL, errorMessage.str().c_str(), PathTexture.c_str(), MB_OK | MB_ICONERROR);
 #endif
 					CouldLoadTexture = false;
 				}
@@ -857,7 +897,7 @@ namespace Engine
 			//Try to laod default texture
 			SamplerName = "g_color_sampler";
 			PathTexture = "data/missingTexture.dds";
-			if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_direct3dDevice
+			if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_texture, m_samplerRegister, m_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 				, o_errorMessage
 #endif
@@ -876,7 +916,78 @@ namespace Engine
 		return !wereThereErrors;
 	}
 
-	bool Material::LoadTextureAndSamplerRegister(const char* iTexturePath, const char* iSamplerName, IDirect3DDevice9 * i_direct3dDevice
+	//Texture load logic
+		bool Material::LoadTableValues_NormalTextureIfPresent(lua_State& io_luaState
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+		, std::string* o_errorMessage
+#endif
+		)
+	{
+		bool wereThereErrors = false;
+		std::string SamplerName;
+		std::string PathTexture;
+		if (LuaHelper::Load_LuaTable(io_luaState, "NormalTexture"
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+			, o_errorMessage
+#endif
+			))
+		{
+			{
+				if (LuaHelper::GetStringValueFromKey(io_luaState, "Path", PathTexture
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					, o_errorMessage
+#endif
+					))
+				{
+					if (LuaHelper::GetStringValueFromKey(io_luaState, "Sampler", SamplerName
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						, o_errorMessage
+#endif
+						))
+					{
+
+						if (!LoadTextureAndSamplerRegister(PathTexture.c_str(), SamplerName.c_str(), m_normal_texture, m_normalsamplerRegister, m_direct3dDevice
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+							, o_errorMessage
+#endif
+							))
+						{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+							MessageBox(NULL, o_errorMessage->c_str(), PathTexture.c_str(), MB_OK | MB_ICONERROR);
+#endif
+							wereThereErrors = true;
+						}
+					}
+					else
+					{
+						//Could not find the sampler name for a valid texture
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+						std::stringstream errorMessage;
+						errorMessage << "Could not find the sampler name for a valid normal texture: " << o_errorMessage;
+						MessageBox(NULL, errorMessage.str().c_str(), SamplerName.c_str(), MB_OK | MB_ICONERROR);
+#endif
+						wereThereErrors = true;
+					}
+				}
+				else
+				{
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+					std::stringstream errorMessage;
+					errorMessage << "Could not find the texture path for a valid normal texture table: " << o_errorMessage;
+					MessageBox(NULL, errorMessage.str().c_str(), PathTexture.c_str(), MB_OK | MB_ICONERROR);
+#endif
+					wereThereErrors = true;
+				}
+			}
+		}
+
+		// Pop the texture table
+		LuaHelper::UnLoad_LuaTable(io_luaState);
+		return !wereThereErrors;
+	}
+
+	bool Material::LoadTextureAndSamplerRegister(const char* iTexturePath, const char* iSamplerName, 
+		IDirect3DTexture9* & o_texture, DWORD &o_samplerRegister, IDirect3DDevice9 * i_direct3dDevice
 #ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
 		, std::string* o_errorMessage
 #endif
@@ -886,7 +997,7 @@ namespace Engine
 
 		bool WereThereErrors = false;
 
-		HRESULT result = D3DXCreateTextureFromFile(i_direct3dDevice, iTexturePath, &m_texture);
+		HRESULT result = D3DXCreateTextureFromFile(i_direct3dDevice, iTexturePath, &o_texture);
 		
 		if (FAILED(result))
 		{
@@ -918,7 +1029,7 @@ namespace Engine
 			goto OnExit;
 		}
 
-		m_samplerRegister = static_cast<DWORD>(m_pfragmentShaderConsts->GetSamplerIndex(samplerHandle));
+		o_samplerRegister = static_cast<DWORD>(m_pfragmentShaderConsts->GetSamplerIndex(samplerHandle));
 
 	OnExit:
 		return !WereThereErrors;

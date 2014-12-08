@@ -114,6 +114,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	}
 
 	Camera::CreateController();
+	Camera::GetController()->SetOtherActorReference(CubeActorsList[0]);
 	CameraSystem::GetInstance()->m_WorldObject->SetController(Camera::GetController());
 	
 	Light::CreateController();
@@ -122,7 +123,7 @@ bool MainGame::Initilize(const HINSTANCE i_thisInstanceOfTheProgram, const int i
 	const Engine::sRectangle Spriteposition = Engine::sRectangle(-1.0f, 0.0f, 1.0f, 0.0f);
 	const Engine::sRectangle Spritetextcoord = Engine::sRectangle(0.0f, 1.0f, 0.0f, 1.0f);
 
-	Engine::RenderableObjectSystem::GetInstance()->CreateSprite("data/logo.dds", &Spriteposition, &Spritetextcoord);
+	Engine::RenderableObjectSystem::GetInstance()->CreateSprite("data/score.dds", &Spriteposition, &Spritetextcoord);
 
 	const Engine::sRectangle position = Engine::sRectangle(0.5f, 1.0f, 1.0f, 0.5f);
 	const Engine::sRectangle textcoord = Engine::sRectangle(0.0f, 1.0f, 0.0f, 1.0f);

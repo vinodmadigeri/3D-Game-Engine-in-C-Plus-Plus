@@ -442,6 +442,46 @@ bool Mesh::cMeshBuilder::LoadEachVertexData(lua_State& io_luaState, Engine::sVer
 			o_VertexData.ny = Normal[1];
 			o_VertexData.nz = Normal[2];
 		}
+		else if (strcmp(VertexDataTableName, "Tangent") == 0)
+		{
+			const unsigned int TangentCountPerVertex = 3;
+			float Tangent[TangentCountPerVertex];
+			if (!LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, Tangent, TangentCountPerVertex
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif
+				))
+			{
+				wereThereErrors = true;
+				// Pop the returned key value pair on error
+				lua_pop(&io_luaState, 2);
+				goto OnExit;
+			}
+
+			o_VertexData.tx = Tangent[0];
+			o_VertexData.ty = Tangent[1];
+			o_VertexData.tz = Tangent[2];
+		}
+		else if (strcmp(VertexDataTableName, "BiTangent") == 0)
+		{
+			const unsigned int BiTangentCountPerVertex = 3;
+			float BiTangent[BiTangentCountPerVertex];
+			if (!LuaHelper::GetEachNumberDataValuesInCurrentTable<float>(io_luaState, BiTangent, BiTangentCountPerVertex
+#ifdef EAE2014_SHOULDALLRETURNVALUESBECHECKED
+				, o_errorMessage
+#endif
+				))
+			{
+				wereThereErrors = true;
+				// Pop the returned key value pair on error
+				lua_pop(&io_luaState, 2);
+				goto OnExit;
+			}
+
+			o_VertexData.btx = BiTangent[0];
+			o_VertexData.bty = BiTangent[1];
+			o_VertexData.btz = BiTangent[2];
+		}
 		else if (strcmp(VertexDataTableName, "Color") == 0)
 		{
 			const unsigned int PositionCountPerVertex = 3;

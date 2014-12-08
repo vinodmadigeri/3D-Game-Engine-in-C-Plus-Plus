@@ -16,6 +16,7 @@ return
 		assets =
 		{
 			"fragmentShader",
+			"fragmentShaderBumpMap",
 			"fragmentShaderSprite",
 			"fragmentShaderLine",
 			"fragmentShaderSpecular",
@@ -34,6 +35,7 @@ return
 		assets =
 		{
 			"vertexShader",
+			"vertexShaderBumpMap",
 			"vertexShaderSprite",
 			"vertexShaderLine",
 			"vertexShaderSpecular",
@@ -76,8 +78,9 @@ return
 			"nvidia",
 			"amd",
 			"stripes",
-			"logo",
-			"numbers"
+			"score",
+			"numbers",
+			"bricknormals",
 		},
 	},
 	
