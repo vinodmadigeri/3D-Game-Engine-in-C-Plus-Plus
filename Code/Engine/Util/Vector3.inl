@@ -268,6 +268,35 @@ namespace Engine
 		return Reversed - (Reversed - Proj) * 2.0f;
 	}
 
+	inline Vector3 Vector3::Truncated(const float iMaxVal) const
+	{
+		float magnitude = Length();
+
+		if (magnitude > iMaxVal)
+		{
+			return Vector3(fX * iMaxVal / magnitude, fY * iMaxVal / magnitude, fZ * iMaxVal / magnitude);
+		}
+		else
+		{
+			return Vector3(fX, fY, fZ);
+		}
+	}
+
+	inline void Vector3::Truncate(const float iMaxVal)
+	{
+		float magnitude = Length();
+
+		if (magnitude > iMaxVal)
+		{
+			fX *= iMaxVal / magnitude;
+			fY *= iMaxVal / magnitude;
+			fZ *= iMaxVal / magnitude;
+			return;
+		}
+
+		return;
+	}
+
 	//Conditional Operators
 	inline bool operator==(const Vector3 &LeftVector, const Vector3 &RightVector)
 	{

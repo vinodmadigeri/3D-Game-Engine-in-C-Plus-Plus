@@ -73,6 +73,7 @@ namespace Camera
 		{
 			CameraShake(i_Actor, i_DeltaTime, 0.01f);
 		}
+#if 0
 		else
 		{
 			if (m_pOtherActor != NULL && !m_pOtherActor->IsMarkedForDeath())
@@ -89,14 +90,14 @@ namespace Camera
 			}
 		}
 
-#if 0
+#else
 		Vector3 Friction = Vector3(0.0f, 0.0f, 0.0f);
 
 		i_Actor.SetFriction(Friction);
 		i_Actor.SetDeltaTime(i_DeltaTime);
 
 		char CharID = 0;
-
+#if 0
 		if (UserInput::GetInstance()->IsKeyPressed('A'))
 		{
 			CharID = 'A';
@@ -113,7 +114,7 @@ namespace Camera
 		{
 			CharID = 'S';
 		}
-
+#endif
 		float singleAccelerationvalue = 0.00005f;
 
 		switch (CharID)

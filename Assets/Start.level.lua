@@ -8,6 +8,7 @@ return
 		"Light",
 		"Player",
 		"Plane",
+		"Pipe"
 	},
 
 	LightingData = 
@@ -24,8 +25,8 @@ return
 		acceleration  = { 0.0, 0.0, 0.0 },
 		size = {2.0, 2.0, 2.0},
 		rotation = 0.0,
-		EyeLocation = {0.0, 11.0, 0.0},
-		LookAtLocation = {0.0, -1.0, 0.0},
+		EyeLocation = {0.0, 11.0, 1.0},
+		LookAtLocation = {0.0, -1.0, 1.0},
 		Up = {0.0, 0.0, 1.0},
 		FieldOfView = 60.0, --degrees
 		NearPlane = 0.1,
@@ -49,17 +50,17 @@ return
 	Actors = 
 	{
 		{
-			name = "CubeNvidia",
+			name = "flappy",
 			class = "Player",
-			position  = { 3.0, 0.0, -2.0 },
+			position  = { 0.0, 0.0, -1.0 },
 			velocity  = { 0.0, 0.0, 0.0 },
 			acceleration  = { 0.0, 0.0, 0.0 },
 			size = {2.0, 2.0, 2.0},
 			rotation = 0.0,
 			renderSettings = 
 			{
-				meshPath = "data/cube.dat",
-				materialPath = "data/NvidiaMaterial.mat",
+				meshPath = "data/flappybird.dat",
+				materialPath = "data/flappyBirdMaterial.mat",
 			},
 			collisionSettings = 
 			{
@@ -70,7 +71,7 @@ return
 			}
 		} ,
 		{
-			name = "BaseQuad",
+			name = "Background",
 			class = "Plane",
 			position  = { 0.0, -1.0, 0.0 },
 			velocity  = { 0.0, 0.0, 0.0 },
@@ -79,8 +80,44 @@ return
 			rotation = 0.0,
 			renderSettings = 
 			{
-				meshPath = "data/plane.dat",
-				materialPath = "data/MicrosoftMaterial.mat",
+				meshPath = "data/background.dat",
+				materialPath = "data/BackgroundScrollBumpMaterial.mat",
+			},
+			collisionSettings = 
+			{
+				
+			}
+		} ,
+		{
+			name = "Pipe",
+			class = "Pipe",
+			position  = { 3.0, 0.0, 2.0 },
+			velocity  = { 0.0, 0.0, 0.0 },
+			acceleration  = { 0.0, 0.0, 0.0 },
+			size = {2.0, 2.0, 2.0},
+			rotation = 0.0,
+			renderSettings = 
+			{
+				meshPath = "data/pipe.dat",
+				materialPath = "data/pipeMaterial.mat",
+			},
+			collisionSettings = 
+			{
+				
+			}
+		} ,
+		{
+			name = "InvertedPipe",
+			class = "Pipe",
+			position  = { 3.0, 0.0, -2.0 },
+			velocity  = { 0.0, 0.0, 0.0 },
+			acceleration  = { 0.0, 0.0, 0.0 },
+			size = {2.0, 2.0, 2.0},
+			rotation = 0.0,
+			renderSettings = 
+			{
+				meshPath = "data/invertedPipe.dat",
+				materialPath = "data/pipeMaterial.mat",
 			},
 			collisionSettings = 
 			{

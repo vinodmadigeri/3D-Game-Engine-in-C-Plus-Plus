@@ -62,6 +62,8 @@ namespace Engine
 		float Length() const;
 		const Vector3 Normalized() const;
 		Vector3 Reflected( const Vector3 & i_in ) const;
+		Vector3 Truncated(const float iMaxVal) const;
+		void Truncate(const float iMaxVal);
 
  	} ;
 

@@ -20,6 +20,8 @@ return
 			"fragmentShaderSprite",
 			"fragmentShaderLine",
 			"fragmentShaderSpecular",
+			"fragmentShaderBumpMapToonShader",
+			"fragmentShaderToonShader",
 		},
 	},
 
@@ -40,6 +42,7 @@ return
 			"vertexShaderLine",
 			"vertexShaderSpecular",
 			"vertexShaderScroll",
+			"vertexShaderBumpMapWithScroll",
 		},
 	},
 	
@@ -58,6 +61,10 @@ return
 			"cube",
 			"torus",
 			"helix",
+			"background",
+			"flappybird",
+			"pipe",
+			"invertedPipe",
 		},
 	},
 	
@@ -80,7 +87,10 @@ return
 			"stripes",
 			"score",
 			"numbers",
-			"bricknormals",
+			"background",
+			"backgroundNormalMap",
+			"flappybird",
+			"pipe",
 		},
 	},
 	
@@ -100,6 +110,10 @@ return
 			"DirectXMaterial",
 			"NvidiaMaterial",
 			"StripesMaterial",
+			"BackgroundScrollMaterial",
+			"BackgroundScrollBumpMaterial",
+			"flappyBirdMaterial",
+			"pipeMaterial",
 		},
 	},
 	

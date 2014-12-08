@@ -68,7 +68,30 @@ namespace Player
 		i_Actor.SetDeltaTime(i_DeltaTime);
 		
 		char CharID = 0;
+		const float Gravity = -0.00002f;
+		//float ConstantDeceleration = Gravity;
+		float AccelerationIncrementvalue = 0.0002f;
 
+		const float MaxVelocity = 0.01f;
+		
+		CONSOLE_PRINT("Acceleration: %f & Velocity: %f", i_Actor.GetAcceleration().z(), i_Actor.GetVelocity().z());
+#if 1
+		if (UserInput::GetInstance()->IsKeyPressed(VK_SPACE))
+		{
+			if (i_Actor.GetAcceleration().z() < 0)
+			{
+				i_Actor.SetVelocity(i_Actor.GetVelocity().x(), i_Actor.GetVelocity().y(), 0.0f);
+			}
+
+			i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, AccelerationIncrementvalue));
+			i_Actor.SetVelocity(i_Actor.GetVelocity().Truncated(MaxVelocity));
+		}
+		else
+		{
+			i_Actor.SetAcceleration(Vector3(0.0f, 0.0f, Gravity));
+			i_Actor.SetVelocity(i_Actor.GetVelocity().Truncated(MaxVelocity));
+		}
+#else
 		if (UserInput::GetInstance()->IsKeyPressed(VK_LEFT))
 		{
 			CharID = 'A';
@@ -86,8 +109,7 @@ namespace Player
 			CharID = 'S';
 		}
 
-		float singleAccelerationvalue = 0.00005f;
-		
+	
 		switch (CharID)
 		{
 			case 'w':
@@ -151,7 +173,7 @@ namespace Player
 				i_Actor.SetVelocity(Vector3(0.0f, 0.0f, 0.0f));
 			}
 		}
-
+#endif
 		return;
 	}
 
