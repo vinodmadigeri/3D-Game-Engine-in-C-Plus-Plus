@@ -245,10 +245,6 @@ int WINAPI WinMain(
 		Game.Shutdown(i_thisInstanceOfTheProgram);
 	}
 
-#ifdef _DEBUG
-	//_CrtDumpMemoryLeaks();
-#endif
-
 	// A Windows program doesn't actually need any windows at all
 	// but in most cases there will be a single "main" window
 	// and when it is closed the program will exit
@@ -259,3 +255,13 @@ int WINAPI WinMain(
 	// are paying attention and expecting specific values.
 	return exitCode;
 }
+
+struct AtExit
+{
+	~AtExit()
+	{
+#ifdef _DEBUG
+		_CrtDumpMemoryLeaks();
+#endif
+	}
+}ExecuteAtExit;

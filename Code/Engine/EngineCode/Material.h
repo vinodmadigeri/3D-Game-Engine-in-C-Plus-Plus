@@ -69,6 +69,7 @@ namespace Engine
 
 	private:
 		IDirect3DDevice9 * m_direct3dDevice;
+		
 		// The vertex shader is a program that operates on vertices.
 		// Its input comes from a C/C++ "draw call" and is:
 		//	* Position
@@ -79,6 +80,7 @@ namespace Engine
 		//	* Any other data we want
 		IDirect3DVertexShader9* m_vertexShader;
 		ID3DXConstantTable* m_pvertexShaderConsts;
+		
 		// The fragment shader is a program that operates on fragments
 		// (or "potential pixels").
 		// Its input is:

@@ -53,10 +53,6 @@ namespace Engine
 				delete mInstance;
 				return false;
 			}
-
-			//assert(LightingSystem::GetInstance());
-
-			//PhysicsSystem::GetInstance()->AddActorGameObject(NewActor);
 		}
 
 		return true;
